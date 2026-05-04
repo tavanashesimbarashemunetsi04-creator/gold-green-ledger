@@ -95,6 +95,33 @@ function Dashboard() {
         </div>
       </header>
 
+      {/* Firestore connectivity test */}
+      <section className="mb-8 flex flex-wrap items-center gap-3 rounded-2xl border border-border bg-card p-4 shadow-[var(--shadow-soft)]">
+        <button
+          onClick={runFirestoreTest}
+          disabled={testStatus === "running"}
+          className="inline-flex items-center gap-2 rounded-lg bg-[var(--gradient-gold)] px-4 py-2 text-sm font-semibold text-gold-foreground shadow-[var(--shadow-soft)] transition-transform hover:scale-[1.02] disabled:opacity-60"
+        >
+          {testStatus === "running" ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+          Test Firestore read/write
+        </button>
+        {testStatus !== "idle" && (
+          <span
+            className="text-sm"
+            style={{
+              color:
+                testStatus === "success"
+                  ? "var(--success)"
+                  : testStatus === "error"
+                  ? "var(--destructive)"
+                  : "var(--muted-foreground)",
+            }}
+          >
+            {testStatus === "running" ? "Writing then reading a document…" : testMessage}
+          </span>
+        )}
+      </section>
+
       {/* Stat cards */}
       <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((s) => {
