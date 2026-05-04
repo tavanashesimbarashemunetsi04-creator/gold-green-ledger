@@ -41,9 +41,33 @@ const recent = [
 ];
 
 function Dashboard() {
-  const today = new Date().toLocaleDateString(undefined, {
-    weekday: "long", year: "numeric", month: "long", day: "numeric",
-  });
+  const [today, setToday] = useState("");
+  const [testStatus, setTestStatus] = useState<"idle" | "running" | "success" | "error">("idle");
+  const [testMessage, setTestMessage] = useState("");
+
+  useEffect(() => {
+    setToday(
+      new Date().toLocaleDateString(undefined, {
+        weekday: "long", year: "numeric", month: "long", day: "numeric",
+      })
+    );
+  }, []);
+
+  const runFirestoreTest = async () => {
+    setTestStatus("running");
+    setTestMessage("");
+    try {
+      const payload = { message: "ping", createdAt: serverTimestamp(), value: Math.random() };
+      const ref = await addDoc(collection(db, "test_writes"), payload);
+      const snap = await getDoc(doc(db, "test_writes", ref.id));
+      if (!snap.exists()) throw new Error("Document was written but could not be read back.");
+      setTestStatus("success");
+      setTestMessage(`Wrote & read doc ${ref.id} from "test_writes".`);
+    } catch (err: any) {
+      setTestStatus("error");
+      setTestMessage(err?.message ?? "Unknown error");
+    }
+  };
 
   return (
     <main className="min-h-screen pl-6 pr-4 md:pl-20 md:pr-10 py-8">
