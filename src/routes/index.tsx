@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import {
   ArrowDownToLine,
   ArrowUpFromLine,
@@ -8,7 +9,11 @@ import {
   TrendingUp,
   Wallet,
   Receipt,
+  CheckCircle2,
+  Loader2,
 } from "lucide-react";
+import { addDoc, collection, doc, getDoc, serverTimestamp } from "firebase/firestore";
+import { db } from "@/firebase";
 
 export const Route = createFileRoute("/")({
   component: Dashboard,
