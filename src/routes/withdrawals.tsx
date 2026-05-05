@@ -2,25 +2,19 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { CreditCard, Banknote } from "lucide-react";
-import { PaymentEntryForm, type PaymentEntry } from "@/components/PaymentEntryForm";
+import { WithdrawalEntryForm, type WithdrawalKind } from "@/components/WithdrawalEntryForm";
 
 export const Route = createFileRoute("/withdrawals")({
   component: WithdrawalsPage,
 });
 
-type WithdrawalType = "CASH_SWIPES" | "CASH_ADVANCE";
-
-const types: { id: WithdrawalType; label: string; icon: typeof CreditCard }[] = [
-  { id: "CASH_SWIPES", label: "Cash Swipes", icon: CreditCard },
+const types: { id: WithdrawalKind; label: string; icon: typeof CreditCard }[] = [
+  { id: "CASH_SWIPE", label: "Cash Swipes", icon: CreditCard },
   { id: "CASH_ADVANCE", label: "Cash Advance", icon: Banknote },
 ];
 
 function WithdrawalsPage() {
-  const [selected, setSelected] = useState<WithdrawalType>("CASH_SWIPES");
-
-  const handleSubmit = async (entry: PaymentEntry) => {
-    console.log("Withdrawal entry:", { ...entry, withdrawal_type: selected });
-  };
+  const [selected, setSelected] = useState<WithdrawalKind>("CASH_SWIPE");
 
   return (
     <div className="p-8">
@@ -49,7 +43,7 @@ function WithdrawalsPage() {
       </div>
 
       <div className="mt-8">
-        <PaymentEntryForm key={selected} bank={selected as never} onSubmit={handleSubmit} />
+        <WithdrawalEntryForm key={selected} kind={selected} />
       </div>
     </div>
   );
