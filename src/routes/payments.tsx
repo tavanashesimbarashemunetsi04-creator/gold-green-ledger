@@ -1,24 +1,27 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Landmark } from "lucide-react";
+import { PaymentEntryForm, type BankTab, type PaymentEntry } from "@/components/PaymentEntryForm";
 
 export const Route = createFileRoute("/payments")({
   component: PaymentsPage,
 });
 
-const banks = [
-  { id: "zb", label: "ZB Transaction" },
-  { id: "cbz", label: "CBZ Transaction" },
-  { id: "bancabc", label: "BANCABC Transaction" },
-  { id: "afc", label: "AFC Transaction" },
-] as const;
-
-type BankId = (typeof banks)[number]["id"];
+const banks: { id: BankTab; label: string }[] = [
+  { id: "ZB", label: "ZB Transaction" },
+  { id: "CBZ", label: "CBZ Transaction" },
+  { id: "BANCABC", label: "BANCABC Transaction" },
+  { id: "AFC", label: "AFC Transaction" },
+];
 
 function PaymentsPage() {
-  const [selected, setSelected] = useState<BankId | null>(null);
+  const [selected, setSelected] = useState<BankTab>("ZB");
+
+  const handleSubmit = async (entry: PaymentEntry) => {
+    // TODO: persist to backend (Supabase) when ready
+    console.log("Payment entry:", entry);
+  };
 
   return (
     <div className="p-8">
@@ -43,16 +46,9 @@ function PaymentsPage() {
         ))}
       </div>
 
-      {selected && (
-        <Card className="mt-8 p-6">
-          <h2 className="text-lg font-semibold">
-            {banks.find((b) => b.id === selected)?.label}
-          </h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Record a new transaction for this bank.
-          </p>
-        </Card>
-      )}
+      <div className="mt-8">
+        <PaymentEntryForm key={selected} bank={selected} onSubmit={handleSubmit} />
+      </div>
     </div>
   );
 }
