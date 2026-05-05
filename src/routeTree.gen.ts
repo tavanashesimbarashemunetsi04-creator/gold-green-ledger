@@ -11,6 +11,9 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WithdrawalsRouteImport } from './routes/withdrawals'
 import { Route as PaymentsRouteImport } from './routes/payments'
+import { Route as InternalTransactionsRouteImport } from './routes/internal-transactions'
+import { Route as EcocashRouteImport } from './routes/ecocash'
+import { Route as ChangesRefundsRouteImport } from './routes/changes-refunds'
 import { Route as IndexRouteImport } from './routes/index'
 
 const WithdrawalsRoute = WithdrawalsRouteImport.update({
@@ -23,6 +26,21 @@ const PaymentsRoute = PaymentsRouteImport.update({
   path: '/payments',
   getParentRoute: () => rootRouteImport,
 } as any)
+const InternalTransactionsRoute = InternalTransactionsRouteImport.update({
+  id: '/internal-transactions',
+  path: '/internal-transactions',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EcocashRoute = EcocashRouteImport.update({
+  id: '/ecocash',
+  path: '/ecocash',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChangesRefundsRoute = ChangesRefundsRouteImport.update({
+  id: '/changes-refunds',
+  path: '/changes-refunds',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -31,30 +49,61 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/changes-refunds': typeof ChangesRefundsRoute
+  '/ecocash': typeof EcocashRoute
+  '/internal-transactions': typeof InternalTransactionsRoute
   '/payments': typeof PaymentsRoute
   '/withdrawals': typeof WithdrawalsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/changes-refunds': typeof ChangesRefundsRoute
+  '/ecocash': typeof EcocashRoute
+  '/internal-transactions': typeof InternalTransactionsRoute
   '/payments': typeof PaymentsRoute
   '/withdrawals': typeof WithdrawalsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/changes-refunds': typeof ChangesRefundsRoute
+  '/ecocash': typeof EcocashRoute
+  '/internal-transactions': typeof InternalTransactionsRoute
   '/payments': typeof PaymentsRoute
   '/withdrawals': typeof WithdrawalsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/payments' | '/withdrawals'
+  fullPaths:
+    | '/'
+    | '/changes-refunds'
+    | '/ecocash'
+    | '/internal-transactions'
+    | '/payments'
+    | '/withdrawals'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/payments' | '/withdrawals'
-  id: '__root__' | '/' | '/payments' | '/withdrawals'
+  to:
+    | '/'
+    | '/changes-refunds'
+    | '/ecocash'
+    | '/internal-transactions'
+    | '/payments'
+    | '/withdrawals'
+  id:
+    | '__root__'
+    | '/'
+    | '/changes-refunds'
+    | '/ecocash'
+    | '/internal-transactions'
+    | '/payments'
+    | '/withdrawals'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ChangesRefundsRoute: typeof ChangesRefundsRoute
+  EcocashRoute: typeof EcocashRoute
+  InternalTransactionsRoute: typeof InternalTransactionsRoute
   PaymentsRoute: typeof PaymentsRoute
   WithdrawalsRoute: typeof WithdrawalsRoute
 }
@@ -75,6 +124,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PaymentsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/internal-transactions': {
+      id: '/internal-transactions'
+      path: '/internal-transactions'
+      fullPath: '/internal-transactions'
+      preLoaderRoute: typeof InternalTransactionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ecocash': {
+      id: '/ecocash'
+      path: '/ecocash'
+      fullPath: '/ecocash'
+      preLoaderRoute: typeof EcocashRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/changes-refunds': {
+      id: '/changes-refunds'
+      path: '/changes-refunds'
+      fullPath: '/changes-refunds'
+      preLoaderRoute: typeof ChangesRefundsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -87,6 +157,9 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ChangesRefundsRoute: ChangesRefundsRoute,
+  EcocashRoute: EcocashRoute,
+  InternalTransactionsRoute: InternalTransactionsRoute,
   PaymentsRoute: PaymentsRoute,
   WithdrawalsRoute: WithdrawalsRoute,
 }
