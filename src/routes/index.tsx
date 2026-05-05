@@ -12,8 +12,7 @@ import {
   CheckCircle2,
   Loader2,
 } from "lucide-react";
-import { addDoc, collection, doc, getDoc, serverTimestamp } from "firebase/firestore";
-import { db } from "@/firebase";
+import { supabase } from "@/supabase";
 
 export const Route = createFileRoute("/")({
   component: Dashboard,
@@ -53,16 +52,26 @@ function Dashboard() {
     );
   }, []);
 
-  const runFirestoreTest = async () => {
+  const runSupabaseTest = async () => {
     setTestStatus("running");
     setTestMessage("");
     try {
-      const payload = { message: "ping", createdAt: serverTimestamp(), value: Math.random() };
-      const ref = await addDoc(collection(db, "test_writes"), payload);
-      const snap = await getDoc(doc(db, "test_writes", ref.id));
-      if (!snap.exists()) throw new Error("Document was written but could not be read back.");
+      const payload = { message: "ping", value: Math.random() };
+      const { data: inserted, error: insertErr } = await supabase
+        .from("test_writes")
+        .insert(payload)
+        .select()
+        .single();
+      if (insertErr) throw insertErr;
+      const { data: readBack, error: readErr } = await supabase
+        .from("test_writes")
+        .select("*")
+        .eq("id", inserted.id)
+        .single();
+      if (readErr) throw readErr;
+      if (!readBack) throw new Error("Row written but could not be read back.");
       setTestStatus("success");
-      setTestMessage(`Wrote & read doc ${ref.id} from "test_writes".`);
+      setTestMessage(`Wrote & read row ${inserted.id} from "test_writes".`);
     } catch (err: any) {
       setTestStatus("error");
       setTestMessage(err?.message ?? "Unknown error");
@@ -98,12 +107,12 @@ function Dashboard() {
       {/* Firestore connectivity test */}
       <section className="mb-8 flex flex-wrap items-center gap-3 rounded-2xl border border-border bg-card p-4 shadow-[var(--shadow-soft)]">
         <button
-          onClick={runFirestoreTest}
+          onClick={runSupabaseTest}
           disabled={testStatus === "running"}
           className="inline-flex items-center gap-2 rounded-lg bg-[var(--gradient-gold)] px-4 py-2 text-sm font-semibold text-gold-foreground shadow-[var(--shadow-soft)] transition-transform hover:scale-[1.02] disabled:opacity-60"
         >
           {testStatus === "running" ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
-          Test Firestore read/write
+          Test Supabase read/write
         </button>
         {testStatus !== "idle" && (
           <span
