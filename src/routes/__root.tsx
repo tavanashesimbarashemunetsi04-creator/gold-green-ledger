@@ -58,7 +58,9 @@ function RootComponent() {
   return (
     <div className="min-h-screen bg-background">
       <TellerSidebar />
-      <Outlet />
+      <div className="pl-72">
+        <Outlet />
+      </div>
     </div>
   );
 }
