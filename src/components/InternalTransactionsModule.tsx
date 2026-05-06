@@ -75,11 +75,7 @@ type Tx = {
 
 const CURRENT_TELLER_KEY = "internal_tx_current_teller";
 
-function resolveStatus(initiator: Decision, receiver: Decision): TxStatus {
-  if (initiator === "declined" || receiver === "declined") return "declined";
-  if (initiator === "approved" && receiver === "approved") return "approved";
-  return "pending";
-}
+// Status is computed server-side by a database trigger — never set from client.
 
 export function InternalTransactionsModule() {
   const [tellers, setTellers] = useState<Teller[]>([]);
