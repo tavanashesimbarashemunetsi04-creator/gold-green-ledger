@@ -17,6 +17,8 @@ export type Database = {
       cash_advance: {
         Row: {
           amount: number
+          approved_at: string | null
+          approved_by: string | null
           card_last4: string
           code: string | null
           created_at: string
@@ -31,6 +33,8 @@ export type Database = {
         }
         Insert: {
           amount: number
+          approved_at?: string | null
+          approved_by?: string | null
           card_last4: string
           code?: string | null
           created_at?: string
@@ -45,6 +49,8 @@ export type Database = {
         }
         Update: {
           amount?: number
+          approved_at?: string | null
+          approved_by?: string | null
           card_last4?: string
           code?: string | null
           created_at?: string
@@ -61,6 +67,8 @@ export type Database = {
       }
       cash_swipes: {
         Row: {
+          approved_at: string | null
+          approved_by: string | null
           card_last4: string
           code: string | null
           created_at: string
@@ -76,6 +84,8 @@ export type Database = {
           zwg_amount: number | null
         }
         Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
           card_last4: string
           code?: string | null
           created_at?: string
@@ -91,6 +101,8 @@ export type Database = {
           zwg_amount?: number | null
         }
         Update: {
+          approved_at?: string | null
+          approved_by?: string | null
           card_last4?: string
           code?: string | null
           created_at?: string
@@ -164,6 +176,8 @@ export type Database = {
       payments: {
         Row: {
           account_number: string | null
+          approved_at: string | null
+          approved_by: string | null
           bank: Database["public"]["Enums"]["bank_enum"]
           category: string | null
           code: string | null
@@ -179,6 +193,8 @@ export type Database = {
         }
         Insert: {
           account_number?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
           bank: Database["public"]["Enums"]["bank_enum"]
           category?: string | null
           code?: string | null
@@ -194,6 +210,8 @@ export type Database = {
         }
         Update: {
           account_number?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
           bank?: Database["public"]["Enums"]["bank_enum"]
           category?: string | null
           code?: string | null
