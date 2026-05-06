@@ -247,7 +247,20 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      end_day_summary: {
+        Row: {
+          advance_outflows: number | null
+          balance: number | null
+          date: string | null
+          internal_inflows: number | null
+          internal_outflows: number | null
+          payment_inflows: number | null
+          swipe_outflows: number | null
+          total_inflows: number | null
+          total_outflows: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never
