@@ -14,7 +14,78 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      internal_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          date: string
+          id: string
+          initiating_teller_id: string
+          initiator_decision: Database["public"]["Enums"]["decision"]
+          receiver_decision: Database["public"]["Enums"]["decision"]
+          request_type: Database["public"]["Enums"]["request_type"]
+          status: Database["public"]["Enums"]["tx_status"]
+          target_teller_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          date: string
+          id?: string
+          initiating_teller_id: string
+          initiator_decision?: Database["public"]["Enums"]["decision"]
+          receiver_decision?: Database["public"]["Enums"]["decision"]
+          request_type: Database["public"]["Enums"]["request_type"]
+          status?: Database["public"]["Enums"]["tx_status"]
+          target_teller_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          date?: string
+          id?: string
+          initiating_teller_id?: string
+          initiator_decision?: Database["public"]["Enums"]["decision"]
+          receiver_decision?: Database["public"]["Enums"]["decision"]
+          request_type?: Database["public"]["Enums"]["request_type"]
+          status?: Database["public"]["Enums"]["tx_status"]
+          target_teller_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "internal_transactions_initiating_teller_id_fkey"
+            columns: ["initiating_teller_id"]
+            isOneToOne: false
+            referencedRelation: "tellers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "internal_transactions_target_teller_id_fkey"
+            columns: ["target_teller_id"]
+            isOneToOne: false
+            referencedRelation: "tellers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tellers: {
+        Row: {
+          created_at: string
+          id: string
+          username: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          username: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          username?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +94,9 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      decision: "pending" | "approved" | "declined"
+      request_type: "inflow" | "outflow"
+      tx_status: "pending" | "approved" | "declined"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +223,10 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      decision: ["pending", "approved", "declined"],
+      request_type: ["inflow", "outflow"],
+      tx_status: ["pending", "approved", "declined"],
+    },
   },
 } as const
