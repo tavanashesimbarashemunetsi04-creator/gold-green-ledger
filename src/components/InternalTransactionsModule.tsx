@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { toast } from "sonner";
-import { supabase } from "@/supabase";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -184,13 +184,13 @@ export function InternalTransactionsModule() {
     const amt = Number(amount);
     if (!amt || amt <= 0) return toast.error("Amount must be greater than 0");
 
+    // status is system-managed by a database trigger — never set from client
     const payload = {
       date,
       initiating_teller_id: currentTellerId,
       target_teller_id: targetId,
       request_type: requestType,
       amount: amt,
-      status: "pending" as TxStatus,
       initiator_decision: "approved" as Decision,
       receiver_decision: "pending" as Decision,
     };
@@ -219,13 +219,14 @@ export function InternalTransactionsModule() {
       toast.error("Decision already made");
       return;
     }
-    const newStatus = resolveStatus(tx.initiator_decision, decision);
     try {
+      // status is system-managed — only send the receiver decision
       const { error } = await supabase
         .from("internal_transactions")
-        .update({ receiver_decision: decision, status: newStatus })
+        .update({ receiver_decision: decision })
         .eq("id", tx.id)
-        .eq("receiver_decision", "pending"); // optimistic lock
+        .eq("receiver_decision", "pending") // optimistic lock
+        .eq("status", "pending"); // cannot edit finalised rows
       if (error) throw error;
       toast.success(
         decision === "approved" ? "Transaction approved" : "Transaction declined",
