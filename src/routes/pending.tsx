@@ -109,7 +109,7 @@ function PendingPage() {
       patch.approved_by = isAdmin ? "admin" : "teller";
       patch.approved_at = new Date().toISOString();
     }
-    const { error } = await supabase.from(row.source).update(patch).eq("id", row.id);
+    const { error } = await (supabase.from(row.source) as any).update(patch).eq("id", row.id);
     setBusyId(null);
     if (error) {
       toast.error(error.message);
