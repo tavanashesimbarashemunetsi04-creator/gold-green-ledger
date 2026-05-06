@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WithdrawalsRouteImport } from './routes/withdrawals'
+import { Route as PendingRouteImport } from './routes/pending'
 import { Route as PaymentsRouteImport } from './routes/payments'
 import { Route as InternalTransactionsRouteImport } from './routes/internal-transactions'
 import { Route as EcocashRouteImport } from './routes/ecocash'
@@ -19,6 +20,11 @@ import { Route as IndexRouteImport } from './routes/index'
 const WithdrawalsRoute = WithdrawalsRouteImport.update({
   id: '/withdrawals',
   path: '/withdrawals',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PendingRoute = PendingRouteImport.update({
+  id: '/pending',
+  path: '/pending',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PaymentsRoute = PaymentsRouteImport.update({
@@ -53,6 +59,7 @@ export interface FileRoutesByFullPath {
   '/ecocash': typeof EcocashRoute
   '/internal-transactions': typeof InternalTransactionsRoute
   '/payments': typeof PaymentsRoute
+  '/pending': typeof PendingRoute
   '/withdrawals': typeof WithdrawalsRoute
 }
 export interface FileRoutesByTo {
@@ -61,6 +68,7 @@ export interface FileRoutesByTo {
   '/ecocash': typeof EcocashRoute
   '/internal-transactions': typeof InternalTransactionsRoute
   '/payments': typeof PaymentsRoute
+  '/pending': typeof PendingRoute
   '/withdrawals': typeof WithdrawalsRoute
 }
 export interface FileRoutesById {
@@ -70,6 +78,7 @@ export interface FileRoutesById {
   '/ecocash': typeof EcocashRoute
   '/internal-transactions': typeof InternalTransactionsRoute
   '/payments': typeof PaymentsRoute
+  '/pending': typeof PendingRoute
   '/withdrawals': typeof WithdrawalsRoute
 }
 export interface FileRouteTypes {
@@ -80,6 +89,7 @@ export interface FileRouteTypes {
     | '/ecocash'
     | '/internal-transactions'
     | '/payments'
+    | '/pending'
     | '/withdrawals'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -88,6 +98,7 @@ export interface FileRouteTypes {
     | '/ecocash'
     | '/internal-transactions'
     | '/payments'
+    | '/pending'
     | '/withdrawals'
   id:
     | '__root__'
@@ -96,6 +107,7 @@ export interface FileRouteTypes {
     | '/ecocash'
     | '/internal-transactions'
     | '/payments'
+    | '/pending'
     | '/withdrawals'
   fileRoutesById: FileRoutesById
 }
@@ -105,6 +117,7 @@ export interface RootRouteChildren {
   EcocashRoute: typeof EcocashRoute
   InternalTransactionsRoute: typeof InternalTransactionsRoute
   PaymentsRoute: typeof PaymentsRoute
+  PendingRoute: typeof PendingRoute
   WithdrawalsRoute: typeof WithdrawalsRoute
 }
 
@@ -115,6 +128,13 @@ declare module '@tanstack/react-router' {
       path: '/withdrawals'
       fullPath: '/withdrawals'
       preLoaderRoute: typeof WithdrawalsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pending': {
+      id: '/pending'
+      path: '/pending'
+      fullPath: '/pending'
+      preLoaderRoute: typeof PendingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/payments': {
@@ -161,6 +181,7 @@ const rootRouteChildren: RootRouteChildren = {
   EcocashRoute: EcocashRoute,
   InternalTransactionsRoute: InternalTransactionsRoute,
   PaymentsRoute: PaymentsRoute,
+  PendingRoute: PendingRoute,
   WithdrawalsRoute: WithdrawalsRoute,
 }
 export const routeTree = rootRouteImport
