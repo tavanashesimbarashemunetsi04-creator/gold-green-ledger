@@ -26,7 +26,11 @@ export type PaymentEntry = {
   zwg_amount: number | null;
   category: string;
   notes: string;
+  status: PaymentStatus;
 };
+
+export type PaymentStatus = "successful" | "pending" | "failed";
+const STATUSES: PaymentStatus[] = ["successful", "pending", "failed"];
 
 const PAYMENT_TYPES = ["Cash", "Cash USD", "Swipe", "Cash ZWG"] as const;
 const CATEGORIES = [
@@ -48,6 +52,7 @@ const initialState = {
   zwg_amount: "",
   category: "",
   notes: "",
+  status: "pending" as PaymentStatus,
 };
 
 interface Props {
@@ -81,6 +86,7 @@ export function PaymentEntryForm({ bank, onSubmit }: Props) {
       zwg_amount: form.zwg_amount ? Number(form.zwg_amount) : null,
       category: form.category,
       notes: form.notes.trim(),
+      status: form.status,
     };
 
     try {
@@ -209,6 +215,28 @@ export function PaymentEntryForm({ bank, onSubmit }: Props) {
                 value={form.zwg_amount}
                 onChange={(e) => update("zwg_amount", e.target.value)}
               />
+            </div>
+          </div>
+
+          {/* Status */}
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label>Status *</Label>
+              <Select
+                value={form.status}
+                onValueChange={(v) => update("status", v as PaymentStatus)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select status" />
+                </SelectTrigger>
+                <SelectContent>
+                  {STATUSES.map((s) => (
+                    <SelectItem key={s} value={s} className="capitalize">
+                      {s}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
