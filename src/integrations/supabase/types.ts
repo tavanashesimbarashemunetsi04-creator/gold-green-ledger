@@ -14,6 +14,99 @@ export type Database = {
   }
   public: {
     Tables: {
+      cash_advance: {
+        Row: {
+          amount: number
+          card_last4: string
+          code: string | null
+          created_at: string
+          date: string
+          id: string
+          id_number: string
+          name: string
+          phone_number: string | null
+          signature_url: string
+          status: Database["public"]["Enums"]["tx_record_status"]
+          transaction_type: Database["public"]["Enums"]["cash_tx_type"]
+        }
+        Insert: {
+          amount: number
+          card_last4: string
+          code?: string | null
+          created_at?: string
+          date: string
+          id?: string
+          id_number: string
+          name: string
+          phone_number?: string | null
+          signature_url: string
+          status?: Database["public"]["Enums"]["tx_record_status"]
+          transaction_type: Database["public"]["Enums"]["cash_tx_type"]
+        }
+        Update: {
+          amount?: number
+          card_last4?: string
+          code?: string | null
+          created_at?: string
+          date?: string
+          id?: string
+          id_number?: string
+          name?: string
+          phone_number?: string | null
+          signature_url?: string
+          status?: Database["public"]["Enums"]["tx_record_status"]
+          transaction_type?: Database["public"]["Enums"]["cash_tx_type"]
+        }
+        Relationships: []
+      }
+      cash_swipes: {
+        Row: {
+          card_last4: string
+          code: string | null
+          created_at: string
+          date: string
+          id: string
+          id_number: string
+          name: string
+          phone_number: string | null
+          signature_url: string
+          status: Database["public"]["Enums"]["tx_record_status"]
+          transaction_type: Database["public"]["Enums"]["cash_tx_type"]
+          usd_amount: number | null
+          zwg_amount: number | null
+        }
+        Insert: {
+          card_last4: string
+          code?: string | null
+          created_at?: string
+          date: string
+          id?: string
+          id_number: string
+          name: string
+          phone_number?: string | null
+          signature_url: string
+          status?: Database["public"]["Enums"]["tx_record_status"]
+          transaction_type: Database["public"]["Enums"]["cash_tx_type"]
+          usd_amount?: number | null
+          zwg_amount?: number | null
+        }
+        Update: {
+          card_last4?: string
+          code?: string | null
+          created_at?: string
+          date?: string
+          id?: string
+          id_number?: string
+          name?: string
+          phone_number?: string | null
+          signature_url?: string
+          status?: Database["public"]["Enums"]["tx_record_status"]
+          transaction_type?: Database["public"]["Enums"]["cash_tx_type"]
+          usd_amount?: number | null
+          zwg_amount?: number | null
+        }
+        Relationships: []
+      }
       internal_transactions: {
         Row: {
           amount: number
@@ -68,6 +161,54 @@ export type Database = {
           },
         ]
       }
+      payments: {
+        Row: {
+          account_number: string | null
+          bank: Database["public"]["Enums"]["bank_enum"]
+          category: string | null
+          code: string | null
+          created_at: string
+          date: string
+          id: string
+          notes: string | null
+          payment_type: Database["public"]["Enums"]["payment_type_enum"]
+          phone_number: string | null
+          status: Database["public"]["Enums"]["tx_record_status"]
+          usd_amount: number | null
+          zwg_amount: number | null
+        }
+        Insert: {
+          account_number?: string | null
+          bank: Database["public"]["Enums"]["bank_enum"]
+          category?: string | null
+          code?: string | null
+          created_at?: string
+          date: string
+          id?: string
+          notes?: string | null
+          payment_type: Database["public"]["Enums"]["payment_type_enum"]
+          phone_number?: string | null
+          status?: Database["public"]["Enums"]["tx_record_status"]
+          usd_amount?: number | null
+          zwg_amount?: number | null
+        }
+        Update: {
+          account_number?: string | null
+          bank?: Database["public"]["Enums"]["bank_enum"]
+          category?: string | null
+          code?: string | null
+          created_at?: string
+          date?: string
+          id?: string
+          notes?: string | null
+          payment_type?: Database["public"]["Enums"]["payment_type_enum"]
+          phone_number?: string | null
+          status?: Database["public"]["Enums"]["tx_record_status"]
+          usd_amount?: number | null
+          zwg_amount?: number | null
+        }
+        Relationships: []
+      }
       tellers: {
         Row: {
           created_at: string
@@ -94,8 +235,12 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
+      bank_enum: "ZB" | "CBZ" | "BANCABC" | "AFC"
+      cash_tx_type: "withdrawal" | "deposit"
       decision: "pending" | "approved" | "declined"
+      payment_type_enum: "cash" | "transfer" | "mobile"
       request_type: "inflow" | "outflow"
+      tx_record_status: "successful" | "pending" | "failed"
       tx_status: "pending" | "approved" | "declined"
     }
     CompositeTypes: {
@@ -224,8 +369,12 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      bank_enum: ["ZB", "CBZ", "BANCABC", "AFC"],
+      cash_tx_type: ["withdrawal", "deposit"],
       decision: ["pending", "approved", "declined"],
+      payment_type_enum: ["cash", "transfer", "mobile"],
       request_type: ["inflow", "outflow"],
+      tx_record_status: ["successful", "pending", "failed"],
       tx_status: ["pending", "approved", "declined"],
     },
   },
