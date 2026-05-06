@@ -6,8 +6,17 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SignaturePad, type SignaturePadHandle } from "@/components/SignaturePad";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export type WithdrawalKind = "CASH_SWIPE" | "CASH_ADVANCE";
+export type WithdrawalStatus = "successful" | "pending" | "failed";
+const STATUSES: WithdrawalStatus[] = ["successful", "pending", "failed"];
 
 export type WithdrawalEntry = {
   date: string;
@@ -22,6 +31,7 @@ export type WithdrawalEntry = {
   amount?: number;
   signature_base64: string;
   created_at: string;
+  status: WithdrawalStatus;
 };
 
 interface Props {
@@ -48,6 +58,7 @@ export function WithdrawalEntryForm({ kind, onSubmitted }: Props) {
     usd_amount: "",
     zwg_amount: "",
     amount: "",
+    status: "pending" as WithdrawalStatus,
   });
   const [signature, setSignature] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -57,7 +68,7 @@ export function WithdrawalEntryForm({ kind, onSubmitted }: Props) {
     setForm((f) => ({ ...f, [key]: value }));
 
   const reset = () => {
-    setForm({ ...baseInit, usd_amount: "", zwg_amount: "", amount: "" });
+    setForm({ ...baseInit, usd_amount: "", zwg_amount: "", amount: "", status: "pending" });
     setSignature(null);
     padRef.current?.clear();
   };
@@ -89,6 +100,7 @@ export function WithdrawalEntryForm({ kind, onSubmitted }: Props) {
       code: form.code.trim(),
       signature_base64: signature,
       created_at: new Date().toISOString(),
+      status: form.status,
       ...(isSwipe
         ? {
             usd_amount: form.usd_amount ? Number(form.usd_amount) : null,
@@ -233,6 +245,30 @@ export function WithdrawalEntryForm({ kind, onSubmitted }: Props) {
                 />
               </div>
             )}
+          </div>
+
+          {/* Status */}
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="space-y-2">
+              <Label>Status *</Label>
+              <Select
+                value={form.status}
+                onValueChange={(v) =>
+                  setForm((f) => ({ ...f, status: v as WithdrawalStatus }))
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select status" />
+                </SelectTrigger>
+                <SelectContent>
+                  {STATUSES.map((s) => (
+                    <SelectItem key={s} value={s} className="capitalize">
+                      {s}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           {/* Signature */}
