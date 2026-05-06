@@ -13,6 +13,7 @@ import { Route as WithdrawalsRouteImport } from './routes/withdrawals'
 import { Route as PendingRouteImport } from './routes/pending'
 import { Route as PaymentsRouteImport } from './routes/payments'
 import { Route as InternalTransactionsRouteImport } from './routes/internal-transactions'
+import { Route as EndDayRouteImport } from './routes/end-day'
 import { Route as EcocashRouteImport } from './routes/ecocash'
 import { Route as ChangesRefundsRouteImport } from './routes/changes-refunds'
 import { Route as IndexRouteImport } from './routes/index'
@@ -37,6 +38,11 @@ const InternalTransactionsRoute = InternalTransactionsRouteImport.update({
   path: '/internal-transactions',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EndDayRoute = EndDayRouteImport.update({
+  id: '/end-day',
+  path: '/end-day',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EcocashRoute = EcocashRouteImport.update({
   id: '/ecocash',
   path: '/ecocash',
@@ -57,6 +63,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/changes-refunds': typeof ChangesRefundsRoute
   '/ecocash': typeof EcocashRoute
+  '/end-day': typeof EndDayRoute
   '/internal-transactions': typeof InternalTransactionsRoute
   '/payments': typeof PaymentsRoute
   '/pending': typeof PendingRoute
@@ -66,6 +73,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/changes-refunds': typeof ChangesRefundsRoute
   '/ecocash': typeof EcocashRoute
+  '/end-day': typeof EndDayRoute
   '/internal-transactions': typeof InternalTransactionsRoute
   '/payments': typeof PaymentsRoute
   '/pending': typeof PendingRoute
@@ -76,6 +84,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/changes-refunds': typeof ChangesRefundsRoute
   '/ecocash': typeof EcocashRoute
+  '/end-day': typeof EndDayRoute
   '/internal-transactions': typeof InternalTransactionsRoute
   '/payments': typeof PaymentsRoute
   '/pending': typeof PendingRoute
@@ -87,6 +96,7 @@ export interface FileRouteTypes {
     | '/'
     | '/changes-refunds'
     | '/ecocash'
+    | '/end-day'
     | '/internal-transactions'
     | '/payments'
     | '/pending'
@@ -96,6 +106,7 @@ export interface FileRouteTypes {
     | '/'
     | '/changes-refunds'
     | '/ecocash'
+    | '/end-day'
     | '/internal-transactions'
     | '/payments'
     | '/pending'
@@ -105,6 +116,7 @@ export interface FileRouteTypes {
     | '/'
     | '/changes-refunds'
     | '/ecocash'
+    | '/end-day'
     | '/internal-transactions'
     | '/payments'
     | '/pending'
@@ -115,6 +127,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ChangesRefundsRoute: typeof ChangesRefundsRoute
   EcocashRoute: typeof EcocashRoute
+  EndDayRoute: typeof EndDayRoute
   InternalTransactionsRoute: typeof InternalTransactionsRoute
   PaymentsRoute: typeof PaymentsRoute
   PendingRoute: typeof PendingRoute
@@ -151,6 +164,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InternalTransactionsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/end-day': {
+      id: '/end-day'
+      path: '/end-day'
+      fullPath: '/end-day'
+      preLoaderRoute: typeof EndDayRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/ecocash': {
       id: '/ecocash'
       path: '/ecocash'
@@ -179,6 +199,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ChangesRefundsRoute: ChangesRefundsRoute,
   EcocashRoute: EcocashRoute,
+  EndDayRoute: EndDayRoute,
   InternalTransactionsRoute: InternalTransactionsRoute,
   PaymentsRoute: PaymentsRoute,
   PendingRoute: PendingRoute,
