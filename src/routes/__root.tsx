@@ -1,7 +1,37 @@
-import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
+import { Outlet, Link, createRootRoute, HeadContent, Scripts, useRouterState, useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { TellerSidebar } from "@/components/TellerSidebar";
+import { AuthProvider, useAuth } from "@/hooks/useAuth";
+import { Toaster } from "@/components/ui/sonner";
 
 import appCss from "../styles.css?url";
+
+const PUBLIC_ROUTES = new Set(["/login"]);
+
+function AuthGate({ children }: { children: React.ReactNode }) {
+  const { user, loading } = useAuth();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const navigate = useNavigate();
+  const isPublic = PUBLIC_ROUTES.has(pathname);
+
+  useEffect(() => {
+    if (!loading && !user && !isPublic) {
+      navigate({ to: "/login" });
+    }
+  }, [loading, user, isPublic, navigate]);
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      </div>
+    );
+  }
+
+  if (isPublic) return <>{children}</>;
+  if (!user) return null;
+  return <>{children}</>;
+}
 
 function NotFoundComponent() {
   return (
@@ -55,6 +85,21 @@ function RootShell({ children }: { children: React.ReactNode }) {
 }
 
 function RootComponent() {
+  return (
+    <AuthProvider>
+      <AuthGate>
+        <Shell />
+      </AuthGate>
+      <Toaster />
+    </AuthProvider>
+  );
+}
+
+function Shell() {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  if (PUBLIC_ROUTES.has(pathname)) {
+    return <Outlet />;
+  }
   return (
     <div className="min-h-screen bg-background">
       <TellerSidebar />
