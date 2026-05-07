@@ -23,9 +23,11 @@ export type Database = {
           code: string | null
           created_at: string
           date: string
+          failure_reason: string | null
           id: string
           id_number: string
           name: string
+          notes: string | null
           phone_number: string | null
           signature_url: string
           status: Database["public"]["Enums"]["tx_record_status"]
@@ -39,9 +41,11 @@ export type Database = {
           code?: string | null
           created_at?: string
           date: string
+          failure_reason?: string | null
           id?: string
           id_number: string
           name: string
+          notes?: string | null
           phone_number?: string | null
           signature_url: string
           status?: Database["public"]["Enums"]["tx_record_status"]
@@ -55,9 +59,11 @@ export type Database = {
           code?: string | null
           created_at?: string
           date?: string
+          failure_reason?: string | null
           id?: string
           id_number?: string
           name?: string
+          notes?: string | null
           phone_number?: string | null
           signature_url?: string
           status?: Database["public"]["Enums"]["tx_record_status"]
@@ -73,9 +79,11 @@ export type Database = {
           code: string | null
           created_at: string
           date: string
+          failure_reason: string | null
           id: string
           id_number: string
           name: string
+          notes: string | null
           phone_number: string | null
           signature_url: string
           status: Database["public"]["Enums"]["tx_record_status"]
@@ -90,9 +98,11 @@ export type Database = {
           code?: string | null
           created_at?: string
           date: string
+          failure_reason?: string | null
           id?: string
           id_number: string
           name: string
+          notes?: string | null
           phone_number?: string | null
           signature_url: string
           status?: Database["public"]["Enums"]["tx_record_status"]
@@ -107,9 +117,11 @@ export type Database = {
           code?: string | null
           created_at?: string
           date?: string
+          failure_reason?: string | null
           id?: string
           id_number?: string
           name?: string
+          notes?: string | null
           phone_number?: string | null
           signature_url?: string
           status?: Database["public"]["Enums"]["tx_record_status"]
@@ -124,9 +136,11 @@ export type Database = {
           amount: number
           created_at: string
           date: string
+          failure_reason: string | null
           id: string
           initiating_teller_id: string
           initiator_decision: Database["public"]["Enums"]["decision"]
+          notes: string | null
           receiver_decision: Database["public"]["Enums"]["decision"]
           request_type: Database["public"]["Enums"]["request_type"]
           status: Database["public"]["Enums"]["tx_status"]
@@ -136,9 +150,11 @@ export type Database = {
           amount: number
           created_at?: string
           date: string
+          failure_reason?: string | null
           id?: string
           initiating_teller_id: string
           initiator_decision?: Database["public"]["Enums"]["decision"]
+          notes?: string | null
           receiver_decision?: Database["public"]["Enums"]["decision"]
           request_type: Database["public"]["Enums"]["request_type"]
           status?: Database["public"]["Enums"]["tx_status"]
@@ -148,9 +164,11 @@ export type Database = {
           amount?: number
           created_at?: string
           date?: string
+          failure_reason?: string | null
           id?: string
           initiating_teller_id?: string
           initiator_decision?: Database["public"]["Enums"]["decision"]
+          notes?: string | null
           receiver_decision?: Database["public"]["Enums"]["decision"]
           request_type?: Database["public"]["Enums"]["request_type"]
           status?: Database["public"]["Enums"]["tx_status"]
@@ -183,6 +201,7 @@ export type Database = {
           code: string | null
           created_at: string
           date: string
+          failure_reason: string | null
           id: string
           notes: string | null
           payment_type: Database["public"]["Enums"]["payment_type_enum"]
@@ -200,6 +219,7 @@ export type Database = {
           code?: string | null
           created_at?: string
           date: string
+          failure_reason?: string | null
           id?: string
           notes?: string | null
           payment_type: Database["public"]["Enums"]["payment_type_enum"]
@@ -217,6 +237,7 @@ export type Database = {
           code?: string | null
           created_at?: string
           date?: string
+          failure_reason?: string | null
           id?: string
           notes?: string | null
           payment_type?: Database["public"]["Enums"]["payment_type_enum"]

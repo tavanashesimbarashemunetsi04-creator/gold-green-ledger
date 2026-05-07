@@ -13,6 +13,7 @@ import { Route as WithdrawalsRouteImport } from './routes/withdrawals'
 import { Route as PendingRouteImport } from './routes/pending'
 import { Route as PaymentsRouteImport } from './routes/payments'
 import { Route as InternalTransactionsRouteImport } from './routes/internal-transactions'
+import { Route as FailedRouteImport } from './routes/failed'
 import { Route as EndDayRouteImport } from './routes/end-day'
 import { Route as EcocashRouteImport } from './routes/ecocash'
 import { Route as ChangesRefundsRouteImport } from './routes/changes-refunds'
@@ -36,6 +37,11 @@ const PaymentsRoute = PaymentsRouteImport.update({
 const InternalTransactionsRoute = InternalTransactionsRouteImport.update({
   id: '/internal-transactions',
   path: '/internal-transactions',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FailedRoute = FailedRouteImport.update({
+  id: '/failed',
+  path: '/failed',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EndDayRoute = EndDayRouteImport.update({
@@ -64,6 +70,7 @@ export interface FileRoutesByFullPath {
   '/changes-refunds': typeof ChangesRefundsRoute
   '/ecocash': typeof EcocashRoute
   '/end-day': typeof EndDayRoute
+  '/failed': typeof FailedRoute
   '/internal-transactions': typeof InternalTransactionsRoute
   '/payments': typeof PaymentsRoute
   '/pending': typeof PendingRoute
@@ -74,6 +81,7 @@ export interface FileRoutesByTo {
   '/changes-refunds': typeof ChangesRefundsRoute
   '/ecocash': typeof EcocashRoute
   '/end-day': typeof EndDayRoute
+  '/failed': typeof FailedRoute
   '/internal-transactions': typeof InternalTransactionsRoute
   '/payments': typeof PaymentsRoute
   '/pending': typeof PendingRoute
@@ -85,6 +93,7 @@ export interface FileRoutesById {
   '/changes-refunds': typeof ChangesRefundsRoute
   '/ecocash': typeof EcocashRoute
   '/end-day': typeof EndDayRoute
+  '/failed': typeof FailedRoute
   '/internal-transactions': typeof InternalTransactionsRoute
   '/payments': typeof PaymentsRoute
   '/pending': typeof PendingRoute
@@ -97,6 +106,7 @@ export interface FileRouteTypes {
     | '/changes-refunds'
     | '/ecocash'
     | '/end-day'
+    | '/failed'
     | '/internal-transactions'
     | '/payments'
     | '/pending'
@@ -107,6 +117,7 @@ export interface FileRouteTypes {
     | '/changes-refunds'
     | '/ecocash'
     | '/end-day'
+    | '/failed'
     | '/internal-transactions'
     | '/payments'
     | '/pending'
@@ -117,6 +128,7 @@ export interface FileRouteTypes {
     | '/changes-refunds'
     | '/ecocash'
     | '/end-day'
+    | '/failed'
     | '/internal-transactions'
     | '/payments'
     | '/pending'
@@ -128,6 +140,7 @@ export interface RootRouteChildren {
   ChangesRefundsRoute: typeof ChangesRefundsRoute
   EcocashRoute: typeof EcocashRoute
   EndDayRoute: typeof EndDayRoute
+  FailedRoute: typeof FailedRoute
   InternalTransactionsRoute: typeof InternalTransactionsRoute
   PaymentsRoute: typeof PaymentsRoute
   PendingRoute: typeof PendingRoute
@@ -162,6 +175,13 @@ declare module '@tanstack/react-router' {
       path: '/internal-transactions'
       fullPath: '/internal-transactions'
       preLoaderRoute: typeof InternalTransactionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/failed': {
+      id: '/failed'
+      path: '/failed'
+      fullPath: '/failed'
+      preLoaderRoute: typeof FailedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/end-day': {
@@ -200,6 +220,7 @@ const rootRouteChildren: RootRouteChildren = {
   ChangesRefundsRoute: ChangesRefundsRoute,
   EcocashRoute: EcocashRoute,
   EndDayRoute: EndDayRoute,
+  FailedRoute: FailedRoute,
   InternalTransactionsRoute: InternalTransactionsRoute,
   PaymentsRoute: PaymentsRoute,
   PendingRoute: PendingRoute,
