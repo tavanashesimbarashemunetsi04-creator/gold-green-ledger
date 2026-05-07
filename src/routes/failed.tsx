@@ -122,7 +122,7 @@ function FailedPage() {
     const sources: Source[] = ["payments", "cash_swipes", "cash_advance", "internal_transactions"];
     const results = await Promise.all(
       sources.map((s) =>
-        supabase.from(s).select("*").in("status", FAILED_STATUSES).order("created_at", { ascending: false }),
+        supabase.from(s).select("*").in("status", FAILED_STATUSES as any).order("created_at", { ascending: false }),
       ),
     );
     const merged: Row[] = [];
