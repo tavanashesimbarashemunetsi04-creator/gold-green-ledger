@@ -14,11 +14,105 @@ export type Database = {
   }
   public: {
     Tables: {
+      approvals: {
+        Row: {
+          approver_label: string | null
+          approver_user_id: string | null
+          created_at: string
+          decision: string
+          id: string
+          notes: string | null
+          record_id: string
+          source: string
+        }
+        Insert: {
+          approver_label?: string | null
+          approver_user_id?: string | null
+          created_at?: string
+          decision: string
+          id?: string
+          notes?: string | null
+          record_id: string
+          source: string
+        }
+        Update: {
+          approver_label?: string | null
+          approver_user_id?: string | null
+          created_at?: string
+          decision?: string
+          id?: string
+          notes?: string | null
+          record_id?: string
+          source?: string
+        }
+        Relationships: []
+      }
+      audit_logs: {
+        Row: {
+          action: string
+          actor_label: string | null
+          actor_user_id: string | null
+          created_at: string
+          id: string
+          new_data: Json | null
+          old_data: Json | null
+          record_id: string | null
+          table_name: string
+        }
+        Insert: {
+          action: string
+          actor_label?: string | null
+          actor_user_id?: string | null
+          created_at?: string
+          id?: string
+          new_data?: Json | null
+          old_data?: Json | null
+          record_id?: string | null
+          table_name: string
+        }
+        Update: {
+          action?: string
+          actor_label?: string | null
+          actor_user_id?: string | null
+          created_at?: string
+          id?: string
+          new_data?: Json | null
+          old_data?: Json | null
+          record_id?: string | null
+          table_name?: string
+        }
+        Relationships: []
+      }
+      branches: {
+        Row: {
+          code: string | null
+          created_at: string
+          id: string
+          location: string | null
+          name: string
+        }
+        Insert: {
+          code?: string | null
+          created_at?: string
+          id?: string
+          location?: string | null
+          name: string
+        }
+        Update: {
+          code?: string | null
+          created_at?: string
+          id?: string
+          location?: string | null
+          name?: string
+        }
+        Relationships: []
+      }
       cash_advance: {
         Row: {
           amount: number
           approved_at: string | null
           approved_by: string | null
+          branch_id: string | null
           card_last4: string
           code: string | null
           created_at: string
@@ -31,12 +125,14 @@ export type Database = {
           phone_number: string | null
           signature_url: string
           status: Database["public"]["Enums"]["tx_record_status"]
+          teller_id: string | null
           transaction_type: Database["public"]["Enums"]["cash_tx_type"]
         }
         Insert: {
           amount: number
           approved_at?: string | null
           approved_by?: string | null
+          branch_id?: string | null
           card_last4: string
           code?: string | null
           created_at?: string
@@ -49,12 +145,14 @@ export type Database = {
           phone_number?: string | null
           signature_url: string
           status?: Database["public"]["Enums"]["tx_record_status"]
+          teller_id?: string | null
           transaction_type: Database["public"]["Enums"]["cash_tx_type"]
         }
         Update: {
           amount?: number
           approved_at?: string | null
           approved_by?: string | null
+          branch_id?: string | null
           card_last4?: string
           code?: string | null
           created_at?: string
@@ -67,14 +165,31 @@ export type Database = {
           phone_number?: string | null
           signature_url?: string
           status?: Database["public"]["Enums"]["tx_record_status"]
+          teller_id?: string | null
           transaction_type?: Database["public"]["Enums"]["cash_tx_type"]
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "cash_advance_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cash_advance_teller_id_fkey"
+            columns: ["teller_id"]
+            isOneToOne: false
+            referencedRelation: "tellers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       cash_swipes: {
         Row: {
           approved_at: string | null
           approved_by: string | null
+          branch_id: string | null
           card_last4: string
           code: string | null
           created_at: string
@@ -87,6 +202,7 @@ export type Database = {
           phone_number: string | null
           signature_url: string
           status: Database["public"]["Enums"]["tx_record_status"]
+          teller_id: string | null
           transaction_type: Database["public"]["Enums"]["cash_tx_type"]
           usd_amount: number | null
           zwg_amount: number | null
@@ -94,6 +210,7 @@ export type Database = {
         Insert: {
           approved_at?: string | null
           approved_by?: string | null
+          branch_id?: string | null
           card_last4: string
           code?: string | null
           created_at?: string
@@ -106,6 +223,7 @@ export type Database = {
           phone_number?: string | null
           signature_url: string
           status?: Database["public"]["Enums"]["tx_record_status"]
+          teller_id?: string | null
           transaction_type: Database["public"]["Enums"]["cash_tx_type"]
           usd_amount?: number | null
           zwg_amount?: number | null
@@ -113,6 +231,7 @@ export type Database = {
         Update: {
           approved_at?: string | null
           approved_by?: string | null
+          branch_id?: string | null
           card_last4?: string
           code?: string | null
           created_at?: string
@@ -125,11 +244,90 @@ export type Database = {
           phone_number?: string | null
           signature_url?: string
           status?: Database["public"]["Enums"]["tx_record_status"]
+          teller_id?: string | null
           transaction_type?: Database["public"]["Enums"]["cash_tx_type"]
           usd_amount?: number | null
           zwg_amount?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "cash_swipes_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cash_swipes_teller_id_fkey"
+            columns: ["teller_id"]
+            isOneToOne: false
+            referencedRelation: "tellers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      end_day_summary: {
+        Row: {
+          branch_id: string | null
+          business_date: string
+          closed_at: string | null
+          closed_by_user_id: string | null
+          created_at: string
+          failed_count: number
+          id: string
+          pending_count: number
+          teller_id: string | null
+          total_inflow_usd: number
+          total_inflow_zwg: number
+          total_outflow_usd: number
+          total_outflow_zwg: number
+        }
+        Insert: {
+          branch_id?: string | null
+          business_date: string
+          closed_at?: string | null
+          closed_by_user_id?: string | null
+          created_at?: string
+          failed_count?: number
+          id?: string
+          pending_count?: number
+          teller_id?: string | null
+          total_inflow_usd?: number
+          total_inflow_zwg?: number
+          total_outflow_usd?: number
+          total_outflow_zwg?: number
+        }
+        Update: {
+          branch_id?: string | null
+          business_date?: string
+          closed_at?: string | null
+          closed_by_user_id?: string | null
+          created_at?: string
+          failed_count?: number
+          id?: string
+          pending_count?: number
+          teller_id?: string | null
+          total_inflow_usd?: number
+          total_inflow_zwg?: number
+          total_outflow_usd?: number
+          total_outflow_zwg?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "end_day_summary_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "end_day_summary_teller_id_fkey"
+            columns: ["teller_id"]
+            isOneToOne: false
+            referencedRelation: "tellers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       internal_transactions: {
         Row: {
@@ -197,6 +395,7 @@ export type Database = {
           approved_at: string | null
           approved_by: string | null
           bank: Database["public"]["Enums"]["bank_enum"]
+          branch_id: string | null
           category: string | null
           code: string | null
           created_at: string
@@ -207,6 +406,7 @@ export type Database = {
           payment_type: Database["public"]["Enums"]["payment_type_enum"]
           phone_number: string | null
           status: Database["public"]["Enums"]["tx_record_status"]
+          teller_id: string | null
           usd_amount: number | null
           zwg_amount: number | null
         }
@@ -215,6 +415,7 @@ export type Database = {
           approved_at?: string | null
           approved_by?: string | null
           bank: Database["public"]["Enums"]["bank_enum"]
+          branch_id?: string | null
           category?: string | null
           code?: string | null
           created_at?: string
@@ -225,6 +426,7 @@ export type Database = {
           payment_type: Database["public"]["Enums"]["payment_type_enum"]
           phone_number?: string | null
           status?: Database["public"]["Enums"]["tx_record_status"]
+          teller_id?: string | null
           usd_amount?: number | null
           zwg_amount?: number | null
         }
@@ -233,6 +435,7 @@ export type Database = {
           approved_at?: string | null
           approved_by?: string | null
           bank?: Database["public"]["Enums"]["bank_enum"]
+          branch_id?: string | null
           category?: string | null
           code?: string | null
           created_at?: string
@@ -243,10 +446,74 @@ export type Database = {
           payment_type?: Database["public"]["Enums"]["payment_type_enum"]
           phone_number?: string | null
           status?: Database["public"]["Enums"]["tx_record_status"]
+          teller_id?: string | null
           usd_amount?: number | null
           zwg_amount?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "payments_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_teller_id_fkey"
+            columns: ["teller_id"]
+            isOneToOne: false
+            referencedRelation: "tellers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          branch_id: string | null
+          created_at: string
+          display_name: string | null
+          email: string | null
+          id: string
+          teller_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          branch_id?: string | null
+          created_at?: string
+          display_name?: string | null
+          email?: string | null
+          id?: string
+          teller_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          branch_id?: string | null
+          created_at?: string
+          display_name?: string | null
+          email?: string | null
+          id?: string
+          teller_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_teller_id_fkey"
+            columns: ["teller_id"]
+            isOneToOne: false
+            referencedRelation: "tellers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       tellers: {
         Row: {
@@ -266,27 +533,133 @@ export type Database = {
         }
         Relationships: []
       }
-    }
-    Views: {
-      end_day_summary: {
+      user_roles: {
         Row: {
-          advance_outflows: number | null
-          balance: number | null
-          date: string | null
-          internal_inflows: number | null
-          internal_outflows: number | null
-          payment_inflows: number | null
-          swipe_outflows: number | null
-          total_inflows: number | null
-          total_outflows: number | null
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
         }
         Relationships: []
       }
     }
+    Views: {
+      all_transactions: {
+        Row: {
+          amount: number | null
+          branch_id: string | null
+          created_at: string | null
+          date: string | null
+          id: string | null
+          name: string | null
+          source: string | null
+          status: string | null
+          teller_id: string | null
+        }
+        Relationships: []
+      }
+      failed_transactions: {
+        Row: {
+          amount: number | null
+          branch_id: string | null
+          created_at: string | null
+          date: string | null
+          failure_reason: string | null
+          id: string | null
+          name: string | null
+          notes: string | null
+          source: string | null
+          status: string | null
+          teller_id: string | null
+        }
+        Relationships: []
+      }
+      inflows: {
+        Row: {
+          branch_id: string | null
+          created_at: string | null
+          date: string | null
+          id: string | null
+          source: string | null
+          teller_id: string | null
+          usd_amount: number | null
+          zwg_amount: number | null
+        }
+        Relationships: []
+      }
+      outflows: {
+        Row: {
+          amount: number | null
+          branch_id: string | null
+          created_at: string | null
+          date: string | null
+          id: string | null
+          source: string | null
+          teller_id: string | null
+        }
+        Insert: {
+          amount?: never
+          branch_id?: string | null
+          created_at?: string | null
+          date?: string | null
+          id?: string | null
+          source?: never
+          teller_id?: string | null
+        }
+        Update: {
+          amount?: never
+          branch_id?: string | null
+          created_at?: string | null
+          date?: string | null
+          id?: string | null
+          source?: never
+          teller_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cash_advance_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cash_advance_teller_id_fkey"
+            columns: ["teller_id"]
+            isOneToOne: false
+            referencedRelation: "tellers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+    }
     Functions: {
-      [_ in never]: never
+      current_user_has_any_role: {
+        Args: { _roles: Database["public"]["Enums"]["app_role"][] }
+        Returns: boolean
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
+      app_role: "admin" | "manager" | "teller"
       bank_enum: "ZB" | "CBZ" | "BANCABC" | "AFC"
       cash_tx_type: "withdrawal" | "deposit"
       decision: "pending" | "approved" | "declined"
@@ -421,6 +794,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      app_role: ["admin", "manager", "teller"],
       bank_enum: ["ZB", "CBZ", "BANCABC", "AFC"],
       cash_tx_type: ["withdrawal", "deposit"],
       decision: ["pending", "approved", "declined"],
