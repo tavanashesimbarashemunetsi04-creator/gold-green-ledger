@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as WithdrawalsRouteImport } from './routes/withdrawals'
 import { Route as PendingRouteImport } from './routes/pending'
 import { Route as PaymentsRouteImport } from './routes/payments'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as InternalTransactionsRouteImport } from './routes/internal-transactions'
 import { Route as FailedRouteImport } from './routes/failed'
 import { Route as EndDayRouteImport } from './routes/end-day'
@@ -32,6 +33,11 @@ const PendingRoute = PendingRouteImport.update({
 const PaymentsRoute = PaymentsRouteImport.update({
   id: '/payments',
   path: '/payments',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const InternalTransactionsRoute = InternalTransactionsRouteImport.update({
@@ -72,6 +78,7 @@ export interface FileRoutesByFullPath {
   '/end-day': typeof EndDayRoute
   '/failed': typeof FailedRoute
   '/internal-transactions': typeof InternalTransactionsRoute
+  '/login': typeof LoginRoute
   '/payments': typeof PaymentsRoute
   '/pending': typeof PendingRoute
   '/withdrawals': typeof WithdrawalsRoute
@@ -83,6 +90,7 @@ export interface FileRoutesByTo {
   '/end-day': typeof EndDayRoute
   '/failed': typeof FailedRoute
   '/internal-transactions': typeof InternalTransactionsRoute
+  '/login': typeof LoginRoute
   '/payments': typeof PaymentsRoute
   '/pending': typeof PendingRoute
   '/withdrawals': typeof WithdrawalsRoute
@@ -95,6 +103,7 @@ export interface FileRoutesById {
   '/end-day': typeof EndDayRoute
   '/failed': typeof FailedRoute
   '/internal-transactions': typeof InternalTransactionsRoute
+  '/login': typeof LoginRoute
   '/payments': typeof PaymentsRoute
   '/pending': typeof PendingRoute
   '/withdrawals': typeof WithdrawalsRoute
@@ -108,6 +117,7 @@ export interface FileRouteTypes {
     | '/end-day'
     | '/failed'
     | '/internal-transactions'
+    | '/login'
     | '/payments'
     | '/pending'
     | '/withdrawals'
@@ -119,6 +129,7 @@ export interface FileRouteTypes {
     | '/end-day'
     | '/failed'
     | '/internal-transactions'
+    | '/login'
     | '/payments'
     | '/pending'
     | '/withdrawals'
@@ -130,6 +141,7 @@ export interface FileRouteTypes {
     | '/end-day'
     | '/failed'
     | '/internal-transactions'
+    | '/login'
     | '/payments'
     | '/pending'
     | '/withdrawals'
@@ -142,6 +154,7 @@ export interface RootRouteChildren {
   EndDayRoute: typeof EndDayRoute
   FailedRoute: typeof FailedRoute
   InternalTransactionsRoute: typeof InternalTransactionsRoute
+  LoginRoute: typeof LoginRoute
   PaymentsRoute: typeof PaymentsRoute
   PendingRoute: typeof PendingRoute
   WithdrawalsRoute: typeof WithdrawalsRoute
@@ -168,6 +181,13 @@ declare module '@tanstack/react-router' {
       path: '/payments'
       fullPath: '/payments'
       preLoaderRoute: typeof PaymentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/internal-transactions': {
@@ -222,6 +242,7 @@ const rootRouteChildren: RootRouteChildren = {
   EndDayRoute: EndDayRoute,
   FailedRoute: FailedRoute,
   InternalTransactionsRoute: InternalTransactionsRoute,
+  LoginRoute: LoginRoute,
   PaymentsRoute: PaymentsRoute,
   PendingRoute: PendingRoute,
   WithdrawalsRoute: WithdrawalsRoute,
@@ -229,3 +250,12 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
