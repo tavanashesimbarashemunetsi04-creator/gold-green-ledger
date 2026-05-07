@@ -1,4 +1,5 @@
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
+import { useAuth } from "@/hooks/useAuth";
 import {
   LayoutDashboard,
   ArrowDownToLine,
@@ -32,6 +33,9 @@ export const SIDEBAR_WIDTH = "18rem";
 
 export function TellerSidebar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const navigate = useNavigate();
+  const { user, roles, signOut } = useAuth();
+  const primaryRole = roles.includes("admin") ? "admin" : roles.includes("manager") ? "manager" : roles[0] ?? "teller";
 
   return (
     <aside
@@ -90,7 +94,19 @@ export function TellerSidebar() {
 
         {/* Footer */}
         <div className="border-t border-white/10 p-4">
-          <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-white/70 transition-colors hover:bg-white/10 hover:text-white">
+          {user && (
+            <div className="mb-3 px-1">
+              <p className="truncate text-xs text-white/60">{user.email}</p>
+              <p className="text-[10px] uppercase tracking-widest text-[var(--gold)]">{primaryRole}</p>
+            </div>
+          )}
+          <button
+            onClick={async () => {
+              await signOut();
+              navigate({ to: "/login" });
+            }}
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-white/70 transition-colors hover:bg-white/10 hover:text-white"
+          >
             <LogOut className="h-4 w-4" />
             Sign out
           </button>
