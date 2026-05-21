@@ -437,6 +437,36 @@ export type Database = {
           },
         ]
       }
+      login_sessions: {
+        Row: {
+          device_id: string
+          device_label: string | null
+          first_seen_at: string
+          id: string
+          last_seen_at: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          device_id: string
+          device_label?: string | null
+          first_seen_at?: string
+          id?: string
+          last_seen_at?: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          device_id?: string
+          device_label?: string | null
+          first_seen_at?: string
+          id?: string
+          last_seen_at?: string
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       payments: {
         Row: {
           account_number: string | null
@@ -521,7 +551,9 @@ export type Database = {
           created_at: string
           display_name: string | null
           email: string | null
+          full_name: string | null
           id: string
+          phone: string | null
           teller_id: string | null
           updated_at: string
           user_id: string
@@ -531,7 +563,9 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           email?: string | null
+          full_name?: string | null
           id?: string
+          phone?: string | null
           teller_id?: string | null
           updated_at?: string
           user_id: string
@@ -541,7 +575,9 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           email?: string | null
+          full_name?: string | null
           id?: string
+          phone?: string | null
           teller_id?: string | null
           updated_at?: string
           user_id?: string
@@ -562,6 +598,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      security_alerts: {
+        Row: {
+          alert_type: string
+          created_at: string
+          id: string
+          is_read: boolean
+          message: string
+          metadata: Json | null
+          user_id: string
+        }
+        Insert: {
+          alert_type: string
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message: string
+          metadata?: Json | null
+          user_id: string
+        }
+        Update: {
+          alert_type?: string
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message?: string
+          metadata?: Json | null
+          user_id?: string
+        }
+        Relationships: []
       }
       tellers: {
         Row: {
