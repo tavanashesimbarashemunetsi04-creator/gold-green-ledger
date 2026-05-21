@@ -100,6 +100,10 @@ function Shell() {
   if (PUBLIC_ROUTES.has(pathname)) {
     return <Outlet />;
   }
+  // Admin routes render their own layout (AdminSidebar) via /admin route
+  if (pathname === "/admin" || pathname.startsWith("/admin/")) {
+    return <Outlet />;
+  }
   return (
     <div className="min-h-screen bg-background">
       <TellerSidebar />
