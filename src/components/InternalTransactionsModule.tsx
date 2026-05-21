@@ -87,6 +87,7 @@ export function InternalTransactionsModule() {
   const [targetId, setTargetId] = useState("");
   const [requestType, setRequestType] = useState<RequestType | "">("");
   const [amount, setAmount] = useState("");
+  const [ecocashRelated, setEcocashRelated] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   // table state
@@ -167,6 +168,7 @@ export function InternalTransactionsModule() {
     setTargetId("");
     setRequestType("");
     setAmount("");
+    setEcocashRelated(false);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -187,6 +189,7 @@ export function InternalTransactionsModule() {
       target_teller_id: targetId,
       request_type: requestType,
       amount: amt,
+      ecocash_related: ecocashRelated,
       initiator_decision: "approved" as Decision,
       receiver_decision: "pending" as Decision,
     };
@@ -352,6 +355,16 @@ export function InternalTransactionsModule() {
                 />
               </div>
             </div>
+
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={ecocashRelated}
+                onChange={(e) => setEcocashRelated(e.target.checked)}
+                className="h-4 w-4"
+              />
+              Ecocash related (auto-import into Ecocash ledger on approval)
+            </label>
 
             <div className="flex items-center justify-between">
               <p className="text-xs text-muted-foreground">

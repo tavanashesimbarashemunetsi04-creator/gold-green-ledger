@@ -266,6 +266,51 @@ export type Database = {
           },
         ]
       }
+      ecocash_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          created_by: string | null
+          created_by_label: string | null
+          description: string
+          id: string
+          imported_at: string | null
+          imported_transaction_id: string | null
+          inflow_amount: number
+          outflow_amount: number
+          source: Database["public"]["Enums"]["ecocash_source"]
+          transaction_type: Database["public"]["Enums"]["ecocash_tx_type"]
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          created_by?: string | null
+          created_by_label?: string | null
+          description: string
+          id?: string
+          imported_at?: string | null
+          imported_transaction_id?: string | null
+          inflow_amount?: number
+          outflow_amount?: number
+          source?: Database["public"]["Enums"]["ecocash_source"]
+          transaction_type: Database["public"]["Enums"]["ecocash_tx_type"]
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          created_by?: string | null
+          created_by_label?: string | null
+          description?: string
+          id?: string
+          imported_at?: string | null
+          imported_transaction_id?: string | null
+          inflow_amount?: number
+          outflow_amount?: number
+          source?: Database["public"]["Enums"]["ecocash_source"]
+          transaction_type?: Database["public"]["Enums"]["ecocash_tx_type"]
+        }
+        Relationships: []
+      }
       end_day_summary: {
         Row: {
           branch_id: string | null
@@ -334,6 +379,7 @@ export type Database = {
           amount: number
           created_at: string
           date: string
+          ecocash_related: boolean
           failure_reason: string | null
           id: string
           initiating_teller_id: string
@@ -348,6 +394,7 @@ export type Database = {
           amount: number
           created_at?: string
           date: string
+          ecocash_related?: boolean
           failure_reason?: string | null
           id?: string
           initiating_teller_id: string
@@ -362,6 +409,7 @@ export type Database = {
           amount?: number
           created_at?: string
           date?: string
+          ecocash_related?: boolean
           failure_reason?: string | null
           id?: string
           initiating_teller_id?: string
@@ -663,6 +711,8 @@ export type Database = {
       bank_enum: "ZB" | "CBZ" | "BANCABC" | "AFC"
       cash_tx_type: "withdrawal" | "deposit"
       decision: "pending" | "approved" | "declined"
+      ecocash_source: "manual_entry" | "internal_transaction"
+      ecocash_tx_type: "inflow" | "outflow"
       payment_type_enum: "cash" | "transfer" | "mobile"
       request_type: "inflow" | "outflow"
       tx_record_status: "successful" | "pending" | "failed"
@@ -798,6 +848,8 @@ export const Constants = {
       bank_enum: ["ZB", "CBZ", "BANCABC", "AFC"],
       cash_tx_type: ["withdrawal", "deposit"],
       decision: ["pending", "approved", "declined"],
+      ecocash_source: ["manual_entry", "internal_transaction"],
+      ecocash_tx_type: ["inflow", "outflow"],
       payment_type_enum: ["cash", "transfer", "mobile"],
       request_type: ["inflow", "outflow"],
       tx_record_status: ["successful", "pending", "failed"],
