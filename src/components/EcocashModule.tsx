@@ -60,6 +60,7 @@ export function EcocashModule() {
   const [loading, setLoading] = useState(false);
 
   // form
+  const [txDate, setTxDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState("");
   const [txType, setTxType] = useState<TxType | "">("");
@@ -107,6 +108,7 @@ export function EcocashModule() {
     if (submitting) return;
     const desc = description.trim();
     const amt = Number(amount);
+    if (!txDate) return toast.error("Date is required");
     if (!desc) return toast.error("Description is required");
     if (!txType) return toast.error("Select a transaction type");
     if (!Number.isFinite(amt) || amt <= 0)
@@ -121,9 +123,11 @@ export function EcocashModule() {
         source: "manual_entry",
         created_by: user?.id ?? null,
         created_by_label: user?.email ?? "manual",
+        created_at: new Date(txDate).toISOString(),
       });
       if (error) throw error;
       toast.success("Transaction added");
+      setTxDate(new Date().toISOString().slice(0, 10));
       setDescription("");
       setAmount("");
       setTxType("");
@@ -164,6 +168,16 @@ export function EcocashModule() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:items-end">
+            <div className="space-y-2">
+              <Label htmlFor="tx-date">Date *</Label>
+              <Input
+                id="tx-date"
+                type="date"
+                value={txDate}
+                onChange={(e) => setTxDate(e.target.value)}
+                required
+              />
+            </div>
             <div className="space-y-2 lg:col-span-2">
               <Label htmlFor="desc">Description *</Label>
               <Input
