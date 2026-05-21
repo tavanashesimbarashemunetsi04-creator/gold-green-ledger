@@ -18,6 +18,7 @@ import { Route as FailedRouteImport } from './routes/failed'
 import { Route as EndDayRouteImport } from './routes/end-day'
 import { Route as EcocashRouteImport } from './routes/ecocash'
 import { Route as ChangesRefundsRouteImport } from './routes/changes-refunds'
+import { Route as AccountRouteImport } from './routes/account'
 import { Route as IndexRouteImport } from './routes/index'
 
 const WithdrawalsRoute = WithdrawalsRouteImport.update({
@@ -65,6 +66,11 @@ const ChangesRefundsRoute = ChangesRefundsRouteImport.update({
   path: '/changes-refunds',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AccountRoute = AccountRouteImport.update({
+  id: '/account',
+  path: '/account',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -73,6 +79,7 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/account': typeof AccountRoute
   '/changes-refunds': typeof ChangesRefundsRoute
   '/ecocash': typeof EcocashRoute
   '/end-day': typeof EndDayRoute
@@ -85,6 +92,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/account': typeof AccountRoute
   '/changes-refunds': typeof ChangesRefundsRoute
   '/ecocash': typeof EcocashRoute
   '/end-day': typeof EndDayRoute
@@ -98,6 +106,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/account': typeof AccountRoute
   '/changes-refunds': typeof ChangesRefundsRoute
   '/ecocash': typeof EcocashRoute
   '/end-day': typeof EndDayRoute
@@ -112,6 +121,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/account'
     | '/changes-refunds'
     | '/ecocash'
     | '/end-day'
@@ -124,6 +134,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/account'
     | '/changes-refunds'
     | '/ecocash'
     | '/end-day'
@@ -136,6 +147,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/account'
     | '/changes-refunds'
     | '/ecocash'
     | '/end-day'
@@ -149,6 +161,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AccountRoute: typeof AccountRoute
   ChangesRefundsRoute: typeof ChangesRefundsRoute
   EcocashRoute: typeof EcocashRoute
   EndDayRoute: typeof EndDayRoute
@@ -225,6 +238,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ChangesRefundsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/account': {
+      id: '/account'
+      path: '/account'
+      fullPath: '/account'
+      preLoaderRoute: typeof AccountRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -237,6 +257,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AccountRoute: AccountRoute,
   ChangesRefundsRoute: ChangesRefundsRoute,
   EcocashRoute: EcocashRoute,
   EndDayRoute: EndDayRoute,
