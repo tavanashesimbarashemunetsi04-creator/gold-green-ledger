@@ -16,7 +16,7 @@ import {
 
 const items = [
   { title: "Dashboard", url: "/admin", icon: LayoutDashboard, exact: true },
-  { title: "Users & Roles", url: "/admin/users", icon: Users },
+  { title: "Users", url: "/admin/users", icon: Users },
   { title: "Branches", url: "/admin/branches", icon: Building2 },
   { title: "Tellers", url: "/admin/tellers", icon: UserCog },
   { title: "Approvals", url: "/admin/approvals", icon: ListChecks },
