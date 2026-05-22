@@ -553,10 +553,15 @@ export type Database = {
           email: string | null
           full_name: string | null
           id: string
+          is_temporary_password: boolean
+          last_login_at: string | null
           phone: string | null
+          require_password_change: boolean
+          status: Database["public"]["Enums"]["user_account_status"]
           teller_id: string | null
           updated_at: string
           user_id: string
+          username: string | null
         }
         Insert: {
           branch_id?: string | null
@@ -565,10 +570,15 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id?: string
+          is_temporary_password?: boolean
+          last_login_at?: string | null
           phone?: string | null
+          require_password_change?: boolean
+          status?: Database["public"]["Enums"]["user_account_status"]
           teller_id?: string | null
           updated_at?: string
           user_id: string
+          username?: string | null
         }
         Update: {
           branch_id?: string | null
@@ -577,10 +587,15 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id?: string
+          is_temporary_password?: boolean
+          last_login_at?: string | null
           phone?: string | null
+          require_password_change?: boolean
+          status?: Database["public"]["Enums"]["user_account_status"]
           teller_id?: string | null
           updated_at?: string
           user_id?: string
+          username?: string | null
         }
         Relationships: [
           {
@@ -783,6 +798,7 @@ export type Database = {
       request_type: "inflow" | "outflow"
       tx_record_status: "successful" | "pending" | "failed"
       tx_status: "pending" | "approved" | "declined"
+      user_account_status: "active" | "suspended" | "locked"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -920,6 +936,7 @@ export const Constants = {
       request_type: ["inflow", "outflow"],
       tx_record_status: ["successful", "pending", "failed"],
       tx_status: ["pending", "approved", "declined"],
+      user_account_status: ["active", "suspended", "locked"],
     },
   },
 } as const
