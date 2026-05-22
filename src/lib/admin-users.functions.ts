@@ -34,7 +34,7 @@ async function logAudit(
     action,
     table_name: table,
     record_id: recordId,
-    new_data: data,
+    new_data: data as never,
   });
 }
 
