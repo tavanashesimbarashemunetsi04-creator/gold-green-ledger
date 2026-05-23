@@ -518,16 +518,14 @@ function CreateUserDialog({
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label>Password</Label>
-              <Input
-                type="password"
+              <PasswordInput
                 value={form.password}
                 onChange={(e) => setForm({ ...form, password: e.target.value })}
               />
             </div>
             <div className="space-y-1.5">
               <Label>Confirm Password</Label>
-              <Input
-                type="password"
+              <PasswordInput
                 value={form.confirm}
                 onChange={(e) => setForm({ ...form, confirm: e.target.value })}
               />
