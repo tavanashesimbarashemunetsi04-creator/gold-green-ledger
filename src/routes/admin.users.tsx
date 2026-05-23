@@ -371,6 +371,13 @@ function AdminUsersPage() {
         resetPassword={resetPassword}
       />
 
+      <ChangeRolesDialog
+        profile={editingRoles}
+        currentRoles={editingRoles ? rolesMap[editingRoles.user_id] ?? [] : []}
+        onClose={() => setEditingRoles(null)}
+        onDone={load}
+      />
+
       <AlertDialog
         open={!!confirmAction}
         onOpenChange={(o) => !o && setConfirmAction(null)}
