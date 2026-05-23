@@ -694,7 +694,7 @@ function ResetPasswordDialog({
         <div className="space-y-3">
           <div className="space-y-1.5">
             <Label>New password</Label>
-            <Input type="password" value={pw} onChange={(e) => setPw(e.target.value)} />
+            <PasswordInput value={pw} onChange={(e) => setPw(e.target.value)} />
           </div>
           {pw && issues.length > 0 && (
             <ul className="rounded-md border border-destructive/40 bg-destructive/5 p-3 text-xs text-destructive">
