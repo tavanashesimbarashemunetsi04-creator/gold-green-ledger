@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WithdrawalsRouteImport } from './routes/withdrawals'
+import { Route as TellerFloatRouteImport } from './routes/teller-float'
 import { Route as PendingRouteImport } from './routes/pending'
 import { Route as PaymentsRouteImport } from './routes/payments'
 import { Route as LoginRouteImport } from './routes/login'
@@ -23,10 +24,16 @@ import { Route as AccountRouteImport } from './routes/account'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
+import { Route as AdminFloatRouteImport } from './routes/admin.float'
 
 const WithdrawalsRoute = WithdrawalsRouteImport.update({
   id: '/withdrawals',
   path: '/withdrawals',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TellerFloatRoute = TellerFloatRouteImport.update({
+  id: '/teller-float',
+  path: '/teller-float',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PendingRoute = PendingRouteImport.update({
@@ -94,6 +101,11 @@ const AdminUsersRoute = AdminUsersRouteImport.update({
   path: '/users',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminFloatRoute = AdminFloatRouteImport.update({
+  id: '/float',
+  path: '/float',
+  getParentRoute: () => AdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -107,7 +119,9 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/payments': typeof PaymentsRoute
   '/pending': typeof PendingRoute
+  '/teller-float': typeof TellerFloatRoute
   '/withdrawals': typeof WithdrawalsRoute
+  '/admin/float': typeof AdminFloatRoute
   '/admin/users': typeof AdminUsersRoute
   '/admin/': typeof AdminIndexRoute
 }
@@ -122,7 +136,9 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/payments': typeof PaymentsRoute
   '/pending': typeof PendingRoute
+  '/teller-float': typeof TellerFloatRoute
   '/withdrawals': typeof WithdrawalsRoute
+  '/admin/float': typeof AdminFloatRoute
   '/admin/users': typeof AdminUsersRoute
   '/admin': typeof AdminIndexRoute
 }
@@ -139,7 +155,9 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/payments': typeof PaymentsRoute
   '/pending': typeof PendingRoute
+  '/teller-float': typeof TellerFloatRoute
   '/withdrawals': typeof WithdrawalsRoute
+  '/admin/float': typeof AdminFloatRoute
   '/admin/users': typeof AdminUsersRoute
   '/admin/': typeof AdminIndexRoute
 }
@@ -157,7 +175,9 @@ export interface FileRouteTypes {
     | '/login'
     | '/payments'
     | '/pending'
+    | '/teller-float'
     | '/withdrawals'
+    | '/admin/float'
     | '/admin/users'
     | '/admin/'
   fileRoutesByTo: FileRoutesByTo
@@ -172,7 +192,9 @@ export interface FileRouteTypes {
     | '/login'
     | '/payments'
     | '/pending'
+    | '/teller-float'
     | '/withdrawals'
+    | '/admin/float'
     | '/admin/users'
     | '/admin'
   id:
@@ -188,7 +210,9 @@ export interface FileRouteTypes {
     | '/login'
     | '/payments'
     | '/pending'
+    | '/teller-float'
     | '/withdrawals'
+    | '/admin/float'
     | '/admin/users'
     | '/admin/'
   fileRoutesById: FileRoutesById
@@ -205,6 +229,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   PaymentsRoute: typeof PaymentsRoute
   PendingRoute: typeof PendingRoute
+  TellerFloatRoute: typeof TellerFloatRoute
   WithdrawalsRoute: typeof WithdrawalsRoute
 }
 
@@ -215,6 +240,13 @@ declare module '@tanstack/react-router' {
       path: '/withdrawals'
       fullPath: '/withdrawals'
       preLoaderRoute: typeof WithdrawalsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/teller-float': {
+      id: '/teller-float'
+      path: '/teller-float'
+      fullPath: '/teller-float'
+      preLoaderRoute: typeof TellerFloatRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pending': {
@@ -308,15 +340,24 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminUsersRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/float': {
+      id: '/admin/float'
+      path: '/float'
+      fullPath: '/admin/float'
+      preLoaderRoute: typeof AdminFloatRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
 
 interface AdminRouteChildren {
+  AdminFloatRoute: typeof AdminFloatRoute
   AdminUsersRoute: typeof AdminUsersRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminFloatRoute: AdminFloatRoute,
   AdminUsersRoute: AdminUsersRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
@@ -335,8 +376,19 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   PaymentsRoute: PaymentsRoute,
   PendingRoute: PendingRoute,
+  TellerFloatRoute: TellerFloatRoute,
   WithdrawalsRoute: WithdrawalsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
