@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from "
 import { supabase } from "@/integrations/supabase/client";
 import type { Session, User } from "@supabase/supabase-js";
 
-export type AppRole = "admin" | "manager" | "teller";
+export type AppRole = "admin" | "manager" | "finance_manager" | "teller";
 
 type AuthCtx = {
   user: User | null;
@@ -11,6 +11,8 @@ type AuthCtx = {
   loading: boolean;
   isAdmin: boolean;
   isManager: boolean;
+  isFinanceManager: boolean;
+  canAssignFloat: boolean;
   hasRole: (r: AppRole) => boolean;
   signOut: () => Promise<void>;
   refreshRoles: () => Promise<void>;
