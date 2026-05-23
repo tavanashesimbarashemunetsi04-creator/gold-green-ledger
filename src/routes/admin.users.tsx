@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
@@ -517,16 +518,14 @@ function CreateUserDialog({
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label>Password</Label>
-              <Input
-                type="password"
+              <PasswordInput
                 value={form.password}
                 onChange={(e) => setForm({ ...form, password: e.target.value })}
               />
             </div>
             <div className="space-y-1.5">
               <Label>Confirm Password</Label>
-              <Input
-                type="password"
+              <PasswordInput
                 value={form.confirm}
                 onChange={(e) => setForm({ ...form, confirm: e.target.value })}
               />
@@ -695,7 +694,7 @@ function ResetPasswordDialog({
         <div className="space-y-3">
           <div className="space-y-1.5">
             <Label>New password</Label>
-            <Input type="password" value={pw} onChange={(e) => setPw(e.target.value)} />
+            <PasswordInput value={pw} onChange={(e) => setPw(e.target.value)} />
           </div>
           {pw && issues.length > 0 && (
             <ul className="rounded-md border border-destructive/40 bg-destructive/5 p-3 text-xs text-destructive">
