@@ -385,15 +385,15 @@ function AccountPage() {
         <div className="grid gap-4 sm:grid-cols-3">
           <div className="space-y-2">
             <Label htmlFor="cur">Current Password</Label>
-            <Input id="cur" type="password" value={currentPwd} onChange={(e) => setCurrentPwd(e.target.value)} autoComplete="current-password" />
+            <PasswordInput id="cur" value={currentPwd} onChange={(e) => setCurrentPwd(e.target.value)} autoComplete="current-password" />
           </div>
           <div className="space-y-2">
             <Label htmlFor="new">New Password</Label>
-            <Input id="new" type="password" value={newPwd} onChange={(e) => setNewPwd(e.target.value)} autoComplete="new-password" />
+            <PasswordInput id="new" value={newPwd} onChange={(e) => setNewPwd(e.target.value)} autoComplete="new-password" />
           </div>
           <div className="space-y-2">
             <Label htmlFor="conf">Confirm New Password</Label>
-            <Input id="conf" type="password" value={confirmPwd} onChange={(e) => setConfirmPwd(e.target.value)} autoComplete="new-password" />
+            <PasswordInput id="conf" value={confirmPwd} onChange={(e) => setConfirmPwd(e.target.value)} autoComplete="new-password" />
           </div>
         </div>
         <p className="mt-3 text-xs text-muted-foreground">
