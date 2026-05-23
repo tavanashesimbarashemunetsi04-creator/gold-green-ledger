@@ -36,8 +36,14 @@ export const SIDEBAR_WIDTH = "18rem";
 export function TellerSidebar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const navigate = useNavigate();
-  const { user, roles, isAdmin, signOut } = useAuth();
-  const primaryRole = roles.includes("admin") ? "admin" : roles.includes("manager") ? "manager" : roles[0] ?? "teller";
+  const { user, roles, isAdmin, isFinanceManager, signOut } = useAuth();
+  const primaryRole = roles.includes("admin")
+    ? "admin"
+    : roles.includes("finance_manager")
+      ? "finance_manager"
+      : roles.includes("manager")
+        ? "manager"
+        : roles[0] ?? "teller";
 
   return (
     <aside
