@@ -46,7 +46,7 @@ export const adminCreateUser = createServerFn({ method: "POST" })
         full_name: z.string().trim().min(1).max(120),
         username: z.string().trim().min(2).max(40).regex(/^[a-zA-Z0-9_.-]+$/),
         email: z.string().trim().email().max(255),
-        role: z.enum(["admin", "teller"]),
+        role: z.enum(["admin", "teller", "finance_manager"]),
         password: PasswordSchema,
         is_temporary_password: z.boolean().default(false),
         require_password_change: z.boolean().default(false),
