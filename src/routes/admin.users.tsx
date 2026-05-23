@@ -405,7 +405,7 @@ function CreateUserDialog({
     full_name: "",
     username: "",
     email: "",
-    role: "teller" as "admin" | "teller",
+    role: "teller" as "admin" | "teller" | "finance_manager",
     password: "",
     confirm: "",
     is_temporary_password: false,
