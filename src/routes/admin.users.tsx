@@ -302,6 +302,9 @@ function AdminUsersPage() {
                           <DropdownMenuItem onClick={() => setResetting(p)}>
                             <KeyRound className="mr-2 h-4 w-4" /> Reset password
                           </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => setEditingRoles(p)}>
+                            <UserCog className="mr-2 h-4 w-4" /> Change roles
+                          </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           {p.status !== "active" && (
                             <DropdownMenuItem
