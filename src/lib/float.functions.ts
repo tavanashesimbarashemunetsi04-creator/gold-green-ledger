@@ -118,8 +118,8 @@ export const selfAssignFloat = createServerFn({ method: "POST" })
     await assertFinanceOrAdmin(context.userId);
     const { error } = await supabaseAdmin.rpc("self_assign_float", {
       _amount: data.amount,
-      _branch_id: data.branch_id ?? null,
-      _reference: data.reference ?? null,
+      _branch_id: (data.branch_id ?? null) as string,
+      _reference: (data.reference ?? null) as string,
     });
     if (error) throw new Error(error.message);
     return { ok: true };
