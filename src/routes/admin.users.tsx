@@ -123,6 +123,7 @@ function AdminUsersPage() {
   const [createOpen, setCreateOpen] = useState(false);
   const [viewing, setViewing] = useState<ProfileRow | null>(null);
   const [resetting, setResetting] = useState<ProfileRow | null>(null);
+  const [editingRoles, setEditingRoles] = useState<ProfileRow | null>(null);
   const [confirmAction, setConfirmAction] = useState<{
     profile: ProfileRow;
     status: AccountStatus;
