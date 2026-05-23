@@ -60,6 +60,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     loading,
     isAdmin: roles.includes("admin"),
     isManager: roles.includes("manager") || roles.includes("admin"),
+    isFinanceManager: roles.includes("finance_manager") || roles.includes("admin"),
+    canAssignFloat: roles.includes("admin") || roles.includes("finance_manager"),
     hasRole: (r) => roles.includes(r),
     signOut: async () => {
       await supabase.auth.signOut();
