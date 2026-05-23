@@ -57,18 +57,27 @@ import {
   CheckCircle2,
   Lock,
   Eye,
+  UserCog,
 } from "lucide-react";
 import {
   adminCreateUser,
   adminResetPassword,
   adminSetUserStatus,
 } from "@/lib/admin-users.functions";
+import { grantRole } from "@/lib/float.functions";
 
 export const Route = createFileRoute("/admin/users")({
   component: AdminUsersPage,
 });
 
-type Role = "admin" | "manager" | "teller";
+type Role = "admin" | "manager" | "finance_manager" | "teller";
+const ALL_ROLES: Role[] = ["admin", "finance_manager", "manager", "teller"];
+const ROLE_LABEL: Record<Role, string> = {
+  admin: "Admin",
+  finance_manager: "Finance Manager",
+  manager: "Manager",
+  teller: "Teller",
+};
 type AccountStatus = "active" | "suspended" | "locked";
 type ProfileRow = {
   id: string;
