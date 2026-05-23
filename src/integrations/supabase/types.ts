@@ -52,34 +52,52 @@ export type Database = {
           action: string
           actor_label: string | null
           actor_user_id: string | null
+          amount: number | null
+          branch_id: string | null
           created_at: string
+          device_ip: string | null
           id: string
+          module: string | null
           new_data: Json | null
           old_data: Json | null
           record_id: string | null
+          role: string | null
           table_name: string
+          target_user_id: string | null
         }
         Insert: {
           action: string
           actor_label?: string | null
           actor_user_id?: string | null
+          amount?: number | null
+          branch_id?: string | null
           created_at?: string
+          device_ip?: string | null
           id?: string
+          module?: string | null
           new_data?: Json | null
           old_data?: Json | null
           record_id?: string | null
+          role?: string | null
           table_name: string
+          target_user_id?: string | null
         }
         Update: {
           action?: string
           actor_label?: string | null
           actor_user_id?: string | null
+          amount?: number | null
+          branch_id?: string | null
           created_at?: string
+          device_ip?: string | null
           id?: string
+          module?: string | null
           new_data?: Json | null
           old_data?: Json | null
           record_id?: string | null
+          role?: string | null
           table_name?: string
+          target_user_id?: string | null
         }
         Relationships: []
       }
@@ -374,6 +392,59 @@ export type Database = {
           },
         ]
       }
+      float_assignments: {
+        Row: {
+          amount: number
+          approved_at: string | null
+          assigned_by_user_id: string
+          assigned_to_user_id: string
+          branch_id: string | null
+          created_at: string
+          id: string
+          notes: string | null
+          reference: string | null
+          rejected_at: string | null
+          rejection_reason: string | null
+          status: Database["public"]["Enums"]["float_assignment_status"]
+        }
+        Insert: {
+          amount: number
+          approved_at?: string | null
+          assigned_by_user_id: string
+          assigned_to_user_id: string
+          branch_id?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          reference?: string | null
+          rejected_at?: string | null
+          rejection_reason?: string | null
+          status?: Database["public"]["Enums"]["float_assignment_status"]
+        }
+        Update: {
+          amount?: number
+          approved_at?: string | null
+          assigned_by_user_id?: string
+          assigned_to_user_id?: string
+          branch_id?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          reference?: string | null
+          rejected_at?: string | null
+          rejection_reason?: string | null
+          status?: Database["public"]["Enums"]["float_assignment_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "float_assignments_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       internal_transactions: {
         Row: {
           amount: number
@@ -549,6 +620,7 @@ export type Database = {
         Row: {
           branch_id: string | null
           created_at: string
+          day_open: boolean
           display_name: string | null
           email: string | null
           full_name: string | null
@@ -556,6 +628,7 @@ export type Database = {
           is_temporary_password: boolean
           last_login_at: string | null
           phone: string | null
+          ready_to_open_day: boolean
           require_password_change: boolean
           status: Database["public"]["Enums"]["user_account_status"]
           teller_id: string | null
@@ -566,6 +639,7 @@ export type Database = {
         Insert: {
           branch_id?: string | null
           created_at?: string
+          day_open?: boolean
           display_name?: string | null
           email?: string | null
           full_name?: string | null
@@ -573,6 +647,7 @@ export type Database = {
           is_temporary_password?: boolean
           last_login_at?: string | null
           phone?: string | null
+          ready_to_open_day?: boolean
           require_password_change?: boolean
           status?: Database["public"]["Enums"]["user_account_status"]
           teller_id?: string | null
@@ -583,6 +658,7 @@ export type Database = {
         Update: {
           branch_id?: string | null
           created_at?: string
+          day_open?: boolean
           display_name?: string | null
           email?: string | null
           full_name?: string | null
@@ -590,6 +666,7 @@ export type Database = {
           is_temporary_password?: boolean
           last_login_at?: string | null
           phone?: string | null
+          ready_to_open_day?: boolean
           require_password_change?: boolean
           status?: Database["public"]["Enums"]["user_account_status"]
           teller_id?: string | null
@@ -661,6 +738,50 @@ export type Database = {
           username?: string
         }
         Relationships: []
+      }
+      user_internal_transactions: {
+        Row: {
+          amount: number
+          category: Database["public"]["Enums"]["internal_tx_category"]
+          created_at: string
+          created_by_user_id: string | null
+          id: string
+          kind: Database["public"]["Enums"]["internal_tx_kind"]
+          notes: string | null
+          related_float_assignment_id: string | null
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          category: Database["public"]["Enums"]["internal_tx_category"]
+          created_at?: string
+          created_by_user_id?: string | null
+          id?: string
+          kind: Database["public"]["Enums"]["internal_tx_kind"]
+          notes?: string | null
+          related_float_assignment_id?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          category?: Database["public"]["Enums"]["internal_tx_category"]
+          created_at?: string
+          created_by_user_id?: string | null
+          id?: string
+          kind?: Database["public"]["Enums"]["internal_tx_kind"]
+          notes?: string | null
+          related_float_assignment_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_internal_transactions_related_float_assignment_id_fkey"
+            columns: ["related_float_assignment_id"]
+            isOneToOne: false
+            referencedRelation: "float_assignments"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
@@ -773,8 +894,38 @@ export type Database = {
           },
         ]
       }
+      user_float_balances: {
+        Row: {
+          balance: number | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
+      approve_float_assignment: {
+        Args: { _assignment_id: string }
+        Returns: {
+          amount: number
+          approved_at: string | null
+          assigned_by_user_id: string
+          assigned_to_user_id: string
+          branch_id: string | null
+          created_at: string
+          id: string
+          notes: string | null
+          reference: string | null
+          rejected_at: string | null
+          rejection_reason: string | null
+          status: Database["public"]["Enums"]["float_assignment_status"]
+        }
+        SetofOptions: {
+          from: "*"
+          to: "float_assignments"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       current_user_has_any_role: {
         Args: { _roles: Database["public"]["Enums"]["app_role"][] }
         Returns: boolean
@@ -786,6 +937,49 @@ export type Database = {
         }
         Returns: boolean
       }
+      reject_float_assignment: {
+        Args: { _assignment_id: string; _reason: string }
+        Returns: {
+          amount: number
+          approved_at: string | null
+          assigned_by_user_id: string
+          assigned_to_user_id: string
+          branch_id: string | null
+          created_at: string
+          id: string
+          notes: string | null
+          reference: string | null
+          rejected_at: string | null
+          rejection_reason: string | null
+          status: Database["public"]["Enums"]["float_assignment_status"]
+        }
+        SetofOptions: {
+          from: "*"
+          to: "float_assignments"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      self_assign_float: {
+        Args: { _amount: number; _branch_id: string; _reference: string }
+        Returns: {
+          amount: number
+          category: Database["public"]["Enums"]["internal_tx_category"]
+          created_at: string
+          created_by_user_id: string | null
+          id: string
+          kind: Database["public"]["Enums"]["internal_tx_kind"]
+          notes: string | null
+          related_float_assignment_id: string | null
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "user_internal_transactions"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
     }
     Enums: {
       app_role: "admin" | "manager" | "teller" | "finance_manager"
@@ -794,6 +988,14 @@ export type Database = {
       decision: "pending" | "approved" | "declined"
       ecocash_source: "manual_entry" | "internal_transaction"
       ecocash_tx_type: "inflow" | "outflow"
+      float_assignment_status: "pending" | "approved" | "rejected" | "cancelled"
+      internal_tx_category:
+        | "opening_float"
+        | "float_assignment"
+        | "self_float"
+        | "adjustment"
+        | "other"
+      internal_tx_kind: "inflow" | "outflow"
       payment_type_enum: "cash" | "transfer" | "mobile"
       request_type: "inflow" | "outflow"
       tx_record_status: "successful" | "pending" | "failed"
@@ -932,6 +1134,15 @@ export const Constants = {
       decision: ["pending", "approved", "declined"],
       ecocash_source: ["manual_entry", "internal_transaction"],
       ecocash_tx_type: ["inflow", "outflow"],
+      float_assignment_status: ["pending", "approved", "rejected", "cancelled"],
+      internal_tx_category: [
+        "opening_float",
+        "float_assignment",
+        "self_float",
+        "adjustment",
+        "other",
+      ],
+      internal_tx_kind: ["inflow", "outflow"],
       payment_type_enum: ["cash", "transfer", "mobile"],
       request_type: ["inflow", "outflow"],
       tx_record_status: ["successful", "pending", "failed"],
