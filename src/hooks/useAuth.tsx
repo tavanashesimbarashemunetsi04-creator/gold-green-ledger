@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from "
 import { supabase } from "@/integrations/supabase/client";
 import type { Session, User } from "@supabase/supabase-js";
 
-export type AppRole = "admin" | "manager" | "teller";
+export type AppRole = "admin" | "manager" | "finance_manager" | "teller";
 
 type AuthCtx = {
   user: User | null;
@@ -11,6 +11,8 @@ type AuthCtx = {
   loading: boolean;
   isAdmin: boolean;
   isManager: boolean;
+  isFinanceManager: boolean;
+  canAssignFloat: boolean;
   hasRole: (r: AppRole) => boolean;
   signOut: () => Promise<void>;
   refreshRoles: () => Promise<void>;
@@ -58,6 +60,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     loading,
     isAdmin: roles.includes("admin"),
     isManager: roles.includes("manager") || roles.includes("admin"),
+    isFinanceManager: roles.includes("finance_manager") || roles.includes("admin"),
+    canAssignFloat: roles.includes("admin") || roles.includes("finance_manager"),
     hasRole: (r) => roles.includes(r),
     signOut: async () => {
       await supabase.auth.signOut();

@@ -1,0 +1,1 @@
+ALTER VIEW public.user_float_balances SET (security_invoker = on);

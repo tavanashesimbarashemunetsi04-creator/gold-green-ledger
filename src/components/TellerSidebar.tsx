@@ -18,6 +18,7 @@ import {
 
 const items = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
+  { title: "My Float", url: "/teller-float", icon: ShieldCheck },
   { title: "Payments", url: "/payments", icon: ArrowDownToLine },
   { title: "Withdrawals", url: "/withdrawals", icon: ArrowUpFromLine },
   { title: "Ecocash", url: "/ecocash", icon: Smartphone },
