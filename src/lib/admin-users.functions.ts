@@ -82,11 +82,11 @@ export const adminCreateUser = createServerFn({ method: "POST" })
       );
     if (pErr) throw new Error(pErr.message);
 
-    // Default trigger inserts 'teller'; if admin requested, add admin role
-    if (data.role === "admin") {
+    // Default trigger inserts 'teller'; add additional role if requested
+    if (data.role === "admin" || data.role === "finance_manager") {
       await supabaseAdmin
         .from("user_roles")
-        .insert({ user_id: uid, role: "admin" })
+        .insert({ user_id: uid, role: data.role })
         .then(() => {});
     }
 
