@@ -502,11 +502,12 @@ function CreateUserDialog({
               <Label>Role</Label>
               <Select
                 value={form.role}
-                onValueChange={(v) => setForm({ ...form, role: v as "admin" | "teller" })}
+                onValueChange={(v) => setForm({ ...form, role: v as "admin" | "teller" | "finance_manager" })}
               >
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="teller">Teller</SelectItem>
+                  <SelectItem value="finance_manager">Finance Manager</SelectItem>
                   <SelectItem value="admin">Admin</SelectItem>
                 </SelectContent>
               </Select>
