@@ -788,7 +788,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "manager" | "teller"
+      app_role: "admin" | "manager" | "teller" | "finance_manager"
       bank_enum: "ZB" | "CBZ" | "BANCABC" | "AFC"
       cash_tx_type: "withdrawal" | "deposit"
       decision: "pending" | "approved" | "declined"
@@ -926,7 +926,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "manager", "teller"],
+      app_role: ["admin", "manager", "teller", "finance_manager"],
       bank_enum: ["ZB", "CBZ", "BANCABC", "AFC"],
       cash_tx_type: ["withdrawal", "deposit"],
       decision: ["pending", "approved", "declined"],
