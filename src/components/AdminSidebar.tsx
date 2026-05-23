@@ -17,6 +17,7 @@ import {
 const items = [
   { title: "Dashboard", url: "/admin", icon: LayoutDashboard, exact: true },
   { title: "Users", url: "/admin/users", icon: Users },
+  { title: "Float Management", url: "/admin/float", icon: ArrowLeftRight },
   { title: "Branches", url: "/admin/branches", icon: Building2 },
   { title: "Tellers", url: "/admin/tellers", icon: UserCog },
   { title: "Approvals", url: "/admin/approvals", icon: ListChecks },
