@@ -36,8 +36,14 @@ export const SIDEBAR_WIDTH = "18rem";
 export function TellerSidebar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const navigate = useNavigate();
-  const { user, roles, isAdmin, signOut } = useAuth();
-  const primaryRole = roles.includes("admin") ? "admin" : roles.includes("manager") ? "manager" : roles[0] ?? "teller";
+  const { user, roles, isAdmin, isFinanceManager, signOut } = useAuth();
+  const primaryRole = roles.includes("admin")
+    ? "admin"
+    : roles.includes("finance_manager")
+      ? "finance_manager"
+      : roles.includes("manager")
+        ? "manager"
+        : roles[0] ?? "teller";
 
   return (
     <aside
@@ -96,13 +102,13 @@ export function TellerSidebar() {
 
         {/* Footer */}
         <div className="border-t border-white/10 p-4">
-          {isAdmin && (
+          {(isAdmin || isFinanceManager) && (
             <Link
               to="/admin"
               className="mb-2 flex items-center gap-3 rounded-lg bg-white/10 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-white/20"
             >
               <ShieldCheck className="h-4 w-4" />
-              Open Admin Portal
+              {isAdmin ? "Open Admin Portal" : "Open Finance Portal"}
             </Link>
           )}
           {user && (
