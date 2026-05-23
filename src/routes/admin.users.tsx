@@ -742,3 +742,94 @@ function ResetPasswordDialog({
     </Dialog>
   );
 }
+
+function ChangeRolesDialog({
+  profile,
+  currentRoles,
+  onClose,
+  onDone,
+}: {
+  profile: ProfileRow | null;
+  currentRoles: Role[];
+  onClose: () => void;
+  onDone: () => void | Promise<void>;
+}) {
+  const grant = useServerFn(grantRole);
+  const [selected, setSelected] = useState<Role[]>([]);
+  const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    setSelected(currentRoles);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile?.user_id]);
+
+  const toggle = (r: Role) =>
+    setSelected((prev) => (prev.includes(r) ? prev.filter((x) => x !== r) : [...prev, r]));
+
+  const submit = async () => {
+    if (!profile) return;
+    if (selected.length === 0) {
+      toast.error("User must have at least one role");
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const toAdd = selected.filter((r) => !currentRoles.includes(r));
+      const toRemove = currentRoles.filter((r) => !selected.includes(r));
+      for (const role of toAdd) {
+        await grant({ data: { user_id: profile.user_id, role, grant: true } });
+      }
+      for (const role of toRemove) {
+        await grant({ data: { user_id: profile.user_id, role, grant: false } });
+      }
+      toast.success("Roles updated");
+      onClose();
+      await onDone();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to update roles");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <Dialog open={!!profile} onOpenChange={(o) => !o && onClose()}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Change roles</DialogTitle>
+          <DialogDescription>
+            Update roles for <strong>{profile?.email}</strong>.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-2">
+          {ALL_ROLES.map((r) => {
+            const checked = selected.includes(r);
+            return (
+              <label
+                key={r}
+                className="flex cursor-pointer items-center justify-between rounded-md border p-3 hover:bg-muted/50"
+              >
+                <div className="flex items-center gap-2">
+                  {r === "admin" && <ShieldCheck className="h-4 w-4" />}
+                  {(r === "manager" || r === "finance_manager") && <Shield className="h-4 w-4" />}
+                  {r === "teller" && <UserIcon className="h-4 w-4" />}
+                  <span className="text-sm font-medium">{ROLE_LABEL[r]}</span>
+                </div>
+                <Switch checked={checked} onCheckedChange={() => toggle(r)} />
+              </label>
+            );
+          })}
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose} disabled={submitting}>
+            Cancel
+          </Button>
+          <Button onClick={submit} disabled={submitting}>
+            {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Save roles
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
