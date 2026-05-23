@@ -219,6 +219,7 @@ function AdminUsersPage() {
             <SelectContent>
               <SelectItem value="all">All roles</SelectItem>
               <SelectItem value="admin">Admin</SelectItem>
+              <SelectItem value="finance_manager">Finance Manager</SelectItem>
               <SelectItem value="manager">Manager</SelectItem>
               <SelectItem value="teller">Teller</SelectItem>
             </SelectContent>
