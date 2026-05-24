@@ -66,8 +66,8 @@ export const approveFloat = createServerFn({ method: "POST" })
     z.object({ assignment_id: z.string().uuid() }).parse(input),
   )
   .handler(async ({ data, context }) => {
-    // RPC enforces caller is the assigned teller
-    const { error } = await supabaseAdmin.rpc("approve_float_assignment", {
+    // Use the user-authenticated client so auth.uid() resolves inside the RPC
+    const { error } = await context.supabase.rpc("approve_float_assignment", {
       _assignment_id: data.assignment_id,
     });
     if (error) {
