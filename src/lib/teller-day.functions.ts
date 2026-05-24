@@ -225,9 +225,9 @@ export const openDay = createServerFn({ method: "POST" })
     }
     const { data: row, error } = await context.supabase.rpc("open_teller_day", {
       _float: data.floatAmount,
-      _branch: (data.branchId ?? null) as string,
-      _device: data.device ?? null,
-      _ip: ip,
+      _branch: (data.branchId ?? null) as never,
+      _device: (data.device ?? null) as never,
+      _ip: ip as never,
     });
     if (error) throw new Error(error.message);
     return { ok: true, session: row };
