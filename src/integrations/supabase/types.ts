@@ -721,6 +721,57 @@ export type Database = {
         }
         Relationships: []
       }
+      teller_sessions: {
+        Row: {
+          branch_id: string | null
+          closed_at: string | null
+          closed_device: string | null
+          closed_ip: string | null
+          closing_cash_at_hand: number | null
+          created_at: string
+          id: string
+          opened_at: string
+          opened_device: string | null
+          opened_float_amount: number
+          opened_ip: string | null
+          session_code: string
+          status: Database["public"]["Enums"]["teller_session_status"]
+          user_id: string
+        }
+        Insert: {
+          branch_id?: string | null
+          closed_at?: string | null
+          closed_device?: string | null
+          closed_ip?: string | null
+          closing_cash_at_hand?: number | null
+          created_at?: string
+          id?: string
+          opened_at?: string
+          opened_device?: string | null
+          opened_float_amount: number
+          opened_ip?: string | null
+          session_code?: string
+          status?: Database["public"]["Enums"]["teller_session_status"]
+          user_id: string
+        }
+        Update: {
+          branch_id?: string | null
+          closed_at?: string | null
+          closed_device?: string | null
+          closed_ip?: string | null
+          closing_cash_at_hand?: number | null
+          created_at?: string
+          id?: string
+          opened_at?: string
+          opened_device?: string | null
+          opened_float_amount?: number
+          opened_ip?: string | null
+          session_code?: string
+          status?: Database["public"]["Enums"]["teller_session_status"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       tellers: {
         Row: {
           created_at: string
@@ -926,6 +977,31 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      close_teller_day: {
+        Args: { _cash_at_hand: number; _device: string; _ip?: string }
+        Returns: {
+          branch_id: string | null
+          closed_at: string | null
+          closed_device: string | null
+          closed_ip: string | null
+          closing_cash_at_hand: number | null
+          created_at: string
+          id: string
+          opened_at: string
+          opened_device: string | null
+          opened_float_amount: number
+          opened_ip: string | null
+          session_code: string
+          status: Database["public"]["Enums"]["teller_session_status"]
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "teller_sessions"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       current_user_has_any_role: {
         Args: { _roles: Database["public"]["Enums"]["app_role"][] }
         Returns: boolean
@@ -936,6 +1012,31 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      open_teller_day: {
+        Args: { _branch: string; _device: string; _float: number; _ip?: string }
+        Returns: {
+          branch_id: string | null
+          closed_at: string | null
+          closed_device: string | null
+          closed_ip: string | null
+          closing_cash_at_hand: number | null
+          created_at: string
+          id: string
+          opened_at: string
+          opened_device: string | null
+          opened_float_amount: number
+          opened_ip: string | null
+          session_code: string
+          status: Database["public"]["Enums"]["teller_session_status"]
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "teller_sessions"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       reject_float_assignment: {
         Args: { _assignment_id: string; _reason: string }
@@ -998,6 +1099,7 @@ export type Database = {
       internal_tx_kind: "inflow" | "outflow"
       payment_type_enum: "cash" | "transfer" | "mobile"
       request_type: "inflow" | "outflow"
+      teller_session_status: "open" | "closed"
       tx_record_status: "successful" | "pending" | "failed"
       tx_status: "pending" | "approved" | "declined"
       user_account_status: "active" | "suspended" | "locked"
@@ -1145,6 +1247,7 @@ export const Constants = {
       internal_tx_kind: ["inflow", "outflow"],
       payment_type_enum: ["cash", "transfer", "mobile"],
       request_type: ["inflow", "outflow"],
+      teller_session_status: ["open", "closed"],
       tx_record_status: ["successful", "pending", "failed"],
       tx_status: ["pending", "approved", "declined"],
       user_account_status: ["active", "suspended", "locked"],
