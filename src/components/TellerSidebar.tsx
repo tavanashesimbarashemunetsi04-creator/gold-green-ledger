@@ -1,5 +1,6 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/useAuth";
+import { useDashboardState } from "@/hooks/useDashboardState";
 import {
   LayoutDashboard,
   ArrowDownToLine,
@@ -14,21 +15,22 @@ import {
   Settings as SettingsIcon,
   LogOut,
   ShieldCheck,
+  Lock,
 } from "lucide-react";
 
 const items = [
-  { title: "Dashboard", url: "/", icon: LayoutDashboard },
-  { title: "My Float", url: "/teller-float", icon: ShieldCheck },
-  { title: "Payments", url: "/payments", icon: ArrowDownToLine },
-  { title: "Withdrawals", url: "/withdrawals", icon: ArrowUpFromLine },
-  { title: "Ecocash", url: "/ecocash", icon: Smartphone },
-  { title: "Internal Transactions", url: "/internal-transactions", icon: Repeat },
-  { title: "Changes and Refunds", url: "/changes-refunds", icon: RefreshCcw },
-  { title: "Pending", url: "/pending", icon: Clock },
-  { title: "Failed", url: "/failed", icon: XCircle },
-  { title: "End Day Summary", url: "/end-day", icon: FileBarChart },
-  { title: "My Account", url: "/account", icon: UserCircle2 },
-  { title: "Settings", url: "/settings", icon: SettingsIcon },
+  { title: "Dashboard", url: "/", icon: LayoutDashboard, requiresDay: false },
+  { title: "My Float", url: "/teller-float", icon: ShieldCheck, requiresDay: false },
+  { title: "Payments", url: "/payments", icon: ArrowDownToLine, requiresDay: true },
+  { title: "Withdrawals", url: "/withdrawals", icon: ArrowUpFromLine, requiresDay: true },
+  { title: "Ecocash", url: "/ecocash", icon: Smartphone, requiresDay: true },
+  { title: "Internal Transactions", url: "/internal-transactions", icon: Repeat, requiresDay: true },
+  { title: "Changes and Refunds", url: "/changes-refunds", icon: RefreshCcw, requiresDay: true },
+  { title: "Pending", url: "/pending", icon: Clock, requiresDay: false },
+  { title: "Failed", url: "/failed", icon: XCircle, requiresDay: false },
+  { title: "End Day Summary", url: "/end-day", icon: FileBarChart, requiresDay: false },
+  { title: "My Account", url: "/account", icon: UserCircle2, requiresDay: false },
+  { title: "Settings", url: "/settings", icon: SettingsIcon, requiresDay: false },
 ];
 
 export const SIDEBAR_WIDTH = "18rem";
@@ -37,6 +39,7 @@ export function TellerSidebar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const navigate = useNavigate();
   const { user, roles, isAdmin, isFinanceManager, signOut } = useAuth();
+  const { isDayOpen } = useDashboardState(20000);
   const primaryRole = roles.includes("admin")
     ? "admin"
     : roles.includes("finance_manager")
@@ -78,22 +81,29 @@ export function TellerSidebar() {
             {items.map((item) => {
               const active = pathname === item.url;
               const Icon = item.icon;
+              const locked = item.requiresDay && !isDayOpen && !isAdmin;
+              const cls = `group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all ${
+                active
+                  ? "bg-[var(--gold)] text-gold-foreground shadow-[var(--shadow-gold)]"
+                  : locked
+                    ? "cursor-not-allowed text-white/30"
+                    : "text-white/80 hover:bg-white/10 hover:text-white"
+              }`;
               return (
                 <li key={item.url}>
-                  <Link
-                    to={item.url}
-                    className={`group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all ${
-                      active
-                        ? "bg-[var(--gold)] text-gold-foreground shadow-[var(--shadow-gold)]"
-                        : "text-white/80 hover:bg-white/10 hover:text-white"
-                    }`}
-                  >
-                    <Icon className="h-4 w-4" />
-                    <span>{item.title}</span>
-                    {active && (
-                      <span className="ml-auto h-2 w-2 rounded-full bg-[var(--primary)]" />
-                    )}
-                  </Link>
+                  {locked ? (
+                    <div className={cls} title="Open your operational day to transact">
+                      <Icon className="h-4 w-4" />
+                      <span>{item.title}</span>
+                      <Lock className="ml-auto h-3 w-3" />
+                    </div>
+                  ) : (
+                    <Link to={item.url} className={cls}>
+                      <Icon className="h-4 w-4" />
+                      <span>{item.title}</span>
+                      {active && <span className="ml-auto h-2 w-2 rounded-full bg-[var(--primary)]" />}
+                    </Link>
+                  )}
                 </li>
               );
             })}

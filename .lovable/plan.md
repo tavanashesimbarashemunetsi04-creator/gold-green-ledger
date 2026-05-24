@@ -1,78 +1,69 @@
-# Finance Manager Role + Float Management Redesign
+# Teller Operational Day Dashboard
 
-This is a large, multi-layer change. Below is the proposed plan — please confirm before I start building.
+A complete rebuild of the home dashboard plus the backend rules that enforce operational day status across the app.
 
-## 1. Database Migration
+## 1. Database (migration)
 
-**Enum updates**
-- Add `'finance_manager'` to `app_role` enum.
-- New enum `float_assignment_status`: `pending`, `approved`, `rejected`, `cancelled`.
-- New enum `internal_tx_category`: `opening_float`, `float_assignment`, `self_float`, `other`.
+New table `teller_sessions`:
+- `id`, `user_id`, `branch_id`, `session_code` (short readable)
+- `opened_at`, `opened_float_amount`, `opened_device`, `opened_ip`
+- `closed_at`, `closing_cash_at_hand`, `closed_device`, `closed_ip`
+- `status` enum: `open` | `closed`
+- Partial unique index: one `open` session per `user_id`
 
-**New tables**
-- `float_assignments` — `id, assigned_by_user_id, assigned_to_user_id, amount, branch_id, reference, notes, status, approved_at, rejected_at, rejection_reason, created_at`.
-- `user_internal_transactions` — per-user ledger (`user_id, type inflow/outflow, category, amount, related_float_assignment_id, created_by, created_at`). Distinct from existing `internal_transactions` (teller-to-teller) so we don't break the current ecocash flow.
-- Extend `audit_logs` with `role`, `module`, `amount`, `target_user_id`, `branch_id`, `device_ip` columns (nullable, additive only).
+Helper SQL function `current_open_session(uid)` returning the active row.
 
-**Triggers / RPC**
-- `approve_float_assignment(assignment_id)` SECURITY DEFINER: validates caller is `assigned_to`, status pending; inserts the two paired `user_internal_transactions`; flips status to `approved`; writes audit log. Atomic.
-- `reject_float_assignment(assignment_id, reason)` — similar guards, no ledger writes.
-- `assign_float(...)` helper that enforces no negative, no over-balance (computed from manager's ledger), no self-approval, writes audit log.
-- View `user_balances` = sum of inflow − outflow per user.
+Server-side enforcement (the critical part):
+- New trigger `enforce_day_open()` attached to INSERT on `payments`, `cash_swipes`, `cash_advance`, `ecocash_transactions`, `internal_transactions`. Raises if the acting user (auth.uid()) has no open session. Admins bypass.
+- `profiles.day_open` kept in sync via trigger on `teller_sessions`.
 
-**RLS**
-- `float_assignments`: assignee & assigner can SELECT; only finance_manager/admin INSERT; UPDATE only via RPC.
-- `user_internal_transactions`: owner + admin/finance_manager SELECT; INSERT only via SECURITY DEFINER functions.
-- Admin-only writes on `audit_logs` (already restrictive).
+RPCs (SECURITY DEFINER):
+- `open_teller_day(_float numeric, _branch uuid, _device text)` — verifies `ready_to_open_day = true`, no existing open session, inserts row, sets `profiles.day_open = true`, writes audit_log.
+- `close_teller_day(_cash_at_hand numeric, _device text)` — closes the open session, sets `profiles.day_open = false, ready_to_open_day = false`, writes audit_log.
 
-## 2. Backend Server Functions (`src/lib/float.functions.ts`)
-All use `requireSupabaseAuth` + admin role check:
-- `assignFloat({ teller_user_id, amount, branch_id, reference, notes })`
-- `approveFloat({ assignment_id, password })` — re-verifies password via `signInWithPassword` before RPC.
-- `rejectFloat({ assignment_id, reason })`
-- `selfAssignFloat({ amount, branch_id, reference })` — finance_manager only.
-- `listPendingForMe()`, `listAssignedByMe()`, `getMyBalance()`.
+## 2. Server functions (`src/lib/teller-day.functions.ts`)
+
+All guarded by `requireSupabaseAuth`:
+- `getDashboardState()` → `{ session, pendingFloat, todayTotals, recent }`
+  - `pendingFloat`: latest pending `float_assignments` row for user
+  - `todayTotals`: sums of payments / withdrawals (cash_advance) / internal in & out / cash at hand (opening_float + inflows − outflows from `user_internal_transactions` + today's net cash)
+  - `recent`: last 20 user transactions across payments/cash_advance/internal merged + sorted
+- `openDay({ floatAmount, branchId, device })` → calls `open_teller_day` RPC
+- `closeDay({ cashAtHand, device })` → calls `close_teller_day` RPC
 
 ## 3. Frontend
 
-**Auth/role plumbing**
-- Extend `useAuth` with `isFinanceManager`, helper `canAssignFloat`.
-- Add **Mode Switcher** in header: Admin↔Teller for admins, Manager↔Teller for finance managers. Persisted in `localStorage` + audit-logged. Active mode shown as a badge.
+### `src/routes/index.tsx` (rebuild)
+- Greeting card: time-based hello, username (from profile), full date, branch name
+- Status pill: green "Day Open · Session #XYZ" or red "Day Closed"
+- Action buttons:
+  - If no pending/approved float and no open session → disabled "Open Day" with caption "Waiting for finance float assignment"
+  - If pending float → "Review Float" button → opens dialog showing amount + Approve/Reject (calls existing `approveFloat` / `rejectFloat`)
+  - If approved float ready → enabled "Open Day" → confirm dialog → opens session
+  - If session open → "Close Day" → confirm dialog (asks closing cash at hand) → closes
+- 5 summary tiles: Total Payments, Total Withdrawals, Internal Inflow, Internal Outflow, Cash At Hand (highlighted with gradient + larger). Animated count-up.
+- Recent Transactions panel with search filter, status badges (successful/pending/failed/reversed)
+- Polls `getDashboardState` every 15s via TanStack Query
 
-**Admin Users page**
-- Add `finance_manager` toggle to role controls.
+### `src/components/TellerSidebar.tsx`
+- If day not open → render transaction nav items disabled + tooltip "Operational day not opened"
+- If day closed today (had session) → "Operational day closed — view only"
+- Read state from a shared `useDayStatus()` hook backed by the same query
 
-**New routes**
-- `/admin/float` — Float Management (assign form + list of assignments by status).
-- `/admin/float/pending` — Pending approvals (manager-side view of awaiting tellers).
-- `/admin/float/internal` — Internal transactions ledger (all users).
-- `/admin/float/liquidity` — Teller liquidity snapshot.
-- `/admin/float/reconciliation` — daily float reconciliation.
-- `/finance` — Finance Manager dashboard (Available Float, Pending Approvals, Assigned Today, Returned, Teller Statuses, Open/Closed).
-- `/teller/float` — Teller "Pending Float" inbox + Approve/Reject with password reconfirm.
-- `/teller/open-day` — gated on approved float; flips teller to `READY_TO_OPEN_DAY`.
+### `src/hooks/useDayStatus.ts`
+- Wraps `useQuery(getDashboardState)`, exposes `isDayOpen`, `canTransact`, `session`
 
-**Dashboard updates**
-- Teller dashboard: Assigned Float, Pending Approval banner, Open Day button (disabled until approved), Current Cash, Internal Tx.
-- Finance dashboard cards as listed in spec.
+### Transaction routes (`payments.tsx`, `withdrawals.tsx`, `internal-transactions.tsx`, `ecocash.tsx`, `changes-refunds.tsx`)
+- Guard at top: if `!canTransact` show banner and disable forms (backend already blocks but frontend should reflect)
 
-**Sidebars**
-- `AdminSidebar`: add Float Management group (4 items).
-- `FinanceSidebar` (new): Float Management, Pending Approvals, Internal Tx, Teller Liquidity, Reconciliation.
-- `TellerSidebar`: add Pending Float, Approve Opening Float, Open Day items.
+## 4. Audit logging
+- Open/close RPCs insert into `audit_logs` with module='teller_day', includes amount, branch, session id, device
 
-## 4. Security
-- Password reconfirm modal before any approve/reject/self-float action.
-- All RPCs SECURITY DEFINER with explicit caller checks (never trust client role claims).
-- Audit log entries written from RPCs, not the client.
-- Day-open gated server-side by checking latest approved float for the teller.
+## Technical notes
+- Device string built on client: `${platform} · ${userAgent slice}`; IP collected server-side via `getRequestIP`
+- Number animation: simple `useEffect` interpolation, no extra deps
+- Tile design tokens use existing `--gradient-primary`, `--gradient-gold`, shadow vars
 
-## 5. Scope of THIS task
-Given the size, I propose shipping in this order in **one** turn:
-1. Migration (enum + tables + RPCs + RLS).
-2. Server functions.
-3. Mode switcher + role wiring.
-4. Float Management UI (assign + pending + approve/reject for teller).
-5. Audit log surface.
-
-The reconciliation page, liquidity heatmap, and self-float auto-approve toggle can land as a follow-up turn so this one stays reviewable. Confirm and I'll start with the migration.
+## Out of scope
+- Editing other transaction modules' UI beyond the disabled banner
+- Reports module changes
