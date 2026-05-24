@@ -252,8 +252,8 @@ export const closeDay = createServerFn({ method: "POST" })
     }
     const { data: row, error } = await context.supabase.rpc("close_teller_day", {
       _cash_at_hand: data.cashAtHand,
-      _device: data.device ?? null,
-      _ip: ip,
+      _device: (data.device ?? null) as never,
+      _ip: ip as never,
     });
     if (error) throw new Error(error.message);
     return { ok: true, session: row };
