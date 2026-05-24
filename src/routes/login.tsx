@@ -8,6 +8,7 @@ import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import logoMark from "@/assets/logo-mark.png";
 
 export const Route = createFileRoute("/login")({
   component: LoginPage,
@@ -74,10 +75,13 @@ function LoginPage() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="w-full max-w-md rounded-2xl border border-border bg-card p-8 shadow-lg">
-        <h1 className="text-2xl font-semibold">
+        <div className="mb-4 flex justify-center">
+          <img src={logoMark} alt="Authentic Financial Services" className="h-20 w-20 object-contain" />
+        </div>
+        <h1 className="text-center text-2xl font-semibold">
           {mode === "signin" ? "Sign in" : "Create account"}
         </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <p className="mt-1 text-center text-sm text-muted-foreground">
           Authentic Financial Services — Teller Portal
         </p>
 
