@@ -1,5 +1,6 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/useAuth";
+import { useDashboardState } from "@/hooks/useDashboardState";
 import {
   LayoutDashboard,
   ArrowDownToLine,
@@ -14,21 +15,22 @@ import {
   Settings as SettingsIcon,
   LogOut,
   ShieldCheck,
+  Lock,
 } from "lucide-react";
 
 const items = [
-  { title: "Dashboard", url: "/", icon: LayoutDashboard },
-  { title: "My Float", url: "/teller-float", icon: ShieldCheck },
-  { title: "Payments", url: "/payments", icon: ArrowDownToLine },
-  { title: "Withdrawals", url: "/withdrawals", icon: ArrowUpFromLine },
-  { title: "Ecocash", url: "/ecocash", icon: Smartphone },
-  { title: "Internal Transactions", url: "/internal-transactions", icon: Repeat },
-  { title: "Changes and Refunds", url: "/changes-refunds", icon: RefreshCcw },
-  { title: "Pending", url: "/pending", icon: Clock },
-  { title: "Failed", url: "/failed", icon: XCircle },
-  { title: "End Day Summary", url: "/end-day", icon: FileBarChart },
-  { title: "My Account", url: "/account", icon: UserCircle2 },
-  { title: "Settings", url: "/settings", icon: SettingsIcon },
+  { title: "Dashboard", url: "/", icon: LayoutDashboard, requiresDay: false },
+  { title: "My Float", url: "/teller-float", icon: ShieldCheck, requiresDay: false },
+  { title: "Payments", url: "/payments", icon: ArrowDownToLine, requiresDay: true },
+  { title: "Withdrawals", url: "/withdrawals", icon: ArrowUpFromLine, requiresDay: true },
+  { title: "Ecocash", url: "/ecocash", icon: Smartphone, requiresDay: true },
+  { title: "Internal Transactions", url: "/internal-transactions", icon: Repeat, requiresDay: true },
+  { title: "Changes and Refunds", url: "/changes-refunds", icon: RefreshCcw, requiresDay: true },
+  { title: "Pending", url: "/pending", icon: Clock, requiresDay: false },
+  { title: "Failed", url: "/failed", icon: XCircle, requiresDay: false },
+  { title: "End Day Summary", url: "/end-day", icon: FileBarChart, requiresDay: false },
+  { title: "My Account", url: "/account", icon: UserCircle2, requiresDay: false },
+  { title: "Settings", url: "/settings", icon: SettingsIcon, requiresDay: false },
 ];
 
 export const SIDEBAR_WIDTH = "18rem";
