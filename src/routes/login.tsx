@@ -8,6 +8,7 @@ import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import logoMark from "@/assets/logo-mark.png";
 
 export const Route = createFileRoute("/login")({
   component: LoginPage,
