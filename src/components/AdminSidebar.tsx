@@ -48,7 +48,7 @@ export function AdminSidebar() {
       <div className="flex h-full flex-col">
         <div className="border-b border-white/10 px-6 py-6">
           <div className="flex items-center gap-3">
-            <img src={logoMark} alt="Authentic Financial Services" className="h-10 w-10 object-contain" />
+            <img src={logoMark} alt="Authentic Financial Services" className="h-14 w-14 object-contain drop-shadow-[0_2px_6px_rgba(0,0,0,0.4)]" />
             <div>
               <p className="text-xs uppercase tracking-widest text-[var(--gold)]">
                 Admin Portal
