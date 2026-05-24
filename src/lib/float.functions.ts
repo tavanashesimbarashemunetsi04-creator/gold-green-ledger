@@ -94,8 +94,8 @@ export const rejectFloat = createServerFn({ method: "POST" })
       })
       .parse(input),
   )
-  .handler(async ({ data }) => {
-    const { error } = await supabaseAdmin.rpc("reject_float_assignment", {
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase.rpc("reject_float_assignment", {
       _assignment_id: data.assignment_id,
       _reason: data.reason,
     });
