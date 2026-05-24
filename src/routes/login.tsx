@@ -81,7 +81,7 @@ function LoginPage() {
         <h1 className="text-center text-2xl font-semibold">
           {mode === "signin" ? "Sign in" : "Create account"}
         </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <p className="mt-1 text-center text-sm text-muted-foreground">
           Authentic Financial Services — Teller Portal
         </p>
 
