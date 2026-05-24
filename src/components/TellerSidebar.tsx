@@ -1,3 +1,4 @@
+import logoMark from "@/assets/logo-mark.png";
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/useAuth";
 import { useDashboardState } from "@/hooks/useDashboardState";
