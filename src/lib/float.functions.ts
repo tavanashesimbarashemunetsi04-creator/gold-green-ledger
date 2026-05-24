@@ -116,7 +116,7 @@ export const selfAssignFloat = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     await assertFinanceOrAdmin(context.userId);
-    const { error } = await supabaseAdmin.rpc("self_assign_float", {
+    const { error } = await context.supabase.rpc("self_assign_float", {
       _amount: data.amount,
       _branch_id: (data.branch_id ?? null) as string,
       _reference: (data.reference ?? null) as string,
