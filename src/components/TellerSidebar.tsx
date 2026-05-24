@@ -61,9 +61,7 @@ export function TellerSidebar() {
         {/* Brand */}
         <div className="border-b border-white/10 px-6 py-6">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--gradient-gold)] font-bold text-gold-foreground shadow-[var(--shadow-gold)]">
-              A
-            </div>
+            <img src={logoMark} alt="Authentic Financial Services" className="h-10 w-10 object-contain" />
             <div>
               <p className="text-xs uppercase tracking-widest text-[var(--gold)]">
                 Teller Portal
