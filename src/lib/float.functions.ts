@@ -66,8 +66,8 @@ export const approveFloat = createServerFn({ method: "POST" })
     z.object({ assignment_id: z.string().uuid() }).parse(input),
   )
   .handler(async ({ data, context }) => {
-    // RPC enforces caller is the assigned teller
-    const { error } = await supabaseAdmin.rpc("approve_float_assignment", {
+    // Use the user-authenticated client so auth.uid() resolves inside the RPC
+    const { error } = await context.supabase.rpc("approve_float_assignment", {
       _assignment_id: data.assignment_id,
     });
     if (error) {
@@ -94,8 +94,8 @@ export const rejectFloat = createServerFn({ method: "POST" })
       })
       .parse(input),
   )
-  .handler(async ({ data }) => {
-    const { error } = await supabaseAdmin.rpc("reject_float_assignment", {
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase.rpc("reject_float_assignment", {
       _assignment_id: data.assignment_id,
       _reason: data.reason,
     });
@@ -116,7 +116,7 @@ export const selfAssignFloat = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     await assertFinanceOrAdmin(context.userId);
-    const { error } = await supabaseAdmin.rpc("self_assign_float", {
+    const { error } = await context.supabase.rpc("self_assign_float", {
       _amount: data.amount,
       _branch_id: (data.branch_id ?? null) as string,
       _reference: (data.reference ?? null) as string,
