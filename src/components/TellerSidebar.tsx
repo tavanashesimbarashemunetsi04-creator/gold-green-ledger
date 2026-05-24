@@ -81,22 +81,29 @@ export function TellerSidebar() {
             {items.map((item) => {
               const active = pathname === item.url;
               const Icon = item.icon;
+              const locked = item.requiresDay && !isDayOpen && !isAdmin;
+              const cls = `group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all ${
+                active
+                  ? "bg-[var(--gold)] text-gold-foreground shadow-[var(--shadow-gold)]"
+                  : locked
+                    ? "cursor-not-allowed text-white/30"
+                    : "text-white/80 hover:bg-white/10 hover:text-white"
+              }`;
               return (
                 <li key={item.url}>
-                  <Link
-                    to={item.url}
-                    className={`group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all ${
-                      active
-                        ? "bg-[var(--gold)] text-gold-foreground shadow-[var(--shadow-gold)]"
-                        : "text-white/80 hover:bg-white/10 hover:text-white"
-                    }`}
-                  >
-                    <Icon className="h-4 w-4" />
-                    <span>{item.title}</span>
-                    {active && (
-                      <span className="ml-auto h-2 w-2 rounded-full bg-[var(--primary)]" />
-                    )}
-                  </Link>
+                  {locked ? (
+                    <div className={cls} title="Open your operational day to transact">
+                      <Icon className="h-4 w-4" />
+                      <span>{item.title}</span>
+                      <Lock className="ml-auto h-3 w-3" />
+                    </div>
+                  ) : (
+                    <Link to={item.url} className={cls}>
+                      <Icon className="h-4 w-4" />
+                      <span>{item.title}</span>
+                      {active && <span className="ml-auto h-2 w-2 rounded-full bg-[var(--primary)]" />}
+                    </Link>
+                  )}
                 </li>
               );
             })}
