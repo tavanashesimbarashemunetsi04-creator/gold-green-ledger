@@ -39,6 +39,7 @@ export function TellerSidebar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const navigate = useNavigate();
   const { user, roles, isAdmin, isFinanceManager, signOut } = useAuth();
+  const { isDayOpen } = useDashboardState(20000);
   const primaryRole = roles.includes("admin")
     ? "admin"
     : roles.includes("finance_manager")
