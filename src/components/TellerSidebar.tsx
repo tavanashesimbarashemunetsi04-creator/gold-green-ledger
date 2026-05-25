@@ -51,6 +51,35 @@ export function TellerSidebar() {
         ? "manager"
         : roles[0] ?? "teller";
 
+  // Pending transfer-approval count for current teller
+  const [pendingTransferCount, setPendingTransferCount] = useState(0);
+  useEffect(() => {
+    if (!user?.id) return;
+    let cancelled = false;
+    const fetchCount = async () => {
+      const { count } = await supabase
+        .from("teller_transfers")
+        .select("id", { count: "exact", head: true })
+        .eq("sending_user_id", user.id)
+        .eq("status", "pending");
+      if (!cancelled) setPendingTransferCount(count ?? 0);
+    };
+    fetchCount();
+    const ch = supabase
+      .channel("sidebar_teller_transfers")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "teller_transfers" },
+        () => fetchCount(),
+      )
+      .subscribe();
+    return () => {
+      cancelled = true;
+      supabase.removeChannel(ch);
+    };
+  }, [user?.id]);
+
+
   return (
     <aside
       style={{
