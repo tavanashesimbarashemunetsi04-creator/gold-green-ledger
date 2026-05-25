@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
@@ -95,6 +95,7 @@ function useAnimatedNumber(value: number, ms = 600) {
 function Dashboard() {
   const { state, loading, refresh } = useDashboardState();
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   const [openDlg, setOpenDlg] = useState(false);
   const [closeDlg, setCloseDlg] = useState(false);
@@ -168,7 +169,7 @@ function Dashboard() {
         <CloseDayCard
           isDayOpen={isDayOpen}
           session={session}
-          onClose={() => setCloseDlg(true)}
+          onClose={() => navigate({ to: "/end-day" })}
         />
       </section>
 
