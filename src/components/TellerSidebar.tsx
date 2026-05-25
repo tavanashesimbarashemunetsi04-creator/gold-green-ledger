@@ -131,7 +131,12 @@ export function TellerSidebar() {
                     <Link to={item.url} className={cls}>
                       <Icon className="h-4 w-4" />
                       <span>{item.title}</span>
-                      {active && <span className="ml-auto h-2 w-2 rounded-full bg-[var(--primary)]" />}
+                      {item.url === "/internal-transactions" && pendingTransferCount > 0 && (
+                        <span className="ml-auto inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 text-[10px] font-bold text-white">
+                          {pendingTransferCount}
+                        </span>
+                      )}
+                      {active && item.url !== "/internal-transactions" && <span className="ml-auto h-2 w-2 rounded-full bg-[var(--primary)]" />}
                     </Link>
                   )}
                 </li>
