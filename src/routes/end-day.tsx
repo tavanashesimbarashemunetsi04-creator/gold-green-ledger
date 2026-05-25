@@ -134,9 +134,9 @@ function EndDayPage() {
   const phyZwg = Number(physicalZwg) || 0;
   const varUsd = phyUsd - totals.expectedUsd;
   const varZwg = phyZwg - totals.expectedZwg;
-  const balanced = Math.abs(varUsd) < 0.005 && Math.abs(varZwg) < 0.005;
+  const balanced = Math.abs(varUsd) < 0.005;
   const varianceExists = !balanced;
-  const physicalEntered = physicalUsd.trim() !== "" && physicalZwg.trim() !== "";
+  const physicalEntered = physicalUsd.trim() !== "";
   const reasonOk = !varianceExists || reason.trim().length > 0;
 
   const closeFn = useServerFn(closeDayWithBalancing);
