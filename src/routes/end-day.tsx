@@ -331,20 +331,13 @@ function EndDayPage() {
             <p className="text-xs text-muted-foreground">Enter counted cash to compute variance.</p>
           </div>
         </div>
-        <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="mt-4 grid grid-cols-1 gap-4">
           <PhysicalInput
             currency="USD"
             value={physicalUsd}
             onChange={setPhysicalUsd}
             expected={totals.expectedUsd}
             variance={varUsd}
-          />
-          <PhysicalInput
-            currency="ZWG"
-            value={physicalZwg}
-            onChange={setPhysicalZwg}
-            expected={totals.expectedZwg}
-            variance={varZwg}
           />
         </div>
 
