@@ -1,69 +1,100 @@
-# Teller Operational Day Dashboard
+## Internal Teller Transfer Control – Implementation Plan
 
-A complete rebuild of the home dashboard plus the backend rules that enforce operational day status across the app.
+### Scope
+Replace the current "anyone can record an internal inflow/outflow" flow with a controlled **transfer request → sending teller approval → linked dual ledger entries** workflow, with realtime notifications, audit logs, and End-Day Summary integration. USD only.
 
-## 1. Database (migration)
+---
 
-New table `teller_sessions`:
-- `id`, `user_id`, `branch_id`, `session_code` (short readable)
-- `opened_at`, `opened_float_amount`, `opened_device`, `opened_ip`
-- `closed_at`, `closing_cash_at_hand`, `closed_device`, `closed_ip`
-- `status` enum: `open` | `closed`
-- Partial unique index: one `open` session per `user_id`
+### 1. Database (single migration)
 
-Helper SQL function `current_open_session(uid)` returning the active row.
+New table `public.teller_transfers`:
+- `id`, `reference_code` (auto unique like `TT-YYMMDDHHMMSS-XXXX`)
+- `requesting_user_id` (uuid) — teller who NEEDS cash
+- `sending_user_id` (uuid) — teller who will OUTFLOW cash (the approver)
+- `currency` text default `'USD'`
+- `amount` numeric(14,2) > 0
+- `reason` text
+- `status` enum `transfer_status`: `pending | approved | rejected | cancelled`
+- `requested_at`, `approved_at`, `rejected_at`, `rejection_reason`
+- `request_device`, `request_ip`, `approval_device`, `approval_ip`
+- `branch_id`
+- `sending_inflow_uit_id` / `receiving_inflow_uit_id` (link to created `user_internal_transactions` rows on approval)
 
-Server-side enforcement (the critical part):
-- New trigger `enforce_day_open()` attached to INSERT on `payments`, `cash_swipes`, `cash_advance`, `ecocash_transactions`, `internal_transactions`. Raises if the acting user (auth.uid()) has no open session. Admins bypass.
-- `profiles.day_open` kept in sync via trigger on `teller_sessions`.
+RLS:
+- SELECT: requester, sender, admin, manager, finance_manager
+- All writes go through SECURITY DEFINER RPCs (no direct INSERT/UPDATE policies)
 
-RPCs (SECURITY DEFINER):
-- `open_teller_day(_float numeric, _branch uuid, _device text)` — verifies `ready_to_open_day = true`, no existing open session, inserts row, sets `profiles.day_open = true`, writes audit_log.
-- `close_teller_day(_cash_at_hand numeric, _device text)` — closes the open session, sets `profiles.day_open = false, ready_to_open_day = false`, writes audit_log.
+New RPCs (SECURITY DEFINER):
+- `request_teller_transfer(_sending_user uuid, _amount numeric, _reason text, _device text, _ip text)` — caller = requester; validates both users are different, both have open day, amount > 0; inserts pending row; writes audit log.
+- `approve_teller_transfer(_id uuid, _device text, _ip text)` — caller must equal `sending_user_id`; verifies sending teller has sufficient cash-at-hand (lifetime UIT inflows – outflows for sender ≥ amount); verifies both tellers still have open day; creates two `user_internal_transactions` rows sharing the same reference in `notes`:
+  - sender: `kind='outflow'`, `category='teller_transfer_sent'`
+  - receiver: `kind='inflow'`, `category='teller_transfer_received'`
+  - Marks transfer `approved`; writes audit log.
+- `reject_teller_transfer(_id uuid, _reason text, _device text, _ip text)` — caller must be sender; sets `rejected`; no balance changes; audit log.
+- `cancel_teller_transfer(_id uuid)` — caller must be requester AND status `pending`; sets `cancelled`; audit log.
 
-## 2. Server functions (`src/lib/teller-day.functions.ts`)
+Extend enum `internal_tx_category` (if needed) to include `teller_transfer_sent` and `teller_transfer_received`. (Will check current enum in migration.)
 
-All guarded by `requireSupabaseAuth`:
-- `getDashboardState()` → `{ session, pendingFloat, todayTotals, recent }`
-  - `pendingFloat`: latest pending `float_assignments` row for user
-  - `todayTotals`: sums of payments / withdrawals (cash_advance) / internal in & out / cash at hand (opening_float + inflows − outflows from `user_internal_transactions` + today's net cash)
-  - `recent`: last 20 user transactions across payments/cash_advance/internal merged + sorted
-- `openDay({ floatAmount, branchId, device })` → calls `open_teller_day` RPC
-- `closeDay({ cashAtHand, device })` → calls `close_teller_day` RPC
+Enable realtime on `teller_transfers`.
 
-## 3. Frontend
+---
 
-### `src/routes/index.tsx` (rebuild)
-- Greeting card: time-based hello, username (from profile), full date, branch name
-- Status pill: green "Day Open · Session #XYZ" or red "Day Closed"
-- Action buttons:
-  - If no pending/approved float and no open session → disabled "Open Day" with caption "Waiting for finance float assignment"
-  - If pending float → "Review Float" button → opens dialog showing amount + Approve/Reject (calls existing `approveFloat` / `rejectFloat`)
-  - If approved float ready → enabled "Open Day" → confirm dialog → opens session
-  - If session open → "Close Day" → confirm dialog (asks closing cash at hand) → closes
-- 5 summary tiles: Total Payments, Total Withdrawals, Internal Inflow, Internal Outflow, Cash At Hand (highlighted with gradient + larger). Animated count-up.
-- Recent Transactions panel with search filter, status badges (successful/pending/failed/reversed)
-- Polls `getDashboardState` every 15s via TanStack Query
+### 2. Server functions — `src/lib/teller-transfers.functions.ts`
+- `listTellers()` — returns active tellers (id, username, display_name) for the dropdown.
+- `listTransfers()` — returns rows visible to the caller, with joined usernames.
+- `requestTransfer({ sendingUserId, amount, reason })`
+- `approveTransfer({ id })`
+- `rejectTransfer({ id, reason })`
+- `cancelTransfer({ id })`
 
-### `src/components/TellerSidebar.tsx`
-- If day not open → render transaction nav items disabled + tooltip "Operational day not opened"
-- If day closed today (had session) → "Operational day closed — view only"
-- Read state from a shared `useDayStatus()` hook backed by the same query
+All use `requireSupabaseAuth`; call new RPCs. Capture `getRequestIP` and `device` header.
 
-### `src/hooks/useDayStatus.ts`
-- Wraps `useQuery(getDashboardState)`, exposes `isDayOpen`, `canTransact`, `session`
+---
 
-### Transaction routes (`payments.tsx`, `withdrawals.tsx`, `internal-transactions.tsx`, `ecocash.tsx`, `changes-refunds.tsx`)
-- Guard at top: if `!canTransact` show banner and disable forms (backend already blocks but frontend should reflect)
+### 3. End-Day Summary integration
+Update `getEndDaySummary` in `src/lib/teller-day.functions.ts` so the new categories `teller_transfer_sent` / `teller_transfer_received` appear in the existing `outflows.internal` / `inflows.internal` arrays with narration "Teller Transfer Sent/Received to/from <username> · <reason>" and the shared reference code. (Already auto-included because they're rows in `user_internal_transactions` — just relabel narration mapping.)
 
-## 4. Audit logging
-- Open/close RPCs insert into `audit_logs` with module='teller_day', includes amount, branch, session id, device
+---
 
-## Technical notes
-- Device string built on client: `${platform} · ${userAgent slice}`; IP collected server-side via `getRequestIP`
-- Number animation: simple `useEffect` interpolation, no extra deps
-- Tile design tokens use existing `--gradient-primary`, `--gradient-gold`, shadow vars
+### 4. UI
 
-## Out of scope
-- Editing other transaction modules' UI beyond the disabled banner
-- Reports module changes
+Replace `src/components/InternalTransactionsModule.tsx` with a new `TellerTransfersModule` (keep route `/internal-transactions`):
+
+- **Header**: "Request Transfer" button → modal (Recipient/Sender username = sending teller, amount USD, reason). Status auto = pending.
+- **Pending Requests Awaiting My Approval** widget (highlighted) — for transfers where current user = sending teller.
+  - Approve / Reject buttons (Reject opens reason modal). Pop-up confirmation showing requester, amount, reason, current balance, balance after.
+- **Tabs / Tables**:
+  - Pending (mine outgoing requests + awaiting-my-approval)
+  - Approved
+  - Rejected
+- Columns: Reference, Date/Time, Requester, Sender, Amount USD, Reason, Status badge (green/orange/red), Actions.
+- Search box + filter by status + date range.
+- Realtime subscription to `teller_transfers` — refresh on insert/update.
+- Notification bell in topbar (lightweight): badge count of pending approvals for current user; reuses same realtime subscription.
+- Printable receipt per approved transfer (print-only stylesheet) + Export history to PDF (jsPDF + autotable, already used pattern or add).
+
+---
+
+### 5. Security & audit
+- All status changes go through SECURITY DEFINER RPCs that write to `audit_logs` with actor, action (`transfer_request|approve|reject|cancel`), amounts, branch, device, ip, old/new status.
+- Approved/rejected/cancelled rows are immutable — RPCs reject any change attempt; no UPDATE policy on table.
+- Self-approval blocked at RPC level (`requesting_user_id <> sending_user_id` constraint + auth.uid check).
+
+---
+
+### 6. Out of scope (will note in response, not implement now)
+- Multi-currency (USD-only per spec).
+- Mobile app push notifications (web realtime + bell only).
+- Custom-branded PDF; use a clean default layout.
+
+---
+
+### Files touched
+- migration (new table, enum extension, RPCs, RLS, realtime)
+- `src/lib/teller-transfers.functions.ts` (new)
+- `src/lib/teller-day.functions.ts` (narration mapping for new categories)
+- `src/components/TellerTransfersModule.tsx` (new) + replace usage in `src/routes/internal-transactions.tsx`
+- `src/components/TransferNotificationBell.tsx` (new) + mount in `TellerSidebar.tsx`
+- delete or archive old `InternalTransactionsModule.tsx`
+
+After approval I'll run the migration first, then write the code in one batch.
