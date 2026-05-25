@@ -108,6 +108,10 @@ function Shell() {
   if (pathname === "/admin" || pathname.startsWith("/admin/")) {
     return <Outlet />;
   }
+  // Manager portal renders its own layout (ManagerSidebar) via /manager route
+  if (pathname === "/manager" || pathname.startsWith("/manager/")) {
+    return <Outlet />;
+  }
   return (
     <div className="min-h-screen bg-background">
       <TellerSidebar />
