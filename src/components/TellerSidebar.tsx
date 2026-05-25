@@ -42,7 +42,7 @@ export function TellerSidebar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const navigate = useNavigate();
   const { user, roles, isAdmin, isFinanceManager, signOut } = useAuth();
-  const { isDayOpen } = useDashboardState(20000);
+  const { isDayOpen, isEcocashMode } = useDashboardState(20000);
   const primaryRole = roles.includes("admin")
     ? "admin"
     : roles.includes("finance_manager")
@@ -111,7 +111,11 @@ export function TellerSidebar() {
             {items.map((item) => {
               const active = pathname === item.url;
               const Icon = item.icon;
-              const locked = item.requiresDay && !isDayOpen && !isAdmin;
+              const ecocashLocked = isEcocashMode && !isAdmin && [
+                "/payments", "/withdrawals", "/internal-transactions",
+                "/changes-refunds", "/end-day",
+              ].includes(item.url);
+              const locked = ecocashLocked || (item.requiresDay && !isDayOpen && !isEcocashMode && !isAdmin);
               const cls = `group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all ${
                 active
                   ? "bg-[var(--gold)] text-gold-foreground shadow-[var(--shadow-gold)]"
@@ -122,7 +126,14 @@ export function TellerSidebar() {
               return (
                 <li key={item.url}>
                   {locked ? (
-                    <div className={cls} title="Open your operational day to transact">
+                    <div
+                      className={cls}
+                      title={
+                        ecocashLocked
+                          ? "Locked: EcoCash Day is open"
+                          : "Open your operational day to transact"
+                      }
+                    >
                       <Icon className="h-4 w-4" />
                       <span>{item.title}</span>
                       <Lock className="ml-auto h-3 w-3" />
