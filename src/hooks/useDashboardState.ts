@@ -37,6 +37,7 @@ export function useDashboardState(pollMs = 15000) {
   }, [refresh, pollMs]);
 
   const isDayOpen = !!state?.session;
-  const canTransact = isDayOpen;
-  return { state, loading, error, refresh, isDayOpen, canTransact };
+  const isEcocashMode = !!state?.ecocashSession;
+  const canTransact = isDayOpen && !isEcocashMode;
+  return { state, loading, error, refresh, isDayOpen, isEcocashMode, canTransact };
 }

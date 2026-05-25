@@ -25,6 +25,14 @@ export type RecentTx = {
   status: string;
 };
 
+export type EcocashSessionLite = {
+  id: string;
+  session_code: string;
+  opened_at: string;
+  opened_float_amount: number;
+  status: "open" | "closed";
+};
+
 export type DashboardState = {
   profile: {
     user_id: string;
@@ -36,6 +44,7 @@ export type DashboardState = {
     day_open: boolean;
   };
   session: Session | null;
+  ecocashSession: EcocashSessionLite | null;
   lastClosedSession: Session | null;
   pendingFloat: { id: string; amount: number; created_at: string; reference: string | null } | null;
   totals: {
@@ -79,6 +88,13 @@ export const getDashboardState = createServerFn({ method: "GET" })
     const { data: openSess } = await supabaseAdmin
       .from("teller_sessions")
       .select("id, session_code, branch_id, opened_at, opened_float_amount, closed_at, closing_cash_at_hand, status")
+      .eq("user_id", uid)
+      .eq("status", "open")
+      .maybeSingle();
+
+    const { data: openEco } = await supabaseAdmin
+      .from("ecocash_sessions")
+      .select("id, session_code, opened_at, opened_float_amount, status")
       .eq("user_id", uid)
       .eq("status", "open")
       .maybeSingle();
@@ -185,6 +201,7 @@ export const getDashboardState = createServerFn({ method: "GET" })
         day_open: profile?.day_open ?? false,
       },
       session: (openSess as Session) ?? null,
+      ecocashSession: (openEco as EcocashSessionLite) ?? null,
       lastClosedSession: (lastClosed as Session) ?? null,
       pendingFloat: pendingFloat
         ? {
