@@ -784,6 +784,63 @@ export type Database = {
         }
         Relationships: []
       }
+      teller_balancing: {
+        Row: {
+          balanced_at: string | null
+          balanced_by_user_id: string | null
+          branch_id: string | null
+          business_date: string
+          created_at: string
+          ecocash_session_id: string | null
+          expected_usd: number | null
+          id: string
+          manager_comments: string | null
+          physical_usd: number | null
+          reviewed_tx_refs: Json
+          status: Database["public"]["Enums"]["balancing_status"]
+          teller_session_id: string | null
+          teller_user_id: string
+          updated_at: string
+          variance_usd: number | null
+        }
+        Insert: {
+          balanced_at?: string | null
+          balanced_by_user_id?: string | null
+          branch_id?: string | null
+          business_date: string
+          created_at?: string
+          ecocash_session_id?: string | null
+          expected_usd?: number | null
+          id?: string
+          manager_comments?: string | null
+          physical_usd?: number | null
+          reviewed_tx_refs?: Json
+          status?: Database["public"]["Enums"]["balancing_status"]
+          teller_session_id?: string | null
+          teller_user_id: string
+          updated_at?: string
+          variance_usd?: number | null
+        }
+        Update: {
+          balanced_at?: string | null
+          balanced_by_user_id?: string | null
+          branch_id?: string | null
+          business_date?: string
+          created_at?: string
+          ecocash_session_id?: string | null
+          expected_usd?: number | null
+          id?: string
+          manager_comments?: string | null
+          physical_usd?: number | null
+          reviewed_tx_refs?: Json
+          status?: Database["public"]["Enums"]["balancing_status"]
+          teller_session_id?: string | null
+          teller_user_id?: string
+          updated_at?: string
+          variance_usd?: number | null
+        }
+        Relationships: []
+      }
       teller_sessions: {
         Row: {
           branch_id: string | null
@@ -1247,6 +1304,73 @@ export type Database = {
         }
         Returns: boolean
       }
+      manager_balance_teller: {
+        Args: {
+          _business_date: string
+          _comments: string
+          _device: string
+          _expected_usd: number
+          _ip?: string
+          _physical_usd: number
+          _teller_user_id: string
+        }
+        Returns: {
+          balanced_at: string | null
+          balanced_by_user_id: string | null
+          branch_id: string | null
+          business_date: string
+          created_at: string
+          ecocash_session_id: string | null
+          expected_usd: number | null
+          id: string
+          manager_comments: string | null
+          physical_usd: number | null
+          reviewed_tx_refs: Json
+          status: Database["public"]["Enums"]["balancing_status"]
+          teller_session_id: string | null
+          teller_user_id: string
+          updated_at: string
+          variance_usd: number | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "teller_balancing"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      manager_save_review: {
+        Args: {
+          _business_date: string
+          _comments: string
+          _reviewed_refs: Json
+          _teller_user_id: string
+        }
+        Returns: {
+          balanced_at: string | null
+          balanced_by_user_id: string | null
+          branch_id: string | null
+          business_date: string
+          created_at: string
+          ecocash_session_id: string | null
+          expected_usd: number | null
+          id: string
+          manager_comments: string | null
+          physical_usd: number | null
+          reviewed_tx_refs: Json
+          status: Database["public"]["Enums"]["balancing_status"]
+          teller_session_id: string | null
+          teller_user_id: string
+          updated_at: string
+          variance_usd: number | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "teller_balancing"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       open_ecocash_day: {
         Args: { _branch: string; _device: string; _float: number; _ip?: string }
         Returns: {
@@ -1417,6 +1541,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "manager" | "teller" | "finance_manager"
+      balancing_status: "pending" | "in_review" | "balanced"
       bank_enum: "ZB" | "CBZ" | "BANCABC" | "AFC"
       cash_tx_type: "withdrawal" | "deposit"
       decision: "pending" | "approved" | "declined"
@@ -1568,6 +1693,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "manager", "teller", "finance_manager"],
+      balancing_status: ["pending", "in_review", "balanced"],
       bank_enum: ["ZB", "CBZ", "BANCABC", "AFC"],
       cash_tx_type: ["withdrawal", "deposit"],
       decision: ["pending", "approved", "declined"],

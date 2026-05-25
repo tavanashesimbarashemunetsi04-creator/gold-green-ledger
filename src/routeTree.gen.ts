@@ -13,6 +13,7 @@ import { Route as WithdrawalsRouteImport } from './routes/withdrawals'
 import { Route as TellerFloatRouteImport } from './routes/teller-float'
 import { Route as PendingRouteImport } from './routes/pending'
 import { Route as PaymentsRouteImport } from './routes/payments'
+import { Route as ManagerRouteImport } from './routes/manager'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as InternalTransactionsRouteImport } from './routes/internal-transactions'
 import { Route as FailedRouteImport } from './routes/failed'
@@ -22,9 +23,13 @@ import { Route as ChangesRefundsRouteImport } from './routes/changes-refunds'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AccountRouteImport } from './routes/account'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ManagerIndexRouteImport } from './routes/manager.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as ManagerBalancingRouteImport } from './routes/manager.balancing'
+import { Route as ManagerAuditRouteImport } from './routes/manager.audit'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminFloatRouteImport } from './routes/admin.float'
+import { Route as ManagerTellerUserIdRouteImport } from './routes/manager.teller.$userId'
 
 const WithdrawalsRoute = WithdrawalsRouteImport.update({
   id: '/withdrawals',
@@ -44,6 +49,11 @@ const PendingRoute = PendingRouteImport.update({
 const PaymentsRoute = PaymentsRouteImport.update({
   id: '/payments',
   path: '/payments',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ManagerRoute = ManagerRouteImport.update({
+  id: '/manager',
+  path: '/manager',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -91,10 +101,25 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ManagerIndexRoute = ManagerIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ManagerRoute,
+} as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AdminRoute,
+} as any)
+const ManagerBalancingRoute = ManagerBalancingRouteImport.update({
+  id: '/balancing',
+  path: '/balancing',
+  getParentRoute: () => ManagerRoute,
+} as any)
+const ManagerAuditRoute = ManagerAuditRouteImport.update({
+  id: '/audit',
+  path: '/audit',
+  getParentRoute: () => ManagerRoute,
 } as any)
 const AdminUsersRoute = AdminUsersRouteImport.update({
   id: '/users',
@@ -105,6 +130,11 @@ const AdminFloatRoute = AdminFloatRouteImport.update({
   id: '/float',
   path: '/float',
   getParentRoute: () => AdminRoute,
+} as any)
+const ManagerTellerUserIdRoute = ManagerTellerUserIdRouteImport.update({
+  id: '/teller/$userId',
+  path: '/teller/$userId',
+  getParentRoute: () => ManagerRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -117,13 +147,18 @@ export interface FileRoutesByFullPath {
   '/failed': typeof FailedRoute
   '/internal-transactions': typeof InternalTransactionsRoute
   '/login': typeof LoginRoute
+  '/manager': typeof ManagerRouteWithChildren
   '/payments': typeof PaymentsRoute
   '/pending': typeof PendingRoute
   '/teller-float': typeof TellerFloatRoute
   '/withdrawals': typeof WithdrawalsRoute
   '/admin/float': typeof AdminFloatRoute
   '/admin/users': typeof AdminUsersRoute
+  '/manager/audit': typeof ManagerAuditRoute
+  '/manager/balancing': typeof ManagerBalancingRoute
   '/admin/': typeof AdminIndexRoute
+  '/manager/': typeof ManagerIndexRoute
+  '/manager/teller/$userId': typeof ManagerTellerUserIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -140,7 +175,11 @@ export interface FileRoutesByTo {
   '/withdrawals': typeof WithdrawalsRoute
   '/admin/float': typeof AdminFloatRoute
   '/admin/users': typeof AdminUsersRoute
+  '/manager/audit': typeof ManagerAuditRoute
+  '/manager/balancing': typeof ManagerBalancingRoute
   '/admin': typeof AdminIndexRoute
+  '/manager': typeof ManagerIndexRoute
+  '/manager/teller/$userId': typeof ManagerTellerUserIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -153,13 +192,18 @@ export interface FileRoutesById {
   '/failed': typeof FailedRoute
   '/internal-transactions': typeof InternalTransactionsRoute
   '/login': typeof LoginRoute
+  '/manager': typeof ManagerRouteWithChildren
   '/payments': typeof PaymentsRoute
   '/pending': typeof PendingRoute
   '/teller-float': typeof TellerFloatRoute
   '/withdrawals': typeof WithdrawalsRoute
   '/admin/float': typeof AdminFloatRoute
   '/admin/users': typeof AdminUsersRoute
+  '/manager/audit': typeof ManagerAuditRoute
+  '/manager/balancing': typeof ManagerBalancingRoute
   '/admin/': typeof AdminIndexRoute
+  '/manager/': typeof ManagerIndexRoute
+  '/manager/teller/$userId': typeof ManagerTellerUserIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -173,13 +217,18 @@ export interface FileRouteTypes {
     | '/failed'
     | '/internal-transactions'
     | '/login'
+    | '/manager'
     | '/payments'
     | '/pending'
     | '/teller-float'
     | '/withdrawals'
     | '/admin/float'
     | '/admin/users'
+    | '/manager/audit'
+    | '/manager/balancing'
     | '/admin/'
+    | '/manager/'
+    | '/manager/teller/$userId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -196,7 +245,11 @@ export interface FileRouteTypes {
     | '/withdrawals'
     | '/admin/float'
     | '/admin/users'
+    | '/manager/audit'
+    | '/manager/balancing'
     | '/admin'
+    | '/manager'
+    | '/manager/teller/$userId'
   id:
     | '__root__'
     | '/'
@@ -208,13 +261,18 @@ export interface FileRouteTypes {
     | '/failed'
     | '/internal-transactions'
     | '/login'
+    | '/manager'
     | '/payments'
     | '/pending'
     | '/teller-float'
     | '/withdrawals'
     | '/admin/float'
     | '/admin/users'
+    | '/manager/audit'
+    | '/manager/balancing'
     | '/admin/'
+    | '/manager/'
+    | '/manager/teller/$userId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -227,6 +285,7 @@ export interface RootRouteChildren {
   FailedRoute: typeof FailedRoute
   InternalTransactionsRoute: typeof InternalTransactionsRoute
   LoginRoute: typeof LoginRoute
+  ManagerRoute: typeof ManagerRouteWithChildren
   PaymentsRoute: typeof PaymentsRoute
   PendingRoute: typeof PendingRoute
   TellerFloatRoute: typeof TellerFloatRoute
@@ -261,6 +320,13 @@ declare module '@tanstack/react-router' {
       path: '/payments'
       fullPath: '/payments'
       preLoaderRoute: typeof PaymentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/manager': {
+      id: '/manager'
+      path: '/manager'
+      fullPath: '/manager'
+      preLoaderRoute: typeof ManagerRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -326,12 +392,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/manager/': {
+      id: '/manager/'
+      path: '/'
+      fullPath: '/manager/'
+      preLoaderRoute: typeof ManagerIndexRouteImport
+      parentRoute: typeof ManagerRoute
+    }
     '/admin/': {
       id: '/admin/'
       path: '/'
       fullPath: '/admin/'
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
+    }
+    '/manager/balancing': {
+      id: '/manager/balancing'
+      path: '/balancing'
+      fullPath: '/manager/balancing'
+      preLoaderRoute: typeof ManagerBalancingRouteImport
+      parentRoute: typeof ManagerRoute
+    }
+    '/manager/audit': {
+      id: '/manager/audit'
+      path: '/audit'
+      fullPath: '/manager/audit'
+      preLoaderRoute: typeof ManagerAuditRouteImport
+      parentRoute: typeof ManagerRoute
     }
     '/admin/users': {
       id: '/admin/users'
@@ -346,6 +433,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/float'
       preLoaderRoute: typeof AdminFloatRouteImport
       parentRoute: typeof AdminRoute
+    }
+    '/manager/teller/$userId': {
+      id: '/manager/teller/$userId'
+      path: '/teller/$userId'
+      fullPath: '/manager/teller/$userId'
+      preLoaderRoute: typeof ManagerTellerUserIdRouteImport
+      parentRoute: typeof ManagerRoute
     }
   }
 }
@@ -364,6 +458,23 @@ const AdminRouteChildren: AdminRouteChildren = {
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
+interface ManagerRouteChildren {
+  ManagerAuditRoute: typeof ManagerAuditRoute
+  ManagerBalancingRoute: typeof ManagerBalancingRoute
+  ManagerIndexRoute: typeof ManagerIndexRoute
+  ManagerTellerUserIdRoute: typeof ManagerTellerUserIdRoute
+}
+
+const ManagerRouteChildren: ManagerRouteChildren = {
+  ManagerAuditRoute: ManagerAuditRoute,
+  ManagerBalancingRoute: ManagerBalancingRoute,
+  ManagerIndexRoute: ManagerIndexRoute,
+  ManagerTellerUserIdRoute: ManagerTellerUserIdRoute,
+}
+
+const ManagerRouteWithChildren =
+  ManagerRoute._addFileChildren(ManagerRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AccountRoute: AccountRoute,
@@ -374,6 +485,7 @@ const rootRouteChildren: RootRouteChildren = {
   FailedRoute: FailedRoute,
   InternalTransactionsRoute: InternalTransactionsRoute,
   LoginRoute: LoginRoute,
+  ManagerRoute: ManagerRouteWithChildren,
   PaymentsRoute: PaymentsRoute,
   PendingRoute: PendingRoute,
   TellerFloatRoute: TellerFloatRoute,
