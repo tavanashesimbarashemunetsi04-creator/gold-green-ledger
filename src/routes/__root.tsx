@@ -100,6 +100,10 @@ function Shell() {
   if (PUBLIC_ROUTES.has(pathname)) {
     return <Outlet />;
   }
+  // Full-screen routes (no sidebar) for focused workflows
+  if (pathname === "/end-day") {
+    return <Outlet />;
+  }
   // Admin routes render their own layout (AdminSidebar) via /admin route
   if (pathname === "/admin" || pathname.startsWith("/admin/")) {
     return <Outlet />;
