@@ -111,7 +111,11 @@ export function TellerSidebar() {
             {items.map((item) => {
               const active = pathname === item.url;
               const Icon = item.icon;
-              const locked = item.requiresDay && !isDayOpen && !isAdmin;
+              const ecocashLocked = isEcocashMode && !isAdmin && [
+                "/payments", "/withdrawals", "/internal-transactions",
+                "/changes-refunds", "/end-day",
+              ].includes(item.url);
+              const locked = ecocashLocked || (item.requiresDay && !isDayOpen && !isEcocashMode && !isAdmin);
               const cls = `group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all ${
                 active
                   ? "bg-[var(--gold)] text-gold-foreground shadow-[var(--shadow-gold)]"
