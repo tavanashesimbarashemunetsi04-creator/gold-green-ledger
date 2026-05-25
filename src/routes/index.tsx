@@ -169,7 +169,7 @@ function Dashboard() {
         <CloseDayCard
           isDayOpen={isDayOpen}
           session={session}
-          onClose={() => setCloseDlg(true)}
+          onClose={() => navigate({ to: "/end-day" })}
         />
       </section>
 
