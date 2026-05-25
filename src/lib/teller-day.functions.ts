@@ -406,13 +406,26 @@ export const getEndDaySummary = createServerFn({ method: "GET" })
     });
 
     const mapUit = (rows: any[]): EodLine[] =>
-      (rows ?? []).map((r) => ({
-        id: r.id, ts: r.created_at,
-        narration: r.notes || r.category || "Internal transaction",
-        type: String(r.category ?? "internal"),
-        ref: `INT-${r.id.slice(0, 6).toUpperCase()}`,
-        usd: Number(r.amount ?? 0), zwg: 0,
-      }));
+      (rows ?? []).map((r) => {
+        const note: string = r.notes || "";
+        const refMatch = note.match(/TT-\d{12}-[A-Za-z0-9]{4}/);
+        const isTransfer =
+          r.category === "teller_transfer_sent" || r.category === "teller_transfer_received";
+        const friendlyType = isTransfer
+          ? r.category === "teller_transfer_sent"
+            ? "Teller Transfer Sent"
+            : "Teller Transfer Received"
+          : String(r.category ?? "internal");
+        return {
+          id: r.id,
+          ts: r.created_at,
+          narration: note || r.category || "Internal transaction",
+          type: friendlyType,
+          ref: refMatch ? refMatch[0] : `INT-${r.id.slice(0, 6).toUpperCase()}`,
+          usd: Number(r.amount ?? 0),
+          zwg: 0,
+        };
+      });
 
     return {
       session: session as Session,

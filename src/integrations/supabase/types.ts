@@ -772,6 +772,78 @@ export type Database = {
         }
         Relationships: []
       }
+      teller_transfers: {
+        Row: {
+          amount: number
+          approval_device: string | null
+          approval_ip: string | null
+          approved_at: string | null
+          branch_id: string | null
+          cancelled_at: string | null
+          created_at: string
+          currency: string
+          id: string
+          reason: string | null
+          receiver_uit_id: string | null
+          reference_code: string
+          rejected_at: string | null
+          rejection_reason: string | null
+          request_device: string | null
+          request_ip: string | null
+          requested_at: string
+          requesting_user_id: string
+          sender_uit_id: string | null
+          sending_user_id: string
+          status: Database["public"]["Enums"]["teller_transfer_status"]
+        }
+        Insert: {
+          amount: number
+          approval_device?: string | null
+          approval_ip?: string | null
+          approved_at?: string | null
+          branch_id?: string | null
+          cancelled_at?: string | null
+          created_at?: string
+          currency?: string
+          id?: string
+          reason?: string | null
+          receiver_uit_id?: string | null
+          reference_code?: string
+          rejected_at?: string | null
+          rejection_reason?: string | null
+          request_device?: string | null
+          request_ip?: string | null
+          requested_at?: string
+          requesting_user_id: string
+          sender_uit_id?: string | null
+          sending_user_id: string
+          status?: Database["public"]["Enums"]["teller_transfer_status"]
+        }
+        Update: {
+          amount?: number
+          approval_device?: string | null
+          approval_ip?: string | null
+          approved_at?: string | null
+          branch_id?: string | null
+          cancelled_at?: string | null
+          created_at?: string
+          currency?: string
+          id?: string
+          reason?: string | null
+          receiver_uit_id?: string | null
+          reference_code?: string
+          rejected_at?: string | null
+          rejection_reason?: string | null
+          request_device?: string | null
+          request_ip?: string | null
+          requested_at?: string
+          requesting_user_id?: string
+          sender_uit_id?: string | null
+          sending_user_id?: string
+          status?: Database["public"]["Enums"]["teller_transfer_status"]
+        }
+        Relationships: []
+      }
       tellers: {
         Row: {
           created_at: string
@@ -977,6 +1049,70 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      approve_teller_transfer: {
+        Args: { _device: string; _id: string; _ip?: string }
+        Returns: {
+          amount: number
+          approval_device: string | null
+          approval_ip: string | null
+          approved_at: string | null
+          branch_id: string | null
+          cancelled_at: string | null
+          created_at: string
+          currency: string
+          id: string
+          reason: string | null
+          receiver_uit_id: string | null
+          reference_code: string
+          rejected_at: string | null
+          rejection_reason: string | null
+          request_device: string | null
+          request_ip: string | null
+          requested_at: string
+          requesting_user_id: string
+          sender_uit_id: string | null
+          sending_user_id: string
+          status: Database["public"]["Enums"]["teller_transfer_status"]
+        }
+        SetofOptions: {
+          from: "*"
+          to: "teller_transfers"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      cancel_teller_transfer: {
+        Args: { _device: string; _id: string; _ip?: string }
+        Returns: {
+          amount: number
+          approval_device: string | null
+          approval_ip: string | null
+          approved_at: string | null
+          branch_id: string | null
+          cancelled_at: string | null
+          created_at: string
+          currency: string
+          id: string
+          reason: string | null
+          receiver_uit_id: string | null
+          reference_code: string
+          rejected_at: string | null
+          rejection_reason: string | null
+          request_device: string | null
+          request_ip: string | null
+          requested_at: string
+          requesting_user_id: string
+          sender_uit_id: string | null
+          sending_user_id: string
+          status: Database["public"]["Enums"]["teller_transfer_status"]
+        }
+        SetofOptions: {
+          from: "*"
+          to: "teller_transfers"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       close_teller_day: {
         Args: { _cash_at_hand: number; _device: string; _ip?: string }
         Returns: {
@@ -1061,6 +1197,76 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      reject_teller_transfer: {
+        Args: { _device: string; _id: string; _ip?: string; _reason: string }
+        Returns: {
+          amount: number
+          approval_device: string | null
+          approval_ip: string | null
+          approved_at: string | null
+          branch_id: string | null
+          cancelled_at: string | null
+          created_at: string
+          currency: string
+          id: string
+          reason: string | null
+          receiver_uit_id: string | null
+          reference_code: string
+          rejected_at: string | null
+          rejection_reason: string | null
+          request_device: string | null
+          request_ip: string | null
+          requested_at: string
+          requesting_user_id: string
+          sender_uit_id: string | null
+          sending_user_id: string
+          status: Database["public"]["Enums"]["teller_transfer_status"]
+        }
+        SetofOptions: {
+          from: "*"
+          to: "teller_transfers"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      request_teller_transfer: {
+        Args: {
+          _amount: number
+          _device: string
+          _ip?: string
+          _reason: string
+          _sending_user: string
+        }
+        Returns: {
+          amount: number
+          approval_device: string | null
+          approval_ip: string | null
+          approved_at: string | null
+          branch_id: string | null
+          cancelled_at: string | null
+          created_at: string
+          currency: string
+          id: string
+          reason: string | null
+          receiver_uit_id: string | null
+          reference_code: string
+          rejected_at: string | null
+          rejection_reason: string | null
+          request_device: string | null
+          request_ip: string | null
+          requested_at: string
+          requesting_user_id: string
+          sender_uit_id: string | null
+          sending_user_id: string
+          status: Database["public"]["Enums"]["teller_transfer_status"]
+        }
+        SetofOptions: {
+          from: "*"
+          to: "teller_transfers"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       self_assign_float: {
         Args: { _amount: number; _branch_id: string; _reference: string }
         Returns: {
@@ -1096,10 +1302,13 @@ export type Database = {
         | "self_float"
         | "adjustment"
         | "other"
+        | "teller_transfer_sent"
+        | "teller_transfer_received"
       internal_tx_kind: "inflow" | "outflow"
       payment_type_enum: "cash" | "transfer" | "mobile"
       request_type: "inflow" | "outflow"
       teller_session_status: "open" | "closed"
+      teller_transfer_status: "pending" | "approved" | "rejected" | "cancelled"
       tx_record_status: "successful" | "pending" | "failed"
       tx_status: "pending" | "approved" | "declined"
       user_account_status: "active" | "suspended" | "locked"
@@ -1243,11 +1452,14 @@ export const Constants = {
         "self_float",
         "adjustment",
         "other",
+        "teller_transfer_sent",
+        "teller_transfer_received",
       ],
       internal_tx_kind: ["inflow", "outflow"],
       payment_type_enum: ["cash", "transfer", "mobile"],
       request_type: ["inflow", "outflow"],
       teller_session_status: ["open", "closed"],
+      teller_transfer_status: ["pending", "approved", "rejected", "cancelled"],
       tx_record_status: ["successful", "pending", "failed"],
       tx_status: ["pending", "approved", "declined"],
       user_account_status: ["active", "suspended", "locked"],

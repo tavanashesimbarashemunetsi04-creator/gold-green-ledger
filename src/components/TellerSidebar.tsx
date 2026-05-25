@@ -2,6 +2,8 @@ import logoMark from "@/assets/logo-mark.png";
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/useAuth";
 import { useDashboardState } from "@/hooks/useDashboardState";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import {
   LayoutDashboard,
   ArrowDownToLine,
@@ -48,6 +50,35 @@ export function TellerSidebar() {
       : roles.includes("manager")
         ? "manager"
         : roles[0] ?? "teller";
+
+  // Pending transfer-approval count for current teller
+  const [pendingTransferCount, setPendingTransferCount] = useState(0);
+  useEffect(() => {
+    if (!user?.id) return;
+    let cancelled = false;
+    const fetchCount = async () => {
+      const { count } = await supabase
+        .from("teller_transfers")
+        .select("id", { count: "exact", head: true })
+        .eq("sending_user_id", user.id)
+        .eq("status", "pending");
+      if (!cancelled) setPendingTransferCount(count ?? 0);
+    };
+    fetchCount();
+    const ch = supabase
+      .channel("sidebar_teller_transfers")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "teller_transfers" },
+        () => fetchCount(),
+      )
+      .subscribe();
+    return () => {
+      cancelled = true;
+      supabase.removeChannel(ch);
+    };
+  }, [user?.id]);
+
 
   return (
     <aside
@@ -100,7 +131,12 @@ export function TellerSidebar() {
                     <Link to={item.url} className={cls}>
                       <Icon className="h-4 w-4" />
                       <span>{item.title}</span>
-                      {active && <span className="ml-auto h-2 w-2 rounded-full bg-[var(--primary)]" />}
+                      {item.url === "/internal-transactions" && pendingTransferCount > 0 && (
+                        <span className="ml-auto inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 text-[10px] font-bold text-white">
+                          {pendingTransferCount}
+                        </span>
+                      )}
+                      {active && item.url !== "/internal-transactions" && <span className="ml-auto h-2 w-2 rounded-full bg-[var(--primary)]" />}
                     </Link>
                   )}
                 </li>
