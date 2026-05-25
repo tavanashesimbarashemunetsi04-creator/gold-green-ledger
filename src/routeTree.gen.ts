@@ -13,6 +13,7 @@ import { Route as WithdrawalsRouteImport } from './routes/withdrawals'
 import { Route as TellerFloatRouteImport } from './routes/teller-float'
 import { Route as PendingRouteImport } from './routes/pending'
 import { Route as PaymentsRouteImport } from './routes/payments'
+import { Route as ManagerRouteImport } from './routes/manager'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as InternalTransactionsRouteImport } from './routes/internal-transactions'
 import { Route as FailedRouteImport } from './routes/failed'
@@ -44,6 +45,11 @@ const PendingRoute = PendingRouteImport.update({
 const PaymentsRoute = PaymentsRouteImport.update({
   id: '/payments',
   path: '/payments',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ManagerRoute = ManagerRouteImport.update({
+  id: '/manager',
+  path: '/manager',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -117,6 +123,7 @@ export interface FileRoutesByFullPath {
   '/failed': typeof FailedRoute
   '/internal-transactions': typeof InternalTransactionsRoute
   '/login': typeof LoginRoute
+  '/manager': typeof ManagerRoute
   '/payments': typeof PaymentsRoute
   '/pending': typeof PendingRoute
   '/teller-float': typeof TellerFloatRoute
@@ -134,6 +141,7 @@ export interface FileRoutesByTo {
   '/failed': typeof FailedRoute
   '/internal-transactions': typeof InternalTransactionsRoute
   '/login': typeof LoginRoute
+  '/manager': typeof ManagerRoute
   '/payments': typeof PaymentsRoute
   '/pending': typeof PendingRoute
   '/teller-float': typeof TellerFloatRoute
@@ -153,6 +161,7 @@ export interface FileRoutesById {
   '/failed': typeof FailedRoute
   '/internal-transactions': typeof InternalTransactionsRoute
   '/login': typeof LoginRoute
+  '/manager': typeof ManagerRoute
   '/payments': typeof PaymentsRoute
   '/pending': typeof PendingRoute
   '/teller-float': typeof TellerFloatRoute
@@ -173,6 +182,7 @@ export interface FileRouteTypes {
     | '/failed'
     | '/internal-transactions'
     | '/login'
+    | '/manager'
     | '/payments'
     | '/pending'
     | '/teller-float'
@@ -190,6 +200,7 @@ export interface FileRouteTypes {
     | '/failed'
     | '/internal-transactions'
     | '/login'
+    | '/manager'
     | '/payments'
     | '/pending'
     | '/teller-float'
@@ -208,6 +219,7 @@ export interface FileRouteTypes {
     | '/failed'
     | '/internal-transactions'
     | '/login'
+    | '/manager'
     | '/payments'
     | '/pending'
     | '/teller-float'
@@ -227,6 +239,7 @@ export interface RootRouteChildren {
   FailedRoute: typeof FailedRoute
   InternalTransactionsRoute: typeof InternalTransactionsRoute
   LoginRoute: typeof LoginRoute
+  ManagerRoute: typeof ManagerRoute
   PaymentsRoute: typeof PaymentsRoute
   PendingRoute: typeof PendingRoute
   TellerFloatRoute: typeof TellerFloatRoute
@@ -261,6 +274,13 @@ declare module '@tanstack/react-router' {
       path: '/payments'
       fullPath: '/payments'
       preLoaderRoute: typeof PaymentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/manager': {
+      id: '/manager'
+      path: '/manager'
+      fullPath: '/manager'
+      preLoaderRoute: typeof ManagerRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -374,6 +394,7 @@ const rootRouteChildren: RootRouteChildren = {
   FailedRoute: FailedRoute,
   InternalTransactionsRoute: InternalTransactionsRoute,
   LoginRoute: LoginRoute,
+  ManagerRoute: ManagerRoute,
   PaymentsRoute: PaymentsRoute,
   PendingRoute: PendingRoute,
   TellerFloatRoute: TellerFloatRoute,
