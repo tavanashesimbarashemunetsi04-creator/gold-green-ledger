@@ -315,9 +315,8 @@ function EndDayPage() {
             <p className="text-xs text-muted-foreground">Expected = Total Inflows − Total Outflows</p>
           </div>
         </div>
-        <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="mt-4 grid grid-cols-1 gap-4">
           <BalanceCell currency="USD" expected={totals.expectedUsd} />
-          <BalanceCell currency="ZWG" expected={totals.expectedZwg} />
         </div>
       </section>
 
