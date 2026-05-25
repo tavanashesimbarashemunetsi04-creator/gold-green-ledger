@@ -258,3 +258,239 @@ export const closeDay = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true, session: row };
   });
+
+/* =================== End Day Summary & Balancing =================== */
+
+export type EodLine = {
+  id: string;
+  ts: string;
+  narration: string;
+  type: string;
+  ref: string;
+  usd: number;
+  zwg: number;
+};
+
+export type EndDaySummary = {
+  session: Session | null;
+  branchName: string | null;
+  username: string | null;
+  openingFloat: { reference: string | null; usd: number; zwg: number } | null;
+  inflows: {
+    internal: EodLine[];
+    paymentsByBank: Record<string, EodLine[]>;
+  };
+  outflows: {
+    swipes: EodLine[];
+    advances: EodLine[];
+    internal: EodLine[];
+  };
+};
+
+export const getEndDaySummary = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<EndDaySummary> => {
+    const uid = context.userId;
+
+    const { data: profile } = await supabaseAdmin
+      .from("profiles")
+      .select("username, display_name, branch_id")
+      .eq("user_id", uid)
+      .maybeSingle();
+
+    let branchName: string | null = null;
+    if (profile?.branch_id) {
+      const { data: br } = await supabaseAdmin
+        .from("branches").select("name").eq("id", profile.branch_id).maybeSingle();
+      branchName = br?.name ?? null;
+    }
+
+    const { data: session } = await supabaseAdmin
+      .from("teller_sessions")
+      .select("id, session_code, branch_id, opened_at, opened_float_amount, closed_at, closing_cash_at_hand, status")
+      .eq("user_id", uid).eq("status", "open").maybeSingle();
+
+    const empty: EndDaySummary = {
+      session: (session as Session) ?? null,
+      branchName,
+      username: profile?.username ?? profile?.display_name ?? null,
+      openingFloat: null,
+      inflows: { internal: [], paymentsByBank: { ZB: [], CBZ: [], BANCABC: [], AFC: [] } },
+      outflows: { swipes: [], advances: [], internal: [] },
+    };
+    if (!session) return empty;
+
+    const sinceIso = session.opened_at;
+
+    // Opening float from approved float_assignment linked to opening_float UIT
+    const { data: openingUit } = await supabaseAdmin
+      .from("user_internal_transactions")
+      .select("amount, related_float_assignment_id, created_at")
+      .eq("user_id", uid)
+      .eq("category", "opening_float")
+      .gte("created_at", new Date(new Date(sinceIso).getTime() - 24 * 3600 * 1000).toISOString())
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    let openingFloat = empty.openingFloat;
+    if (openingUit) {
+      let ref: string | null = null;
+      if (openingUit.related_float_assignment_id) {
+        const { data: fa } = await supabaseAdmin
+          .from("float_assignments").select("reference")
+          .eq("id", openingUit.related_float_assignment_id).maybeSingle();
+        ref = fa?.reference ?? null;
+      }
+      openingFloat = { reference: ref, usd: Number(openingUit.amount ?? 0), zwg: 0 };
+    } else {
+      openingFloat = { reference: null, usd: Number(session.opened_float_amount ?? 0), zwg: 0 };
+    }
+
+    // Internal inflows (exclude opening_float)
+    const { data: uitIn } = await supabaseAdmin
+      .from("user_internal_transactions")
+      .select("id, amount, category, notes, created_at")
+      .eq("user_id", uid).eq("kind", "inflow")
+      .neq("category", "opening_float")
+      .gte("created_at", sinceIso)
+      .order("created_at", { ascending: false });
+
+    const { data: uitOut } = await supabaseAdmin
+      .from("user_internal_transactions")
+      .select("id, amount, category, notes, created_at")
+      .eq("user_id", uid).eq("kind", "outflow")
+      .gte("created_at", sinceIso)
+      .order("created_at", { ascending: false });
+
+    // Payments (successful) for this session
+    const { data: pays } = await supabaseAdmin
+      .from("payments")
+      .select("id, created_at, bank, account_number, phone_number, payment_type, code, usd_amount, zwg_amount, category, status")
+      .eq("teller_id", uid as never)
+      .eq("status", "successful")
+      .gte("created_at", sinceIso)
+      .order("created_at", { ascending: false });
+
+    // Cash swipes (withdrawals) for this session
+    const { data: swipes } = await supabaseAdmin
+      .from("cash_swipes")
+      .select("id, created_at, name, transaction_type, code, usd_amount, zwg_amount, status")
+      .eq("teller_id", uid as never)
+      .eq("status", "successful")
+      .eq("transaction_type", "withdrawal")
+      .gte("created_at", sinceIso)
+      .order("created_at", { ascending: false });
+
+    // Cash advances
+    const { data: advs } = await supabaseAdmin
+      .from("cash_advance")
+      .select("id, created_at, name, transaction_type, code, amount, status")
+      .eq("teller_id", uid as never)
+      .eq("status", "successful")
+      .gte("created_at", sinceIso)
+      .order("created_at", { ascending: false });
+
+    const paymentsByBank: Record<string, EodLine[]> = { ZB: [], CBZ: [], BANCABC: [], AFC: [] };
+    (pays ?? []).forEach((r: any) => {
+      const line: EodLine = {
+        id: r.id, ts: r.created_at,
+        narration: r.account_number || r.phone_number || r.category || "—",
+        type: r.payment_type ?? "payment",
+        ref: r.code || `PAY-${r.id.slice(0, 6).toUpperCase()}`,
+        usd: Number(r.usd_amount ?? 0), zwg: Number(r.zwg_amount ?? 0),
+      };
+      const bank = (r.bank as string) || "OTHER";
+      if (!paymentsByBank[bank]) paymentsByBank[bank] = [];
+      paymentsByBank[bank].push(line);
+    });
+
+    const mapUit = (rows: any[]): EodLine[] =>
+      (rows ?? []).map((r) => ({
+        id: r.id, ts: r.created_at,
+        narration: r.notes || r.category || "Internal transaction",
+        type: String(r.category ?? "internal"),
+        ref: `INT-${r.id.slice(0, 6).toUpperCase()}`,
+        usd: Number(r.amount ?? 0), zwg: 0,
+      }));
+
+    return {
+      session: session as Session,
+      branchName,
+      username: profile?.username ?? profile?.display_name ?? null,
+      openingFloat,
+      inflows: { internal: mapUit(uitIn ?? []), paymentsByBank },
+      outflows: {
+        swipes: (swipes ?? []).map((r: any) => ({
+          id: r.id, ts: r.created_at,
+          narration: r.name ?? "—",
+          type: r.transaction_type ?? "withdrawal",
+          ref: r.code || `SW-${r.id.slice(0, 6).toUpperCase()}`,
+          usd: Number(r.usd_amount ?? 0), zwg: Number(r.zwg_amount ?? 0),
+        })),
+        advances: (advs ?? []).map((r: any) => ({
+          id: r.id, ts: r.created_at,
+          narration: r.name ?? "—",
+          type: r.transaction_type ?? "cash_advance",
+          ref: r.code || `CA-${r.id.slice(0, 6).toUpperCase()}`,
+          usd: Number(r.amount ?? 0), zwg: 0,
+        })),
+        internal: mapUit(uitOut ?? []),
+      },
+    };
+  });
+
+export const closeDayWithBalancing = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z
+      .object({
+        physicalUsd: z.number().nonnegative().max(1_000_000_000),
+        physicalZwg: z.number().nonnegative().max(1_000_000_000),
+        expectedUsd: z.number().max(1_000_000_000),
+        expectedZwg: z.number().max(1_000_000_000),
+        varianceReason: z.string().trim().max(2000).optional().nullable(),
+        device: z.string().trim().max(300).optional(),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const uid = context.userId;
+    let ip: string | null = null;
+    try { ip = getRequestIP({ xForwardedFor: true }) ?? null; } catch { ip = null; }
+
+    const varianceUsd = data.physicalUsd - data.expectedUsd;
+    const varianceZwg = data.physicalZwg - data.expectedZwg;
+
+    if ((Math.abs(varianceUsd) > 0.005 || Math.abs(varianceZwg) > 0.005) && !data.varianceReason) {
+      throw new Error("Variance reason is required when physical count does not match expected balance");
+    }
+
+    // Pre-close audit log capturing balancing snapshot
+    await supabaseAdmin.from("audit_logs").insert({
+      actor_user_id: uid,
+      action: "end_day_balance",
+      table_name: "teller_sessions",
+      module: "teller_day",
+      device_ip: ip,
+      new_data: {
+        physicalUsd: data.physicalUsd,
+        physicalZwg: data.physicalZwg,
+        expectedUsd: data.expectedUsd,
+        expectedZwg: data.expectedZwg,
+        varianceUsd,
+        varianceZwg,
+        reason: data.varianceReason ?? null,
+        device: data.device ?? null,
+      },
+    });
+
+    const { data: row, error } = await context.supabase.rpc("close_teller_day", {
+      _cash_at_hand: data.physicalUsd,
+      _device: (data.device ?? null) as never,
+      _ip: ip as never,
+    });
+    if (error) throw new Error(error.message);
+
+    return { ok: true, session: row, varianceUsd, varianceZwg };
+  });
