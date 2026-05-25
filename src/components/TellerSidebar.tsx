@@ -126,7 +126,14 @@ export function TellerSidebar() {
               return (
                 <li key={item.url}>
                   {locked ? (
-                    <div className={cls} title="Open your operational day to transact">
+                    <div
+                      className={cls}
+                      title={
+                        ecocashLocked
+                          ? "Locked: EcoCash Day is open"
+                          : "Open your operational day to transact"
+                      }
+                    >
                       <Icon className="h-4 w-4" />
                       <span>{item.title}</span>
                       <Lock className="ml-auto h-3 w-3" />
