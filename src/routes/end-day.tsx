@@ -537,7 +537,7 @@ function LineTable({
 }
 
 function GrandTotal({ label, usd, zwg, tone }: { label: string; usd: number; zwg: number; tone: "success" | "destructive" }) {
-  const color = tone === "success" ? "bg-success text-success-foreground" : "bg-destructive text-destructive-foreground";
+  const color = tone === "success" ? "bg-success text-white" : "bg-destructive text-white";
   return (
     <div className={`flex flex-wrap items-center justify-between gap-3 rounded-xl ${color} px-4 py-3 font-bold`}>
       <span className="text-sm uppercase tracking-wider">{label}</span>
@@ -574,10 +574,10 @@ function PhysicalInput({
   const status = !entered
     ? { label: "Enter physical count", cls: "bg-muted text-muted-foreground" }
     : balanced
-      ? { label: "Balanced", cls: "bg-success text-success-foreground" }
+      ? { label: "Balanced", cls: "bg-success text-white" }
       : over
-        ? { label: `Over by ${fmt(Math.abs(variance))}`, cls: "bg-warning text-warning-foreground" }
-        : { label: `Short by ${fmt(Math.abs(variance))}`, cls: "bg-destructive text-destructive-foreground" };
+        ? { label: `Over by ${fmt(Math.abs(variance))}`, cls: "bg-warning text-white" }
+        : { label: `Short by ${fmt(Math.abs(variance))}`, cls: "bg-destructive text-white" };
 
   return (
     <div className="rounded-xl border border-border bg-background/40 p-4">
