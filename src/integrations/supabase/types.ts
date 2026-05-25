@@ -284,6 +284,69 @@ export type Database = {
           },
         ]
       }
+      ecocash_sessions: {
+        Row: {
+          branch_id: string | null
+          closed_at: string | null
+          closed_device: string | null
+          closed_ip: string | null
+          closing_cash_at_hand: number | null
+          created_at: string
+          expected_usd: number | null
+          id: string
+          opened_at: string
+          opened_device: string | null
+          opened_float_amount: number
+          opened_ip: string | null
+          physical_usd: number | null
+          session_code: string
+          status: Database["public"]["Enums"]["ecocash_session_status"]
+          user_id: string
+          variance_reason: string | null
+          variance_usd: number | null
+        }
+        Insert: {
+          branch_id?: string | null
+          closed_at?: string | null
+          closed_device?: string | null
+          closed_ip?: string | null
+          closing_cash_at_hand?: number | null
+          created_at?: string
+          expected_usd?: number | null
+          id?: string
+          opened_at?: string
+          opened_device?: string | null
+          opened_float_amount: number
+          opened_ip?: string | null
+          physical_usd?: number | null
+          session_code?: string
+          status?: Database["public"]["Enums"]["ecocash_session_status"]
+          user_id: string
+          variance_reason?: string | null
+          variance_usd?: number | null
+        }
+        Update: {
+          branch_id?: string | null
+          closed_at?: string | null
+          closed_device?: string | null
+          closed_ip?: string | null
+          closing_cash_at_hand?: number | null
+          created_at?: string
+          expected_usd?: number | null
+          id?: string
+          opened_at?: string
+          opened_device?: string | null
+          opened_float_amount?: number
+          opened_ip?: string | null
+          physical_usd?: number | null
+          session_code?: string
+          status?: Database["public"]["Enums"]["ecocash_session_status"]
+          user_id?: string
+          variance_reason?: string | null
+          variance_usd?: number | null
+        }
+        Relationships: []
+      }
       ecocash_transactions: {
         Row: {
           amount: number
@@ -1113,6 +1176,41 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      close_ecocash_day: {
+        Args: {
+          _device: string
+          _expected_usd: number
+          _ip?: string
+          _physical_usd: number
+          _variance_reason: string
+        }
+        Returns: {
+          branch_id: string | null
+          closed_at: string | null
+          closed_device: string | null
+          closed_ip: string | null
+          closing_cash_at_hand: number | null
+          created_at: string
+          expected_usd: number | null
+          id: string
+          opened_at: string
+          opened_device: string | null
+          opened_float_amount: number
+          opened_ip: string | null
+          physical_usd: number | null
+          session_code: string
+          status: Database["public"]["Enums"]["ecocash_session_status"]
+          user_id: string
+          variance_reason: string | null
+          variance_usd: number | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "ecocash_sessions"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       close_teller_day: {
         Args: { _cash_at_hand: number; _device: string; _ip?: string }
         Returns: {
@@ -1148,6 +1246,35 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      open_ecocash_day: {
+        Args: { _branch: string; _device: string; _float: number; _ip?: string }
+        Returns: {
+          branch_id: string | null
+          closed_at: string | null
+          closed_device: string | null
+          closed_ip: string | null
+          closing_cash_at_hand: number | null
+          created_at: string
+          expected_usd: number | null
+          id: string
+          opened_at: string
+          opened_device: string | null
+          opened_float_amount: number
+          opened_ip: string | null
+          physical_usd: number | null
+          session_code: string
+          status: Database["public"]["Enums"]["ecocash_session_status"]
+          user_id: string
+          variance_reason: string | null
+          variance_usd: number | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "ecocash_sessions"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       open_teller_day: {
         Args: { _branch: string; _device: string; _float: number; _ip?: string }
@@ -1293,6 +1420,7 @@ export type Database = {
       bank_enum: "ZB" | "CBZ" | "BANCABC" | "AFC"
       cash_tx_type: "withdrawal" | "deposit"
       decision: "pending" | "approved" | "declined"
+      ecocash_session_status: "open" | "closed"
       ecocash_source: "manual_entry" | "internal_transaction"
       ecocash_tx_type: "inflow" | "outflow"
       float_assignment_status: "pending" | "approved" | "rejected" | "cancelled"
@@ -1443,6 +1571,7 @@ export const Constants = {
       bank_enum: ["ZB", "CBZ", "BANCABC", "AFC"],
       cash_tx_type: ["withdrawal", "deposit"],
       decision: ["pending", "approved", "declined"],
+      ecocash_session_status: ["open", "closed"],
       ecocash_source: ["manual_entry", "internal_transaction"],
       ecocash_tx_type: ["inflow", "outflow"],
       float_assignment_status: ["pending", "approved", "rejected", "cancelled"],
