@@ -95,6 +95,7 @@ function useAnimatedNumber(value: number, ms = 600) {
 function Dashboard() {
   const { state, loading, refresh } = useDashboardState();
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   const [openDlg, setOpenDlg] = useState(false);
   const [closeDlg, setCloseDlg] = useState(false);
