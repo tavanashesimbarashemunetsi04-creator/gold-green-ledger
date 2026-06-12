@@ -53,7 +53,7 @@ export const assignFloat = createServerFn({ method: "POST" })
       action: "float_assign",
       table_name: "float_assignments",
       record_id: row.id,
-      new_data: { amount: data.amount, reference: data.reference } as never,
+      new_data: { amount: data.amount, reference: data.reference, role: data.assigned_role } as never,
       module: "float",
       amount: data.amount,
       target_user_id: data.teller_user_id,
