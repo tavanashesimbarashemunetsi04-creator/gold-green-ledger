@@ -43,7 +43,12 @@ export const MANAGER_SIDEBAR_WIDTH = "18rem";
 export function ManagerSidebar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const navigate = useNavigate();
-  const { user, signOut } = useAuth();
+  const { user, signOut, isAdmin, isFinanceManager } = useAuth();
+  const items: Item[] = [
+    ...managerItems,
+    ...(isAdmin || isFinanceManager ? adminItems : []),
+  ];
+
 
   return (
     <aside
