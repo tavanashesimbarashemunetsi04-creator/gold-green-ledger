@@ -60,6 +60,7 @@ const initialState = {
   usd_amount: "",
   zwg_amount: "",
   category: "",
+  custom_category: "",
   notes: "",
   status: "pending" as PaymentStatus,
 };
