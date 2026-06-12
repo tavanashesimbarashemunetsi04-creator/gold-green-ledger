@@ -18,6 +18,7 @@ export type BankTab = "ZB" | "BANCABC" | "CBZ" | "AFC";
 export type PaymentEntry = {
   bank: BankTab;
   date: string;
+  account_name: string;
   account_number: string;
   phone_number: string;
   code: string;
