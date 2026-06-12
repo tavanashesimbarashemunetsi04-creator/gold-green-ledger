@@ -1,4 +1,4 @@
-import { createFileRoute, Outlet, Navigate } from "@tanstack/react-router";
+import { createFileRoute, Outlet, Navigate, useLocation } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/useAuth";
 import { ManagerSidebar } from "@/components/manager/ManagerSidebar";
 
@@ -8,6 +8,8 @@ export const Route = createFileRoute("/manager")({
 
 function ManagerLayout() {
   const { loading, isAdmin, hasRole } = useAuth();
+  const location = useLocation();
+  const fullPage = location.pathname.startsWith("/manager/teller/");
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
@@ -18,8 +20,8 @@ function ManagerLayout() {
   if (!isAdmin && !hasRole("manager")) return <Navigate to="/" />;
   return (
     <div className="min-h-screen bg-background">
-      <ManagerSidebar />
-      <div className="pl-72 print:pl-0">
+      {!fullPage && <ManagerSidebar />}
+      <div className={fullPage ? "" : "pl-72 print:pl-0"}>
         <Outlet />
       </div>
     </div>
