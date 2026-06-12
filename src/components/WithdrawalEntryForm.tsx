@@ -137,7 +137,7 @@ export function WithdrawalEntryForm({ kind, onSubmitted }: Props) {
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Identity */}
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             <div className="space-y-2">
               <Label htmlFor="date">Date *</Label>
               <Input
@@ -145,6 +145,7 @@ export function WithdrawalEntryForm({ kind, onSubmitted }: Props) {
                 type="date"
                 value={form.date}
                 onChange={(e) => update("date", e.target.value)}
+                className="max-w-[200px]"
                 required
               />
             </div>
@@ -165,6 +166,7 @@ export function WithdrawalEntryForm({ kind, onSubmitted }: Props) {
                 value={form.card_number}
                 onChange={(e) => update("card_number", e.target.value)}
                 maxLength={32}
+                className="max-w-[200px]"
                 required
               />
             </div>
@@ -194,7 +196,7 @@ export function WithdrawalEntryForm({ kind, onSubmitted }: Props) {
           </div>
 
           {/* Financials */}
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             <div className="space-y-2">
               <Label htmlFor="code">Code</Label>
               <Input
@@ -202,6 +204,7 @@ export function WithdrawalEntryForm({ kind, onSubmitted }: Props) {
                 value={form.code}
                 onChange={(e) => update("code", e.target.value)}
                 maxLength={50}
+                className="max-w-[200px]"
               />
             </div>
 
@@ -217,6 +220,7 @@ export function WithdrawalEntryForm({ kind, onSubmitted }: Props) {
                     min="0"
                     value={form.usd_amount}
                     onChange={(e) => update("usd_amount", e.target.value)}
+                    className="max-w-[200px]"
                   />
                 </div>
                 <div className="space-y-2">
@@ -229,6 +233,7 @@ export function WithdrawalEntryForm({ kind, onSubmitted }: Props) {
                     min="0"
                     value={form.zwg_amount}
                     onChange={(e) => update("zwg_amount", e.target.value)}
+                    className="max-w-[200px]"
                   />
                 </div>
               </>
@@ -250,7 +255,7 @@ export function WithdrawalEntryForm({ kind, onSubmitted }: Props) {
           </div>
 
           {/* Status */}
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             <div className="space-y-2">
               <Label>Status *</Label>
               <Select
