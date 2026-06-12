@@ -1,130 +1,82 @@
-# Admin Settings — Editable Configuration Center
+## Daily Teller Role Assignment
 
-A full configuration center at `/admin/settings` where admins edit every business rule, limit, bank, currency, and policy through the UI. All values persist in the database; nothing is hardcoded. Every change is audited.
+Add a mandatory **Daily Role** to every float assignment that controls which modules, sessions, and routes a teller can access for that business day. Enforce it across UI, router, server functions, RPCs, and the database.
 
----
+### 1. Database (migration)
 
-## 1. Database (single migration)
+New enum + table:
 
-### `app_settings`
-JSON-backed key-value store so new settings need no migrations.
-- `key text PK` (e.g. `org.company_name`, `limits.high_value_threshold`)
-- `category text` (organization | currencies | banks | limits | float | sessions | security | users | approvals | notifications | reports | audit | system)
-- `value jsonb NOT NULL` — flexible payload
-- `value_type text` (string | number | boolean | json | time | enum)
-- `validation jsonb` — `{ min, max, regex, enum, required }`
-- `description text`, `is_sensitive boolean default false`
-- `updated_by uuid references auth.users(id)`, `updated_at timestamptz default now()`
-- RLS: SELECT for authenticated, write only via RPC `admin_update_setting`
+```text
+CREATE TYPE public.daily_teller_role AS ENUM
+  ('Ecocash_Teller','Agency_Banking_Teller','Dual_Role_Teller');
 
-### `app_setting_history`
-- `id uuid PK`, `setting_key text`, `old_value jsonb`, `new_value jsonb`
-- `changed_by uuid`, `changed_at timestamptz default now()`, `change_reason text`
-- RLS: SELECT for admin only
+CREATE TABLE public.daily_teller_assignments (
+  id uuid PK default gen_random_uuid(),
+  teller_user_id uuid NOT NULL REFERENCES auth.users(id),
+  branch_id uuid NULL REFERENCES branches(id),
+  float_assignment_id uuid NULL REFERENCES float_assignments(id),
+  assigned_role daily_teller_role NOT NULL,
+  assigned_by uuid NOT NULL REFERENCES auth.users(id),
+  assigned_at timestamptz default now(),
+  business_date date NOT NULL default (now() AT TIME ZONE 'UTC')::date,
+  status text NOT NULL default 'active',  -- active | superseded | revoked
+  UNIQUE (teller_user_id, business_date, status)  -- 1 active role per teller per day
+);
+```
 
-### `feature_flags`
-- `key text PK`, `enabled boolean default false`, `rollout jsonb` (e.g. `{ branches: [], roles: [] }`)
-- `updated_by`, `updated_at`
-- RLS: SELECT authenticated, write via RPC
+Add GRANTs + RLS (select for self / admin / finance_manager; insert/update only via SECURITY DEFINER RPCs).
 
-### Domain tables (proper relational storage for repeating items)
-- `currencies` — `code PK`, `name`, `symbol`, `is_default boolean`, `disabled boolean`
-- `currency_rates` — `id`, `from_code`, `to_code`, `rate numeric`, `rate_kind enum('payment','withdrawal')`, `effective_from date`, `effective_to date`, `created_by`, `created_at` — independent payment vs withdrawal rates
-- `bank_directory` — `id`, `name`, `code`, `swift`, `disabled boolean`, `branch_specific jsonb`
-- `branch_limits` — `id`, `branch_id`, `limit_type enum('transaction','withdrawal','cash_advance','ecocash','float')`, `amount numeric NULL` (NULL = no limit), `currency`, `effective_from date`, `created_by`
+Alter `float_assignments` → add column `assigned_role daily_teller_role NULL` (nullable for legacy rows; new inserts via RPC require it).
 
-### RPCs (SECURITY DEFINER, admin-gated)
-- `admin_update_setting(_key text, _new_value jsonb, _reason text)` — validates, upserts, logs to `app_setting_history` + `audit_logs` (action='setting_update', module='admin_settings')
-- `admin_bulk_update_settings(_changes jsonb)` — array of `{key, value, reason}`
-- `admin_restore_defaults(_category text)` — resets category to defaults defined in setting `system.defaults`
-- `admin_force_logout_all()` — invalidates all sessions, audit-logged
-- `admin_lock_system(_locked boolean, _reason text)` — toggles maintenance mode
+RPCs (SECURITY DEFINER):
+- `assign_daily_role(_teller, _role, _branch, _float_assignment_id)` — admin/finance only; blocks change if transactions exist for that teller's current business date (checks payments, withdrawals, ecocash_transactions, internal_transactions).
+- Extend `approve_float_assignment` to also copy `assigned_role` into a `daily_teller_assignments` row when the teller approves their float.
+- Extend `open_teller_day` to require role ∈ {Agency_Banking_Teller, Dual_Role_Teller}.
+- Extend `open_ecocash_day` to require role ∈ {Ecocash_Teller, Dual_Role_Teller}.
+- All write audit_logs entries.
 
-### Seeded defaults (in migration)
-All settings listed in the request seeded with sensible defaults. Examples:
-- `sessions.auto_logout_minutes` → `7`, validation `{ enum: [5,7,10,15,30,60] }`
-- `sessions.auto_close_time` → `"22:00"`
-- `sessions.allow_one_reopen` → `true`
-- `limits.high_value_threshold` → `null` (no limit), etc.
+### 2. Server functions
 
----
+- `assignFloat` (src/lib/float.functions.ts): add required `assigned_role` to zod schema; insert into `float_assignments`.
+- New `changeDailyRole` server fn → calls `assign_daily_role` RPC.
+- New `getMyDailyRole` server fn → returns today's active row for the current user.
 
-## 2. Server functions — `src/lib/admin-settings.functions.ts`
+### 3. UI
 
-All gated with `requireSupabaseAuth` + admin role check.
+**Admin float form** (`src/routes/admin.float.tsx`): add required `<Select>` for Daily Role (Ecocash / Agency Banking / Dual Role). Disable Submit until chosen. Show current role on each teller row with "Change Role" button (calls `changeDailyRole`, surfaces the "Role assignment cannot be changed after transactions have been recorded" error from RPC).
 
-- `listSettings(category?)` → returns settings grouped by category with metadata
-- `updateSetting({ key, value, reason })` → calls RPC
-- `bulkUpdateSettings(changes[])` → calls RPC
-- `getSettingHistory(key, limit?)` → joined with profile name
-- `listCurrencies()` / `upsertCurrency()` / `deleteCurrency(code)`
-- `listRates(kind)` / `upsertRate()` / `deleteRate(id)`
-- `listBanks()` / `upsertBank()` / `deleteBank(id)` / `toggleBankDisabled(id)`
-- `listBranchLimits()` / `upsertBranchLimit()` / `deleteBranchLimit(id)`
-- `forceLogoutAll()` / `lockSystem(boolean, reason)`
-- `exportConfiguration()` → JSON dump of settings + domain tables
-- `importConfiguration(json)` → validates then bulk-applies
-- `restoreDefaults(category)`
+**Teller sidebar** (`src/components/TellerSidebar.tsx`): fetch today's role via `getMyDailyRole`; build allowed-modules set:
 
----
+```text
+Ecocash_Teller        → Dashboard, My Float, Ecocash, Internal Tx, End Day, My Account, Settings
+Agency_Banking_Teller → Dashboard, My Float, Payments, Withdrawals, End Day, My Account, Settings
+Dual_Role_Teller      → all of the above
+```
 
-## 3. Routes & UI
+Hide blocked items entirely (admins still see all). Show role badge under user email.
 
-- `src/routes/admin.settings.tsx` — page with sidebar tabs, search bar, sticky save bar
-- `src/components/admin/settings/`
-  - `SettingsLayout.tsx` — tab nav (14 tabs), global search, unsaved-changes indicator, "Save all changes" button
-  - `SettingField.tsx` — generic field: shows current value, Edit / Save / Cancel buttons, validation errors, "Last modified by X on Y", history popover (last 10 changes)
-  - `SectionSaveBar.tsx` — per-section save
-  - Tab panels: `OrganizationTab`, `CurrenciesTab` (sub-tabs: list, payment rates, withdrawal rates), `BanksTab`, `LimitsTab` (global + branch-specific table), `FloatTab`, `SessionsTab`, `SecurityTab`, `UsersTab`, `ApprovalsTab`, `NotificationsTab`, `ReportsTab`, `AuditTab`, `SystemTab`, `DangerZoneTab`
-  - `HistoryDrawer.tsx` — full change history for any setting
-  - `ConfirmDestructive.tsx` — typed-confirmation modal for Danger Zone actions
-  - "No Limit" toggle on every numeric limit field
-  - Effective-date picker on limit changes
-  - Inline editing, optimistic save, toast feedback
+**Open-day modal** (extend `useDashboardState` consumer): for Dual Role show "Select Session To Open" with three buttons — Open Agency Banking Day, Open Ecocash Day, Open Both. "Both" calls `open_teller_day` then `open_ecocash_day` sequentially. Single-role tellers see only their one option.
 
-### UX details
-- Search filters settings across all tabs by key/description
-- Unsaved changes tracked in a context provider; warn on tab change and beforeunload
-- Bulk save calls `bulkUpdateSettings` in a single RPC
-- Responsive (mobile collapses tab nav to dropdown)
-- Dark mode via existing theme tokens
+**Dashboard session status card**: for Dual Role, show two independent Open/Closed badges and per-session open/close buttons.
 
----
+**End Day**: for Dual Role require both sessions balanced before "Close Business Day" enables.
 
-## 4. Audit & history
+### 4. Route protection
 
-Every mutation:
-1. Writes to `app_setting_history` (old/new value, who, when, reason)
-2. Writes to `audit_logs` with `module='admin_settings'`, `action='setting_update'`, `new_data={key, old, new, reason}`
+Add a `<RoleGate>` wrapper used inside each protected route (`payments`, `withdrawals`, `ecocash`, `internal-transactions`). It calls `getMyDailyRole` and redirects to `/` with a toast if the route isn't in the allowed set. Admin bypasses. This complements the sidebar-hide so URL typing is blocked.
 
-`HistoryDrawer` reads from `app_setting_history` joined with `profiles` for display.
+### 5. Reports / audit
 
----
+- Float Assignment table, End Day Summary, Manager balancing views, Audit Logs list → display `assigned_role` column (label "Ecocash Teller" / "Agency Banking Teller" / "Dual Role Teller").
+- Every RPC writes `audit_logs` with `module='daily_role'` and action `role_assigned` / `role_changed` / `session_opened`.
 
-## 5. Integration
+### 6. Security checklist
 
-Settings are read by other modules through a thin client hook `useSetting(key)` that subscribes via realtime to `app_settings`. Existing hardcoded constants (e.g. `IDLE_TIMEOUT`, `AUTO_CLOSE_TIME`) get migrated to setting reads in a follow-up pass — for this turn, the settings page itself is the deliverable; module rewiring beyond the settings page is out of scope and tracked as a TODO.
+- DB: enum + RLS + SECURITY DEFINER RPCs are the source of truth.
+- RPCs reject role changes when transactions exist.
+- Server fns re-check role via `has_role` for admin/finance writes.
+- Router gate + sidebar hide + RPC reject = defense in depth.
 
----
+### Scope notes
 
-## Files
-
-**New**
-- migration (3 system tables + 4 domain tables + RPCs + seeds)
-- `src/lib/admin-settings.functions.ts`
-- `src/routes/admin.settings.tsx`
-- `src/components/admin/settings/*` (~16 files)
-- `src/hooks/useSetting.ts`
-
-**Edited**
-- `src/components/AdminSidebar.tsx` — Settings link already exists; no change
-
----
-
-## Out of scope (this turn)
-- Rewiring every existing module to read from `app_settings` (separate pass)
-- Email template editor UI
-- Role-permission matrix editor (Users tab will list default role + workflows; full RBAC matrix is large enough to be its own feature)
-- Backup execution (config UI only; actual backup job is platform-level)
-
-Approve and I'll run the migration first, then ship the code in one batch.
+This is a large change touching ~12 files plus a migration. I'll implement it end-to-end in one pass after you approve. Legacy float assignments without a role will be treated as `Agency_Banking_Teller` by default so existing tellers aren't locked out.

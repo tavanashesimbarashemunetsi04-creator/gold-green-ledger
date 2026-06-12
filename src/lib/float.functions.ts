@@ -23,6 +23,7 @@ export const assignFloat = createServerFn({ method: "POST" })
         branch_id: z.string().uuid().nullable().optional(),
         reference: z.string().trim().max(120).optional(),
         notes: z.string().trim().max(500).optional(),
+        assigned_role: z.enum(["Ecocash_Teller", "Agency_Banking_Teller", "Dual_Role_Teller"]),
       })
       .parse(input),
   )
@@ -40,7 +41,9 @@ export const assignFloat = createServerFn({ method: "POST" })
         branch_id: data.branch_id ?? null,
         reference: data.reference ?? null,
         notes: data.notes ?? null,
-      })
+        // Column added by daily teller roles migration; cast to satisfy generated types until refresh
+        ...({ assigned_role: data.assigned_role } as Record<string, unknown>),
+      } as never)
       .select()
       .single();
     if (error) throw new Error(error.message);
@@ -50,7 +53,7 @@ export const assignFloat = createServerFn({ method: "POST" })
       action: "float_assign",
       table_name: "float_assignments",
       record_id: row.id,
-      new_data: { amount: data.amount, reference: data.reference } as never,
+      new_data: { amount: data.amount, reference: data.reference, role: data.assigned_role } as never,
       module: "float",
       amount: data.amount,
       target_user_id: data.teller_user_id,

@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
 import { assignFloat, selfAssignFloat } from "@/lib/float.functions";
+import { DAILY_ROLES, DAILY_ROLE_LABEL, type DailyRole } from "@/lib/daily-role.functions";
 
 export const Route = createFileRoute("/admin/float")({ component: FloatPage });
 
@@ -46,6 +47,7 @@ function FloatPage() {
   const [branchId, setBranchId] = useState<string>("");
   const [reference, setReference] = useState("");
   const [notes, setNotes] = useState("");
+  const [dailyRole, setDailyRole] = useState<DailyRole | "">("");
   const [submitting, setSubmitting] = useState(false);
 
   const [selfAmount, setSelfAmount] = useState("");
@@ -82,6 +84,7 @@ function FloatPage() {
     const amt = Number(amount);
     if (!tellerId) return toast.error("Select a teller");
     if (!amt || amt <= 0) return toast.error("Enter a valid amount");
+    if (!dailyRole) return toast.error("Select a daily role");
     setSubmitting(true);
     try {
       await assign({
@@ -91,10 +94,11 @@ function FloatPage() {
           branch_id: branchId || undefined,
           reference: reference || undefined,
           notes: notes || undefined,
+          assigned_role: dailyRole,
         },
       });
       toast.success("Float assigned — awaiting teller approval");
-      setTellerId(""); setAmount(""); setReference(""); setNotes("");
+      setTellerId(""); setAmount(""); setReference(""); setNotes(""); setDailyRole("");
       await load();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed");
@@ -188,6 +192,17 @@ function FloatPage() {
                   </SelectContent>
                 </Select>
               </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Daily Role <span className="text-destructive">*</span></Label>
+              <Select value={dailyRole} onValueChange={(v) => setDailyRole(v as DailyRole)}>
+                <SelectTrigger><SelectValue placeholder="Select daily role" /></SelectTrigger>
+                <SelectContent>
+                  {DAILY_ROLES.map((r) => (
+                    <SelectItem key={r} value={r}>{DAILY_ROLE_LABEL[r]}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-2">
               <Label>Reference</Label>

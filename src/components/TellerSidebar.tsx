@@ -2,6 +2,8 @@ import logoMark from "@/assets/logo-mark.png";
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/useAuth";
 import { useDashboardState } from "@/hooks/useDashboardState";
+import { useDailyRole, ROLE_ALLOWED_ROUTES } from "@/hooks/useDailyRole";
+import { DAILY_ROLE_LABEL } from "@/lib/daily-role.functions";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -43,6 +45,8 @@ export function TellerSidebar() {
   const navigate = useNavigate();
   const { user, roles, isAdmin, isFinanceManager, signOut } = useAuth();
   const { isDayOpen, isEcocashMode } = useDashboardState(20000);
+  const { role: dailyRole } = useDailyRole();
+  const allowedRoutes = dailyRole ? ROLE_ALLOWED_ROUTES[dailyRole] : null;
   const primaryRole = roles.includes("admin")
     ? "admin"
     : roles.includes("finance_manager")
@@ -108,7 +112,9 @@ export function TellerSidebar() {
         {/* Nav */}
         <nav className="flex-1 overflow-y-auto px-3 py-4">
           <ul className="space-y-1">
-            {items.map((item) => {
+            {items
+              .filter((item) => isAdmin || !allowedRoutes || allowedRoutes.includes(item.url))
+              .map((item) => {
               const active = pathname === item.url;
               const Icon = item.icon;
               const ecocashLocked = isEcocashMode && !isAdmin && [
@@ -180,6 +186,11 @@ export function TellerSidebar() {
             <div className="mb-3 px-1">
               <p className="truncate text-xs text-white/60">{user.email}</p>
               <p className="text-[10px] uppercase tracking-widest text-[var(--gold)]">{primaryRole}</p>
+              {dailyRole && (
+                <p className="mt-1 inline-block rounded bg-white/10 px-1.5 py-0.5 text-[10px] font-medium text-white/80">
+                  Today: {DAILY_ROLE_LABEL[dailyRole]}
+                </p>
+              )}
             </div>
           )}
           <button
