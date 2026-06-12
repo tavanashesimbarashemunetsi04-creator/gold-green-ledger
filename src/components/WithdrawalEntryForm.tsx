@@ -39,8 +39,10 @@ interface Props {
   onSubmitted?: (entry: WithdrawalEntry) => void;
 }
 
+const today = new Date().toISOString().slice(0, 10);
+
 const baseInit = {
-  date: "",
+  date: today,
   name: "",
   card_number: "",
   phone_number: "",

@@ -574,7 +574,7 @@ function EcocashManualEntries({
   const [txType, setTxType] = useState<TxType | "">("");
   const [submitting, setSubmitting] = useState(false);
   const [search, setSearch] = useState("");
-  const [dateFilter, setDateFilter] = useState("");
+  const [dateFilter, setDateFilter] = useState(() => new Date().toISOString().slice(0, 10));
   const [kind, setKind] = useState<FilterKind>("all");
 
   const load = useCallback(async () => {

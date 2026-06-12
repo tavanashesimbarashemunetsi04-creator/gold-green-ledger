@@ -106,8 +106,8 @@ function FailedPage() {
   const [tellerFilter, setTellerFilter] = useState<string>("all");
   const [reasonFilter, setReasonFilter] = useState<string>("all");
   const [branchFilter, setBranchFilter] = useState<string>("all");
-  const [fromDate, setFromDate] = useState("");
-  const [toDate, setToDate] = useState("");
+  const [fromDate, setFromDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [toDate, setToDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<Row | null>(null);
 

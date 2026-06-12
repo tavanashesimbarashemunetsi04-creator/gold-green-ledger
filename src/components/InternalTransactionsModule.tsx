@@ -83,7 +83,7 @@ export function InternalTransactionsModule() {
   const [loading, setLoading] = useState(false);
 
   // form state
-  const [date, setDate] = useState("");
+  const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [targetId, setTargetId] = useState("");
   const [requestType, setRequestType] = useState<RequestType | "">("");
   const [amount, setAmount] = useState("");
