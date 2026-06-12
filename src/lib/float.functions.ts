@@ -41,7 +41,9 @@ export const assignFloat = createServerFn({ method: "POST" })
         branch_id: data.branch_id ?? null,
         reference: data.reference ?? null,
         notes: data.notes ?? null,
-      })
+        // Column added by daily teller roles migration; cast to satisfy generated types until refresh
+        ...({ assigned_role: data.assigned_role } as Record<string, unknown>),
+      } as never)
       .select()
       .single();
     if (error) throw new Error(error.message);
