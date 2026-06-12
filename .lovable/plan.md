@@ -1,86 +1,130 @@
-## Manager Portal & Balancing Control System
+# Admin Settings — Editable Configuration Center
 
-A dedicated portal at `/manager/*` accessible only to users with the `manager` or `admin` role. Mirrors the structure of the existing `/admin` portal (separate sidebar, layout, route group).
-
----
-
-### 1. Database (single migration)
-
-**New table `public.teller_balancing`** — one row per (teller, business_date):
-- `id`, `teller_user_id`, `branch_id`, `business_date`
-- `teller_session_id` (nullable, link to closed `teller_sessions`)
-- `ecocash_session_id` (nullable, link to closed `ecocash_sessions`)
-- `status` enum `balancing_status` (`pending` | `in_review` | `balanced`)
-- `balanced_by_user_id`, `balanced_at`
-- `manager_comments` (text)
-- `expected_usd`, `physical_usd`, `variance_usd` (snapshot at balance time)
-- `reviewed_tx_refs` (jsonb array of `{table, id, ticked_at}`) — checkbox state
-- Unique `(teller_user_id, business_date)`
-- RLS: SELECT for owner teller + manager/admin/finance_manager; writes via RPCs only
-
-**New RPCs (SECURITY DEFINER):**
-- `manager_save_review(_teller_user_id, _business_date, _reviewed_refs jsonb, _comments text)` — upsert row, status='in_review', log audit
-- `manager_balance_teller(_teller_user_id, _business_date, _physical_usd, _expected_usd, _comments, _device, _ip)` — must be manager/admin; locks row to `balanced`, snapshots variance, writes audit log with module='manager_balance'. Rejects if already balanced.
-
-Realtime: enable on `teller_balancing`.
+A full configuration center at `/admin/settings` where admins edit every business rule, limit, bank, currency, and policy through the UI. All values persist in the database; nothing is hardcoded. Every change is audited.
 
 ---
 
-### 2. Server functions — `src/lib/manager-portal.functions.ts`
+## 1. Database (single migration)
 
-All gated with `requireSupabaseAuth` + role check (`manager` or `admin`).
+### `app_settings`
+JSON-backed key-value store so new settings need no migrations.
+- `key text PK` (e.g. `org.company_name`, `limits.high_value_threshold`)
+- `category text` (organization | currencies | banks | limits | float | sessions | security | users | approvals | notifications | reports | audit | system)
+- `value jsonb NOT NULL` — flexible payload
+- `value_type text` (string | number | boolean | json | time | enum)
+- `validation jsonb` — `{ min, max, regex, enum, required }`
+- `description text`, `is_sensitive boolean default false`
+- `updated_by uuid references auth.users(id)`, `updated_at timestamptz default now()`
+- RLS: SELECT for authenticated, write only via RPC `admin_update_setting`
 
-- `getManagerDashboard()` — returns array of `TellerCard`: profile, open `teller_sessions`/`ecocash_sessions`, current computed balance (sum of `user_internal_transactions`), opening float, last activity timestamp (max of created_at across tx tables), status derived (open_day | ecocash | closed | offline), variance status from latest `teller_balancing`.
-- `getManagerBalancingList(businessDate)` — like dashboard but scoped to a date, includes open/close times, ecocash status, balancing status.
-- `getTellerDayDetail(tellerUserId, businessDate)` — returns categorized transactions: payments, withdrawals (cash_advance + cash_swipes), internal (teller_transfers + user_internal_transactions), pending, failed, changes_refunds (status changes from audit_logs where action='status_change'), ecocash_transactions, end_day_totals (mirrors existing `getEndDaySummary` shape).
-- `saveManagerReview({ tellerUserId, businessDate, reviewedRefs, comments })`
-- `balanceTeller({ tellerUserId, businessDate, physicalUsd, expectedUsd, comments })`
+### `app_setting_history`
+- `id uuid PK`, `setting_key text`, `old_value jsonb`, `new_value jsonb`
+- `changed_by uuid`, `changed_at timestamptz default now()`, `change_reason text`
+- RLS: SELECT for admin only
 
----
+### `feature_flags`
+- `key text PK`, `enabled boolean default false`, `rollout jsonb` (e.g. `{ branches: [], roles: [] }`)
+- `updated_by`, `updated_at`
+- RLS: SELECT authenticated, write via RPC
 
-### 3. Routes & layout
+### Domain tables (proper relational storage for repeating items)
+- `currencies` — `code PK`, `name`, `symbol`, `is_default boolean`, `disabled boolean`
+- `currency_rates` — `id`, `from_code`, `to_code`, `rate numeric`, `rate_kind enum('payment','withdrawal')`, `effective_from date`, `effective_to date`, `created_by`, `created_at` — independent payment vs withdrawal rates
+- `bank_directory` — `id`, `name`, `code`, `swift`, `disabled boolean`, `branch_specific jsonb`
+- `branch_limits` — `id`, `branch_id`, `limit_type enum('transaction','withdrawal','cash_advance','ecocash','float')`, `amount numeric NULL` (NULL = no limit), `currency`, `effective_from date`, `created_by`
 
-- `src/routes/manager.tsx` — layout route, gates on `isManager`, renders `<ManagerSidebar />` + `<Outlet />`. Wire into `__root.tsx` shell exception list (like `/admin`).
-- `src/routes/manager.index.tsx` — Dashboard tab
-- `src/routes/manager.balancing.tsx` — Balancing tab (tiles)
-- `src/routes/manager.teller.$userId.tsx` — Teller Balancing View (tabbed)
-- `src/routes/manager.audit.tsx` — Manager audit feed (filtered audit_logs where module IN manager actions)
+### RPCs (SECURITY DEFINER, admin-gated)
+- `admin_update_setting(_key text, _new_value jsonb, _reason text)` — validates, upserts, logs to `app_setting_history` + `audit_logs` (action='setting_update', module='admin_settings')
+- `admin_bulk_update_settings(_changes jsonb)` — array of `{key, value, reason}`
+- `admin_restore_defaults(_category text)` — resets category to defaults defined in setting `system.defaults`
+- `admin_force_logout_all()` — invalidates all sessions, audit-logged
+- `admin_lock_system(_locked boolean, _reason text)` — toggles maintenance mode
 
----
-
-### 4. UI Components — `src/components/manager/`
-
-- `ManagerSidebar.tsx` — Dashboard / Balancing / Audit / Back to Teller
-- `TellerStatusCard.tsx` — tile with status dot (green/orange/red/grey), name, username, balance, opening float, last activity, variance badge
-- `TellerBalancingCard.tsx` — balancing tile (links to teller detail)
-- `TellerDetailTabs.tsx` — tab nav for the 8 sub-tabs
-- `tabs/PaymentsTab.tsx`, `WithdrawalsTab.tsx`, `InternalTab.tsx`, `PendingTab.tsx`, `FailedTab.tsx`, `ChangesRefundsTab.tsx`, `EcocashRecordsTab.tsx`, `EndDaySummaryTab.tsx`
-- `EndDaySummaryTab` — full inflow/outflow breakdown + per-row review checkboxes, sticky balance summary, manager comments, BALANCE button (modal with physical count + comments). After balanced: read-only banner "Balanced by [Name] · [Date] · [Branch]", green badge.
-- PDF export via jsPDF + autotable (same pattern as `end-day.tsx`)
-
-Filters/search on dashboard & balancing tabs (status, branch, text search).
-
-Realtime subscriptions: `teller_sessions`, `ecocash_sessions`, `user_internal_transactions`, `teller_balancing`, `payments`, `cash_advance`, `cash_swipes`.
-
----
-
-### 5. Audit logging
-
-Every manager action writes to `audit_logs` with:
-- `actor_user_id` (manager), `target_user_id` (teller), `action` (`manager_review` | `manager_balance` | `manager_comment`), `module='manager_portal'`, `branch_id`, `device_ip`, `new_data` (refs reviewed, variance, comments)
-
-Manager audit feed pulls these for display.
+### Seeded defaults (in migration)
+All settings listed in the request seeded with sensible defaults. Examples:
+- `sessions.auto_logout_minutes` → `7`, validation `{ enum: [5,7,10,15,30,60] }`
+- `sessions.auto_close_time` → `"22:00"`
+- `sessions.allow_one_reopen` → `true`
+- `limits.high_value_threshold` → `null` (no limit), etc.
 
 ---
 
-### Out of scope
-- Editing teller transactions (managers are read-only per spec)
-- Unbalancing / reopening a balanced day
-- Multi-currency in balancing snapshot (USD only, matches existing modules)
+## 2. Server functions — `src/lib/admin-settings.functions.ts`
 
-### Files
-- migration (new table + 2 RPCs + realtime)
-- new: `src/lib/manager-portal.functions.ts`, `src/routes/manager.tsx`, `manager.index.tsx`, `manager.balancing.tsx`, `manager.teller.$userId.tsx`, `manager.audit.tsx`, `src/components/manager/*` (sidebar, cards, tabs)
-- edited: `src/routes/__root.tsx` (add `/manager` to layout-bypass), `src/components/TellerSidebar.tsx` (optional "Manager Portal" link for managers)
+All gated with `requireSupabaseAuth` + admin role check.
 
-After approval I'll run the migration first, then write the code in one batch.
+- `listSettings(category?)` → returns settings grouped by category with metadata
+- `updateSetting({ key, value, reason })` → calls RPC
+- `bulkUpdateSettings(changes[])` → calls RPC
+- `getSettingHistory(key, limit?)` → joined with profile name
+- `listCurrencies()` / `upsertCurrency()` / `deleteCurrency(code)`
+- `listRates(kind)` / `upsertRate()` / `deleteRate(id)`
+- `listBanks()` / `upsertBank()` / `deleteBank(id)` / `toggleBankDisabled(id)`
+- `listBranchLimits()` / `upsertBranchLimit()` / `deleteBranchLimit(id)`
+- `forceLogoutAll()` / `lockSystem(boolean, reason)`
+- `exportConfiguration()` → JSON dump of settings + domain tables
+- `importConfiguration(json)` → validates then bulk-applies
+- `restoreDefaults(category)`
+
+---
+
+## 3. Routes & UI
+
+- `src/routes/admin.settings.tsx` — page with sidebar tabs, search bar, sticky save bar
+- `src/components/admin/settings/`
+  - `SettingsLayout.tsx` — tab nav (14 tabs), global search, unsaved-changes indicator, "Save all changes" button
+  - `SettingField.tsx` — generic field: shows current value, Edit / Save / Cancel buttons, validation errors, "Last modified by X on Y", history popover (last 10 changes)
+  - `SectionSaveBar.tsx` — per-section save
+  - Tab panels: `OrganizationTab`, `CurrenciesTab` (sub-tabs: list, payment rates, withdrawal rates), `BanksTab`, `LimitsTab` (global + branch-specific table), `FloatTab`, `SessionsTab`, `SecurityTab`, `UsersTab`, `ApprovalsTab`, `NotificationsTab`, `ReportsTab`, `AuditTab`, `SystemTab`, `DangerZoneTab`
+  - `HistoryDrawer.tsx` — full change history for any setting
+  - `ConfirmDestructive.tsx` — typed-confirmation modal for Danger Zone actions
+  - "No Limit" toggle on every numeric limit field
+  - Effective-date picker on limit changes
+  - Inline editing, optimistic save, toast feedback
+
+### UX details
+- Search filters settings across all tabs by key/description
+- Unsaved changes tracked in a context provider; warn on tab change and beforeunload
+- Bulk save calls `bulkUpdateSettings` in a single RPC
+- Responsive (mobile collapses tab nav to dropdown)
+- Dark mode via existing theme tokens
+
+---
+
+## 4. Audit & history
+
+Every mutation:
+1. Writes to `app_setting_history` (old/new value, who, when, reason)
+2. Writes to `audit_logs` with `module='admin_settings'`, `action='setting_update'`, `new_data={key, old, new, reason}`
+
+`HistoryDrawer` reads from `app_setting_history` joined with `profiles` for display.
+
+---
+
+## 5. Integration
+
+Settings are read by other modules through a thin client hook `useSetting(key)` that subscribes via realtime to `app_settings`. Existing hardcoded constants (e.g. `IDLE_TIMEOUT`, `AUTO_CLOSE_TIME`) get migrated to setting reads in a follow-up pass — for this turn, the settings page itself is the deliverable; module rewiring beyond the settings page is out of scope and tracked as a TODO.
+
+---
+
+## Files
+
+**New**
+- migration (3 system tables + 4 domain tables + RPCs + seeds)
+- `src/lib/admin-settings.functions.ts`
+- `src/routes/admin.settings.tsx`
+- `src/components/admin/settings/*` (~16 files)
+- `src/hooks/useSetting.ts`
+
+**Edited**
+- `src/components/AdminSidebar.tsx` — Settings link already exists; no change
+
+---
+
+## Out of scope (this turn)
+- Rewiring every existing module to read from `app_settings` (separate pass)
+- Email template editor UI
+- Role-permission matrix editor (Users tab will list default role + workflows; full RBAC matrix is large enough to be its own feature)
+- Backup execution (config UI only; actual backup job is platform-level)
+
+Approve and I'll run the migration first, then ship the code in one batch.
