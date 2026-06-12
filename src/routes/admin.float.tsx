@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
 import { assignFloat, selfAssignFloat } from "@/lib/float.functions";
+import { DAILY_ROLES, DAILY_ROLE_LABEL, type DailyRole } from "@/lib/daily-role.functions";
 
 export const Route = createFileRoute("/admin/float")({ component: FloatPage });
 
