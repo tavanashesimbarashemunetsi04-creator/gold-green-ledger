@@ -159,16 +159,6 @@ export function WithdrawalEntryForm({ kind, onSubmitted }: Props) {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="id_number">ID Number *</Label>
-              <Input
-                id="id_number"
-                value={form.id_number}
-                onChange={(e) => update("id_number", e.target.value)}
-                maxLength={50}
-                required
-              />
-            </div>
-            <div className="space-y-2">
               <Label htmlFor="card_number">Card Number *</Label>
               <Input
                 id="card_number"
@@ -185,6 +175,16 @@ export function WithdrawalEntryForm({ kind, onSubmitted }: Props) {
                 value={form.phone_number}
                 onChange={(e) => update("phone_number", e.target.value)}
                 maxLength={20}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="id_number">ID Number *</Label>
+              <Input
+                id="id_number"
+                value={form.id_number}
+                onChange={(e) => update("id_number", e.target.value)}
+                maxLength={50}
+                required
               />
             </div>
             <div className="space-y-2">
