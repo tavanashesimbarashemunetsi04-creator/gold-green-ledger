@@ -1,12 +1,41 @@
 import logoMark from "@/assets/logo-mark.png";
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/useAuth";
-import { LayoutDashboard, Scale, ScrollText, ArrowLeftRight, LogOut } from "lucide-react";
+import {
+  LayoutDashboard,
+  Scale,
+  ScrollText,
+  ArrowLeftRight,
+  LogOut,
+  Users,
+  Building2,
+  UserCog,
+  ListChecks,
+  ShieldCheck,
+  FileBarChart,
+  Settings as SettingsIcon,
+} from "lucide-react";
 
-const items = [
+type Item = { title: string; url: string; icon: typeof LayoutDashboard; exact?: boolean };
+
+const managerItems: Item[] = [
   { title: "Dashboard", url: "/manager", icon: LayoutDashboard, exact: true },
   { title: "Balancing", url: "/manager/balancing", icon: Scale },
   { title: "Audit Logs", url: "/manager/audit", icon: ScrollText },
+];
+
+const adminItems: Item[] = [
+  { title: "Admin Dashboard", url: "/admin", icon: LayoutDashboard, exact: true },
+  { title: "Users", url: "/admin/users", icon: Users },
+  { title: "Float Management", url: "/admin/float", icon: ArrowLeftRight },
+  { title: "Branches", url: "/admin/branches", icon: Building2 },
+  { title: "Tellers", url: "/admin/tellers", icon: UserCog },
+  { title: "Approvals", url: "/admin/approvals", icon: ListChecks },
+  { title: "Transactions", url: "/admin/transactions", icon: ArrowLeftRight },
+  { title: "Audit Logs (Admin)", url: "/admin/audit", icon: ScrollText },
+  { title: "Security", url: "/admin/security", icon: ShieldCheck },
+  { title: "Reports", url: "/admin/reports", icon: FileBarChart },
+  { title: "Settings", url: "/admin/settings", icon: SettingsIcon },
 ];
 
 export const MANAGER_SIDEBAR_WIDTH = "18rem";
@@ -14,7 +43,12 @@ export const MANAGER_SIDEBAR_WIDTH = "18rem";
 export function ManagerSidebar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const navigate = useNavigate();
-  const { user, signOut } = useAuth();
+  const { user, signOut, isAdmin, isFinanceManager } = useAuth();
+  const items: Item[] = [
+    ...managerItems,
+    ...(isAdmin || isFinanceManager ? adminItems : []),
+  ];
+
 
   return (
     <aside
