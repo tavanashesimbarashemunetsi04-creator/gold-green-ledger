@@ -45,6 +45,8 @@ export function TellerSidebar() {
   const navigate = useNavigate();
   const { user, roles, isAdmin, isFinanceManager, signOut } = useAuth();
   const { isDayOpen, isEcocashMode } = useDashboardState(20000);
+  const { role: dailyRole } = useDailyRole();
+  const allowedRoutes = dailyRole ? ROLE_ALLOWED_ROUTES[dailyRole] : null;
   const primaryRole = roles.includes("admin")
     ? "admin"
     : roles.includes("finance_manager")
