@@ -114,3 +114,9 @@
     font-feature-settings: "ss01", "cv11";
   }
 }
+
+@media print {
+  .print-show-all-tabs [data-state="inactive"] {
+    display: block !important;
+  }
+}

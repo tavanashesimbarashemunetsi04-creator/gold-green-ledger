@@ -23,7 +23,7 @@ export function ManagerSidebar() {
         color: "var(--sidebar-fg)",
         width: MANAGER_SIDEBAR_WIDTH,
       }}
-      className="fixed left-0 top-0 z-40 h-screen shadow-[var(--shadow-elegant)]"
+      className="fixed left-0 top-0 z-40 h-screen shadow-[var(--shadow-elegant)] print:hidden"
     >
       <div className="flex h-full flex-col">
         <div className="border-b border-white/10 px-6 py-6">

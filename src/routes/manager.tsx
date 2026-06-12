@@ -19,7 +19,7 @@ function ManagerLayout() {
   return (
     <div className="min-h-screen bg-background">
       <ManagerSidebar />
-      <div className="pl-72">
+      <div className="pl-72 print:pl-0">
         <Outlet />
       </div>
     </div>
