@@ -53,5 +53,5 @@ export const assignDailyRole = createServerFn({ method: "POST" })
       _notes: data.notes ?? null,
     });
     if (error) throw new Error(error.message);
-    return row;
+    return (row ?? null) as object | null;
   });
