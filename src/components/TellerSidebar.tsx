@@ -112,7 +112,7 @@ export function TellerSidebar() {
               const active = pathname === item.url;
               const Icon = item.icon;
               const ecocashLocked = isEcocashMode && !isAdmin && [
-                "/payments", "/withdrawals", "/internal-transactions",
+                "/payments", "/withdrawals",
                 "/changes-refunds", "/end-day",
               ].includes(item.url);
               const locked = ecocashLocked || (item.requiresDay && !isDayOpen && !isEcocashMode && !isAdmin);
