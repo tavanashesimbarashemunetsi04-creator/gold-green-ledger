@@ -11,12 +11,38 @@ export const DAILY_ROLE_LABEL: Record<DailyRole, string> = {
   Dual_Role_Teller: "Dual Role Teller",
 };
 
+export type DailyRoleRow = {
+  assigned_role: DailyRole;
+  business_date: string;
+  status: string;
+  branch_id: string | null;
+  float_assignment_id: string | null;
+  assigned_at: string;
+} | null;
+
 export const getMyDailyRole = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
+  .handler(async ({ context }): Promise<DailyRoleRow> => {
     const today = new Date().toISOString().slice(0, 10);
-    const { data, error } = await context.supabase
-      .from("daily_teller_assignments" as never)
+    // Table is not yet in generated types; cast through unknown
+    const db = context.supabase as unknown as {
+      from: (t: string) => {
+        select: (cols: string) => {
+          eq: (c: string, v: string) => {
+            eq: (c: string, v: string) => {
+              eq: (c: string, v: string) => {
+                maybeSingle: () => Promise<{
+                  data: DailyRoleRow;
+                  error: { message: string } | null;
+                }>;
+              };
+            };
+          };
+        };
+      };
+    };
+    const { data, error } = await db
+      .from("daily_teller_assignments")
       .select("assigned_role, business_date, status, branch_id, float_assignment_id, assigned_at")
       .eq("teller_user_id", context.userId)
       .eq("status", "active")
@@ -25,7 +51,7 @@ export const getMyDailyRole = createServerFn({ method: "GET" })
     if (error && !/relation .* does not exist/.test(error.message)) {
       throw new Error(error.message);
     }
-    return (data as { assigned_role: DailyRole } | null) ?? null;
+    return data ?? null;
   });
 
 export const assignDailyRole = createServerFn({ method: "POST" })
@@ -41,11 +67,12 @@ export const assignDailyRole = createServerFn({ method: "POST" })
       })
       .parse(input),
   )
-  .handler(async ({ data, context }) => {
-    const { data: row, error } = await (context.supabase.rpc as unknown as (
+  .handler(async ({ data, context }): Promise<{ ok: true }> => {
+    const rpc = context.supabase.rpc as unknown as (
       fn: string,
       args: Record<string, unknown>,
-    ) => Promise<{ data: unknown; error: { message: string } | null }>)("assign_daily_role", {
+    ) => Promise<{ data: unknown; error: { message: string } | null }>;
+    const { error } = await rpc("assign_daily_role", {
       _teller_user_id: data.teller_user_id,
       _role: data.role,
       _branch_id: data.branch_id ?? null,
@@ -53,5 +80,5 @@ export const assignDailyRole = createServerFn({ method: "POST" })
       _notes: data.notes ?? null,
     });
     if (error) throw new Error(error.message);
-    return (row ?? null) as object | null;
+    return { ok: true };
   });
