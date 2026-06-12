@@ -189,8 +189,8 @@ function TellerDetail() {
         </div>
       )}
 
-      <Tabs defaultValue="end-day" className="w-full">
-        <TabsList className="mb-4 flex flex-wrap h-auto">
+      <Tabs defaultValue="end-day" className="w-full print-show-all-tabs">
+        <TabsList className="mb-4 flex flex-wrap h-auto print:hidden">
           <TabsTrigger value="payments">Payments ({detail.payments.length})</TabsTrigger>
           <TabsTrigger value="withdrawals">Withdrawals ({detail.withdrawals.length})</TabsTrigger>
           <TabsTrigger value="internal">Internal ({detail.internal.length})</TabsTrigger>
