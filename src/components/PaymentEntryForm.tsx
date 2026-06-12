@@ -82,6 +82,7 @@ export function PaymentEntryForm({ bank, onSubmit }: Props) {
     const entry: PaymentEntry = {
       bank,
       date: form.date,
+      account_name: form.account_name.trim(),
       account_number: form.account_number.trim(),
       phone_number: form.phone_number.trim(),
       code: form.code.trim(),
