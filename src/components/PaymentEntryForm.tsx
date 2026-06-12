@@ -95,7 +95,8 @@ export function PaymentEntryForm({ bank, onSubmit }: Props) {
       payment_type: form.payment_type,
       usd_amount: form.usd_amount ? Number(form.usd_amount) : null,
       zwg_amount: form.zwg_amount ? Number(form.zwg_amount) : null,
-      category: form.category,
+      category: form.category === "Other" ? `Other: ${form.custom_category.trim()}` : form.category,
+      custom_category: form.custom_category.trim(),
       notes: form.notes.trim(),
       status: form.status,
     };
