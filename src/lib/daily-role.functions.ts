@@ -48,8 +48,11 @@ export const getMyDailyRole = createServerFn({ method: "GET" })
       .eq("status", "active")
       .eq("business_date", today)
       .maybeSingle();
-    if (error && !/relation .* does not exist/.test(error.message)) {
-      throw new Error(error.message);
+    if (error) {
+      const msg = error.message || "";
+      // Table not yet created (migration pending) — degrade gracefully
+      if (/does not exist|schema cache|Could not find the table/i.test(msg)) return null;
+      throw new Error(msg);
     }
     return data ?? null;
   });
