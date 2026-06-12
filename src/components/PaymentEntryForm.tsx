@@ -42,8 +42,10 @@ const CATEGORIES = [
   "Insurances",
 ] as const;
 
+const today = new Date().toISOString().slice(0, 10);
+
 const initialState = {
-  date: "",
+  date: today,
   account_number: "",
   phone_number: "",
   code: "",
