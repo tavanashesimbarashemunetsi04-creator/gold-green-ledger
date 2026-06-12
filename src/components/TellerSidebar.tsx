@@ -186,6 +186,11 @@ export function TellerSidebar() {
             <div className="mb-3 px-1">
               <p className="truncate text-xs text-white/60">{user.email}</p>
               <p className="text-[10px] uppercase tracking-widest text-[var(--gold)]">{primaryRole}</p>
+              {dailyRole && (
+                <p className="mt-1 inline-block rounded bg-white/10 px-1.5 py-0.5 text-[10px] font-medium text-white/80">
+                  Today: {DAILY_ROLE_LABEL[dailyRole]}
+                </p>
+              )}
             </div>
           )}
           <button
