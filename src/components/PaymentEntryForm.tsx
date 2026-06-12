@@ -115,7 +115,7 @@ export function PaymentEntryForm({ bank, onSubmit }: Props) {
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Identity */}
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
             <div className="space-y-2">
               <Label htmlFor="date">Date *</Label>
               <Input
@@ -124,6 +124,15 @@ export function PaymentEntryForm({ bank, onSubmit }: Props) {
                 value={form.date}
                 onChange={(e) => update("date", e.target.value)}
                 required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="account_name">Account Name</Label>
+              <Input
+                id="account_name"
+                value={form.account_name}
+                onChange={(e) => update("account_name", e.target.value)}
+                maxLength={100}
               />
             </div>
             <div className="space-y-2">
