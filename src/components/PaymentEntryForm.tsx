@@ -26,6 +26,7 @@ export type PaymentEntry = {
   usd_amount: number | null;
   zwg_amount: number | null;
   category: string;
+  custom_category?: string;
   notes: string;
   status: PaymentStatus;
 };
@@ -33,14 +34,18 @@ export type PaymentEntry = {
 export type PaymentStatus = "successful" | "pending" | "failed";
 const STATUSES: PaymentStatus[] = ["successful", "pending", "failed"];
 
-const PAYMENT_TYPES = ["Cash", "Cash USD", "Swipe", "Cash ZWG"] as const;
+const PAYMENT_TYPES = ["USD - ZWG", "Cash USD", "Swipe", "Cash ZWG"] as const;
 const CATEGORIES = [
   "Zesa",
   "COH",
-  "School fees",
+  "School Fees",
+  "University Fees",
   "DSTV",
   "Deposits",
-  "Insurances",
+  "Nyaradzo",
+  "Doves",
+  "Cimas",
+  "Other",
 ] as const;
 
 const today = new Date().toISOString().slice(0, 10);
