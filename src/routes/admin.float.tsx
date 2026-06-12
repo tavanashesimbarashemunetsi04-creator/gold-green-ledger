@@ -47,6 +47,7 @@ function FloatPage() {
   const [branchId, setBranchId] = useState<string>("");
   const [reference, setReference] = useState("");
   const [notes, setNotes] = useState("");
+  const [dailyRole, setDailyRole] = useState<DailyRole | "">("");
   const [submitting, setSubmitting] = useState(false);
 
   const [selfAmount, setSelfAmount] = useState("");
