@@ -47,6 +47,7 @@ const today = new Date().toISOString().slice(0, 10);
 
 const initialState = {
   date: today,
+  account_name: "",
   account_number: "",
   phone_number: "",
   code: "",
