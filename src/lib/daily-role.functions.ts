@@ -42,7 +42,10 @@ export const assignDailyRole = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
-    const { data: row, error } = await context.supabase.rpc("assign_daily_role" as never, {
+    const { data: row, error } = await (context.supabase.rpc as unknown as (
+      fn: string,
+      args: Record<string, unknown>,
+    ) => Promise<{ data: unknown; error: { message: string } | null }>)("assign_daily_role", {
       _teller_user_id: data.teller_user_id,
       _role: data.role,
       _branch_id: data.branch_id ?? null,
