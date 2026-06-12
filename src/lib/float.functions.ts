@@ -23,6 +23,7 @@ export const assignFloat = createServerFn({ method: "POST" })
         branch_id: z.string().uuid().nullable().optional(),
         reference: z.string().trim().max(120).optional(),
         notes: z.string().trim().max(500).optional(),
+        assigned_role: z.enum(["Ecocash_Teller", "Agency_Banking_Teller", "Dual_Role_Teller"]),
       })
       .parse(input),
   )
