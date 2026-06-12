@@ -208,6 +208,18 @@ export function PaymentEntryForm({ bank, onSubmit }: Props) {
                   ))}
                 </SelectContent>
               </Select>
+              {form.category === "Other" && (
+                <div className="pt-2">
+                  <Label htmlFor="custom_category">Custom Category</Label>
+                  <Input
+                    id="custom_category"
+                    value={form.custom_category}
+                    onChange={(e) => update("custom_category", e.target.value)}
+                    placeholder="Describe the transaction type"
+                    maxLength={100}
+                  />
+                </div>
+              )}
             </div>
           </div>
 
