@@ -84,6 +84,7 @@ function FloatPage() {
     const amt = Number(amount);
     if (!tellerId) return toast.error("Select a teller");
     if (!amt || amt <= 0) return toast.error("Enter a valid amount");
+    if (!dailyRole) return toast.error("Select a daily role");
     setSubmitting(true);
     try {
       await assign({
@@ -93,10 +94,11 @@ function FloatPage() {
           branch_id: branchId || undefined,
           reference: reference || undefined,
           notes: notes || undefined,
+          assigned_role: dailyRole,
         },
       });
       toast.success("Float assigned — awaiting teller approval");
-      setTellerId(""); setAmount(""); setReference(""); setNotes("");
+      setTellerId(""); setAmount(""); setReference(""); setNotes(""); setDailyRole("");
       await load();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed");
