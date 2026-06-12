@@ -41,20 +41,24 @@ export const getMyDailyRole = createServerFn({ method: "GET" })
         };
       };
     };
-    const { data, error } = await db
-      .from("daily_teller_assignments")
-      .select("assigned_role, business_date, status, branch_id, float_assignment_id, assigned_at")
-      .eq("teller_user_id", context.userId)
-      .eq("status", "active")
-      .eq("business_date", today)
-      .maybeSingle();
-    if (error) {
-      const msg = error.message || "";
-      // Table not yet created (migration pending) — degrade gracefully
-      if (/does not exist|schema cache|Could not find the table/i.test(msg)) return null;
-      throw new Error(msg);
+    try {
+      const { data, error } = await db
+        .from("daily_teller_assignments")
+        .select("assigned_role, business_date, status, branch_id, float_assignment_id, assigned_at")
+        .eq("teller_user_id", context.userId)
+        .eq("status", "active")
+        .eq("business_date", today)
+        .maybeSingle();
+      if (error) {
+        // Table not yet created (migration pending) or any read failure — degrade gracefully
+        console.warn("[getMyDailyRole] read failed, returning null:", error);
+        return null;
+      }
+      return data ?? null;
+    } catch (e) {
+      console.warn("[getMyDailyRole] exception, returning null:", e);
+      return null;
     }
-    return data ?? null;
   });
 
 export const assignDailyRole = createServerFn({ method: "POST" })
