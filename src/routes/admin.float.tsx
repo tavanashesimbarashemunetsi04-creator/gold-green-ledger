@@ -194,6 +194,17 @@ function FloatPage() {
               </div>
             </div>
             <div className="space-y-2">
+              <Label>Daily Role <span className="text-destructive">*</span></Label>
+              <Select value={dailyRole} onValueChange={(v) => setDailyRole(v as DailyRole)}>
+                <SelectTrigger><SelectValue placeholder="Select daily role" /></SelectTrigger>
+                <SelectContent>
+                  {DAILY_ROLES.map((r) => (
+                    <SelectItem key={r} value={r}>{DAILY_ROLE_LABEL[r]}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
               <Label>Reference</Label>
               <Input value={reference} onChange={(e) => setReference(e.target.value)} placeholder="e.g. opening shift 09:00" />
             </div>
