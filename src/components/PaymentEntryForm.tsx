@@ -26,6 +26,7 @@ export type PaymentEntry = {
   usd_amount: number | null;
   zwg_amount: number | null;
   category: string;
+  custom_category?: string;
   notes: string;
   status: PaymentStatus;
 };
@@ -33,14 +34,18 @@ export type PaymentEntry = {
 export type PaymentStatus = "successful" | "pending" | "failed";
 const STATUSES: PaymentStatus[] = ["successful", "pending", "failed"];
 
-const PAYMENT_TYPES = ["Cash", "Cash USD", "Swipe", "Cash ZWG"] as const;
+const PAYMENT_TYPES = ["USD - ZWG", "Cash USD", "Swipe", "Cash ZWG"] as const;
 const CATEGORIES = [
   "Zesa",
   "COH",
-  "School fees",
+  "School Fees",
+  "University Fees",
   "DSTV",
   "Deposits",
-  "Insurances",
+  "Nyaradzo",
+  "Doves",
+  "Cimas",
+  "Other",
 ] as const;
 
 const today = new Date().toISOString().slice(0, 10);
@@ -55,6 +60,7 @@ const initialState = {
   usd_amount: "",
   zwg_amount: "",
   category: "",
+  custom_category: "",
   notes: "",
   status: "pending" as PaymentStatus,
 };
@@ -89,7 +95,8 @@ export function PaymentEntryForm({ bank, onSubmit }: Props) {
       payment_type: form.payment_type,
       usd_amount: form.usd_amount ? Number(form.usd_amount) : null,
       zwg_amount: form.zwg_amount ? Number(form.zwg_amount) : null,
-      category: form.category,
+      category: form.category === "Other" ? `Other: ${form.custom_category.trim()}` : form.category,
+      custom_category: form.custom_category.trim(),
       notes: form.notes.trim(),
       status: form.status,
     };
@@ -201,6 +208,18 @@ export function PaymentEntryForm({ bank, onSubmit }: Props) {
                   ))}
                 </SelectContent>
               </Select>
+              {form.category === "Other" && (
+                <div className="pt-2">
+                  <Label htmlFor="custom_category">Custom Category</Label>
+                  <Input
+                    id="custom_category"
+                    value={form.custom_category}
+                    onChange={(e) => update("custom_category", e.target.value)}
+                    placeholder="Describe the transaction type"
+                    maxLength={100}
+                  />
+                </div>
+              )}
             </div>
           </div>
 
