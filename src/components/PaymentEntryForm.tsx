@@ -18,6 +18,7 @@ export type BankTab = "ZB" | "BANCABC" | "CBZ" | "AFC";
 export type PaymentEntry = {
   bank: BankTab;
   date: string;
+  account_name: string;
   account_number: string;
   phone_number: string;
   code: string;
@@ -46,6 +47,7 @@ const today = new Date().toISOString().slice(0, 10);
 
 const initialState = {
   date: today,
+  account_name: "",
   account_number: "",
   phone_number: "",
   code: "",
@@ -80,6 +82,7 @@ export function PaymentEntryForm({ bank, onSubmit }: Props) {
     const entry: PaymentEntry = {
       bank,
       date: form.date,
+      account_name: form.account_name.trim(),
       account_number: form.account_number.trim(),
       phone_number: form.phone_number.trim(),
       code: form.code.trim(),
@@ -112,7 +115,7 @@ export function PaymentEntryForm({ bank, onSubmit }: Props) {
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Identity */}
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
             <div className="space-y-2">
               <Label htmlFor="date">Date *</Label>
               <Input
@@ -121,6 +124,15 @@ export function PaymentEntryForm({ bank, onSubmit }: Props) {
                 value={form.date}
                 onChange={(e) => update("date", e.target.value)}
                 required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="account_name">Account Name</Label>
+              <Input
+                id="account_name"
+                value={form.account_name}
+                onChange={(e) => update("account_name", e.target.value)}
+                maxLength={100}
               />
             </div>
             <div className="space-y-2">
