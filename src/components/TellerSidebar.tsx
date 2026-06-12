@@ -112,7 +112,9 @@ export function TellerSidebar() {
         {/* Nav */}
         <nav className="flex-1 overflow-y-auto px-3 py-4">
           <ul className="space-y-1">
-            {items.map((item) => {
+            {items
+              .filter((item) => isAdmin || !allowedRoutes || allowedRoutes.includes(item.url))
+              .map((item) => {
               const active = pathname === item.url;
               const Icon = item.icon;
               const ecocashLocked = isEcocashMode && !isAdmin && [
