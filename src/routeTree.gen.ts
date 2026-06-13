@@ -28,6 +28,7 @@ import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as ManagerBalancingRouteImport } from './routes/manager.balancing'
 import { Route as ManagerAuditRouteImport } from './routes/manager.audit'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
+import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
 import { Route as AdminFloatRouteImport } from './routes/admin.float'
 import { Route as ManagerTellerUserIdRouteImport } from './routes/manager.teller.$userId'
 
@@ -126,6 +127,11 @@ const AdminUsersRoute = AdminUsersRouteImport.update({
   path: '/users',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminSettingsRoute = AdminSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminFloatRoute = AdminFloatRouteImport.update({
   id: '/float',
   path: '/float',
@@ -153,6 +159,7 @@ export interface FileRoutesByFullPath {
   '/teller-float': typeof TellerFloatRoute
   '/withdrawals': typeof WithdrawalsRoute
   '/admin/float': typeof AdminFloatRoute
+  '/admin/settings': typeof AdminSettingsRoute
   '/admin/users': typeof AdminUsersRoute
   '/manager/audit': typeof ManagerAuditRoute
   '/manager/balancing': typeof ManagerBalancingRoute
@@ -174,6 +181,7 @@ export interface FileRoutesByTo {
   '/teller-float': typeof TellerFloatRoute
   '/withdrawals': typeof WithdrawalsRoute
   '/admin/float': typeof AdminFloatRoute
+  '/admin/settings': typeof AdminSettingsRoute
   '/admin/users': typeof AdminUsersRoute
   '/manager/audit': typeof ManagerAuditRoute
   '/manager/balancing': typeof ManagerBalancingRoute
@@ -198,6 +206,7 @@ export interface FileRoutesById {
   '/teller-float': typeof TellerFloatRoute
   '/withdrawals': typeof WithdrawalsRoute
   '/admin/float': typeof AdminFloatRoute
+  '/admin/settings': typeof AdminSettingsRoute
   '/admin/users': typeof AdminUsersRoute
   '/manager/audit': typeof ManagerAuditRoute
   '/manager/balancing': typeof ManagerBalancingRoute
@@ -223,6 +232,7 @@ export interface FileRouteTypes {
     | '/teller-float'
     | '/withdrawals'
     | '/admin/float'
+    | '/admin/settings'
     | '/admin/users'
     | '/manager/audit'
     | '/manager/balancing'
@@ -244,6 +254,7 @@ export interface FileRouteTypes {
     | '/teller-float'
     | '/withdrawals'
     | '/admin/float'
+    | '/admin/settings'
     | '/admin/users'
     | '/manager/audit'
     | '/manager/balancing'
@@ -267,6 +278,7 @@ export interface FileRouteTypes {
     | '/teller-float'
     | '/withdrawals'
     | '/admin/float'
+    | '/admin/settings'
     | '/admin/users'
     | '/manager/audit'
     | '/manager/balancing'
@@ -427,6 +439,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminUsersRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/settings': {
+      id: '/admin/settings'
+      path: '/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AdminSettingsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/float': {
       id: '/admin/float'
       path: '/float'
@@ -446,12 +465,14 @@ declare module '@tanstack/react-router' {
 
 interface AdminRouteChildren {
   AdminFloatRoute: typeof AdminFloatRoute
+  AdminSettingsRoute: typeof AdminSettingsRoute
   AdminUsersRoute: typeof AdminUsersRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminFloatRoute: AdminFloatRoute,
+  AdminSettingsRoute: AdminSettingsRoute,
   AdminUsersRoute: AdminUsersRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
