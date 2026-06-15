@@ -84,7 +84,39 @@ function RootShell({ children }: { children: React.ReactNode }) {
   );
 }
 
+function useInitTheme() {
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    const apply = () => {
+      let theme: "light" | "dark" | "system" = "system";
+      try {
+        const raw = localStorage.getItem("teller_prefs");
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed?.theme) theme = parsed.theme;
+        }
+      } catch {
+        /* ignore */
+      }
+      const isDark =
+        theme === "dark" ||
+        (theme === "system" &&
+          window.matchMedia("(prefers-color-scheme: dark)").matches);
+      document.documentElement.classList.toggle("dark", isDark);
+    };
+    apply();
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    mq.addEventListener("change", apply);
+    window.addEventListener("storage", apply);
+    return () => {
+      mq.removeEventListener("change", apply);
+      window.removeEventListener("storage", apply);
+    };
+  }, []);
+}
+
 function RootComponent() {
+  useInitTheme();
   return (
     <AuthProvider>
       <AuthGate>
