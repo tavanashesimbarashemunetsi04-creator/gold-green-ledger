@@ -18,7 +18,19 @@ import {
   Loader2,
   Bell,
   MonitorSmartphone,
+  TrendingUp,
+  ArrowDownToLine,
+  ArrowUpFromLine,
+  Repeat2,
+  DollarSign,
+  CalendarRange,
+  ListChecks,
 } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import {
+  getTellerPerformance,
+  type TellerPerformance,
+} from "@/lib/teller-stats.functions";
 
 export const Route = createFileRoute("/account")({
   component: AccountPage,
@@ -111,6 +123,62 @@ function AccountPage() {
 
   // Security alerts
   const [alerts, setAlerts] = useState<SecurityAlert[]>([]);
+  // Performance summary
+  const fetchPerformance = useServerFn(getTellerPerformance);
+  const [perf, setPerf] = useState<TellerPerformance | null>(null);
+  const [perfLoading, setPerfLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    const load = async () => {
+      try {
+        const p = await fetchPerformance();
+        if (!cancelled) {
+          setPerf(p);
+          setPerfLoading(false);
+        }
+      } catch {
+        if (!cancelled) setPerfLoading(false);
+      }
+    };
+    load();
+    const ch = supabase
+      .channel(`teller_perf_${user.id}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "payments" },
+        load,
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "cash_swipes" },
+        load,
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "cash_advance" },
+        load,
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "internal_transactions" },
+        load,
+      )
+      .subscribe();
+    return () => {
+      cancelled = true;
+      supabase.removeChannel(ch);
+    };
+  }, [user, fetchPerformance]);
+
+  const fmtMoney = (n: number) =>
+    new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+      maximumFractionDigits: 2,
+    }).format(n || 0);
+
 
   const primaryRole = useMemo(
     () => (roles.includes("admin") ? "admin" : roles.includes("manager") ? "manager" : roles[0] ?? "teller"),
@@ -316,6 +384,39 @@ function AccountPage() {
         </div>
       </header>
 
+      {/* Performance Summary */}
+      <section className="rounded-2xl border border-border bg-card p-6 shadow-[var(--shadow-soft)]">
+        <div className="mb-4 flex items-center gap-2">
+          <TrendingUp className="h-5 w-5 text-primary" />
+          <h2 className="text-lg font-semibold text-foreground">Performance Summary</h2>
+        </div>
+
+        {/* Today */}
+        <div className="mb-2 flex items-center gap-2">
+          <CalendarRange className="h-4 w-4 text-muted-foreground" />
+          <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Today's Performance</h3>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+          <KpiCard label="Total Transactions" value={perf?.today.total ?? 0} icon={ListChecks} loading={perfLoading} />
+          <KpiCard label="Deposits Processed" value={perf?.today.deposits ?? 0} icon={ArrowDownToLine} loading={perfLoading} />
+          <KpiCard label="Withdrawals Processed" value={perf?.today.withdrawals ?? 0} icon={ArrowUpFromLine} loading={perfLoading} />
+          <KpiCard label="Internal Transactions" value={perf?.today.internal ?? 0} icon={Repeat2} loading={perfLoading} />
+          <KpiCard label="Transaction Value" value={fmtMoney(perf?.today.value ?? 0)} icon={DollarSign} loading={perfLoading} accent />
+        </div>
+
+        {/* Monthly */}
+        <div className="mt-6 mb-2 flex items-center gap-2">
+          <CalendarRange className="h-4 w-4 text-muted-foreground" />
+          <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Monthly Performance</h3>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <KpiCard label="Transactions Completed" value={perf?.month.total ?? 0} icon={ListChecks} loading={perfLoading} />
+          <KpiCard label="Total Value Processed" value={fmtMoney(perf?.month.value ?? 0)} icon={DollarSign} loading={perfLoading} accent />
+        </div>
+      </section>
+
+
+
       {/* Profile Card */}
       <section className="rounded-2xl border border-border bg-card p-6 shadow-[var(--shadow-soft)]">
         <div className="mb-4 flex items-center justify-between">
@@ -447,3 +548,50 @@ function Field({ label, value, hint }: { label: string; value: string; hint?: st
     </div>
   );
 }
+
+function KpiCard({
+  label,
+  value,
+  icon: Icon,
+  loading,
+  accent,
+}: {
+  label: string;
+  value: number | string;
+  icon: React.ComponentType<{ className?: string }>;
+  loading?: boolean;
+  accent?: boolean;
+}) {
+  return (
+    <div
+      className={
+        "rounded-xl border border-border bg-background p-4 shadow-[var(--shadow-soft)] " +
+        (accent ? "bg-[var(--gradient-primary)] text-primary-foreground" : "")
+      }
+    >
+      <div className="flex items-center justify-between">
+        <span
+          className={
+            "text-xs uppercase tracking-wide " +
+            (accent ? "text-primary-foreground/80" : "text-muted-foreground")
+          }
+        >
+          {label}
+        </span>
+        <Icon
+          className={
+            "h-4 w-4 " + (accent ? "text-primary-foreground/90" : "text-primary")
+          }
+        />
+      </div>
+      <div className="mt-2 text-2xl font-semibold tabular-nums">
+        {loading ? (
+          <Loader2 className="h-5 w-5 animate-spin opacity-70" />
+        ) : (
+          value
+        )}
+      </div>
+    </div>
+  );
+}
+
