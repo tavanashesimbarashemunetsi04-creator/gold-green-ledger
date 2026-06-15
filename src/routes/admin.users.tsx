@@ -424,7 +424,44 @@ function AdminUsersPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <AlertDialog open={!!deleting} onOpenChange={(o) => !o && !deletingBusy && setDeleting(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete account</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete <strong>{deleting?.email}</strong> and
+              remove their profile and roles. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deletingBusy}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={deletingBusy}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={async (e) => {
+                e.preventDefault();
+                if (!deleting) return;
+                setDeletingBusy(true);
+                try {
+                  await deleteUser({ data: { user_id: deleting.user_id } });
+                  toast.success("Account deleted");
+                  setDeleting(null);
+                  await load();
+                } catch (err) {
+                  toast.error(err instanceof Error ? err.message : "Failed to delete");
+                } finally {
+                  setDeletingBusy(false);
+                }
+              }}
+            >
+              {deletingBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
+
   );
 }
 
