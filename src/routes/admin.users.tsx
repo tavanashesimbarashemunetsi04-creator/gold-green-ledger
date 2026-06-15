@@ -344,8 +344,17 @@ function AdminUsersPage() {
                               <Lock className="mr-2 h-4 w-4" /> Lock
                             </DropdownMenuItem>
                           )}
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            disabled={p.user_id === user?.id}
+                            onClick={() => setDeleting(p)}
+                            className="text-destructive focus:text-destructive"
+                          >
+                            <Trash2 className="mr-2 h-4 w-4" /> Delete account
+                          </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
+
                     </td>
                   </tr>
                 );
