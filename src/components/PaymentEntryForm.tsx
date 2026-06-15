@@ -12,6 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { RateAwareAmountFields, useCurrencyRates } from "@/components/RateAwareAmountFields";
 
 export type BankTab = "ZB" | "BANCABC" | "CBZ" | "AFC";
 
