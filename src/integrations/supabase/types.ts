@@ -14,6 +14,27 @@ export type Database = {
   }
   public: {
     Tables: {
+      app_settings: {
+        Row: {
+          key: string
+          updated_at: string
+          updated_by: string | null
+          value: Json
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json
+        }
+        Relationships: []
+      }
       approvals: {
         Row: {
           approver_label: string | null
@@ -106,6 +127,7 @@ export type Database = {
           code: string | null
           created_at: string
           id: string
+          is_active: boolean
           location: string | null
           name: string
         }
@@ -113,6 +135,7 @@ export type Database = {
           code?: string | null
           created_at?: string
           id?: string
+          is_active?: boolean
           location?: string | null
           name: string
         }
@@ -120,6 +143,7 @@ export type Database = {
           code?: string | null
           created_at?: string
           id?: string
+          is_active?: boolean
           location?: string | null
           name?: string
         }

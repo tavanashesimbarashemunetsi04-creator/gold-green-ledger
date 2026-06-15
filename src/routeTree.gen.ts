@@ -39,6 +39,7 @@ import { Route as FinanceAuditRouteImport } from './routes/finance.audit'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminTransactionsRouteImport } from './routes/admin.transactions'
 import { Route as AdminTellersRouteImport } from './routes/admin.tellers'
+import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
 import { Route as AdminSecurityRouteImport } from './routes/admin.security'
 import { Route as AdminReportsRouteImport } from './routes/admin.reports'
 import { Route as AdminFloatRouteImport } from './routes/admin.float'
@@ -197,6 +198,11 @@ const AdminTellersRoute = AdminTellersRouteImport.update({
   path: '/tellers',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminSettingsRoute = AdminSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminSecurityRoute = AdminSecurityRouteImport.update({
   id: '/security',
   path: '/security',
@@ -256,6 +262,7 @@ export interface FileRoutesByFullPath {
   '/admin/float': typeof AdminFloatRoute
   '/admin/reports': typeof AdminReportsRoute
   '/admin/security': typeof AdminSecurityRoute
+  '/admin/settings': typeof AdminSettingsRoute
   '/admin/tellers': typeof AdminTellersRoute
   '/admin/transactions': typeof AdminTransactionsRoute
   '/admin/users': typeof AdminUsersRoute
@@ -292,6 +299,7 @@ export interface FileRoutesByTo {
   '/admin/float': typeof AdminFloatRoute
   '/admin/reports': typeof AdminReportsRoute
   '/admin/security': typeof AdminSecurityRoute
+  '/admin/settings': typeof AdminSettingsRoute
   '/admin/tellers': typeof AdminTellersRoute
   '/admin/transactions': typeof AdminTransactionsRoute
   '/admin/users': typeof AdminUsersRoute
@@ -332,6 +340,7 @@ export interface FileRoutesById {
   '/admin/float': typeof AdminFloatRoute
   '/admin/reports': typeof AdminReportsRoute
   '/admin/security': typeof AdminSecurityRoute
+  '/admin/settings': typeof AdminSettingsRoute
   '/admin/tellers': typeof AdminTellersRoute
   '/admin/transactions': typeof AdminTransactionsRoute
   '/admin/users': typeof AdminUsersRoute
@@ -373,6 +382,7 @@ export interface FileRouteTypes {
     | '/admin/float'
     | '/admin/reports'
     | '/admin/security'
+    | '/admin/settings'
     | '/admin/tellers'
     | '/admin/transactions'
     | '/admin/users'
@@ -409,6 +419,7 @@ export interface FileRouteTypes {
     | '/admin/float'
     | '/admin/reports'
     | '/admin/security'
+    | '/admin/settings'
     | '/admin/tellers'
     | '/admin/transactions'
     | '/admin/users'
@@ -448,6 +459,7 @@ export interface FileRouteTypes {
     | '/admin/float'
     | '/admin/reports'
     | '/admin/security'
+    | '/admin/settings'
     | '/admin/tellers'
     | '/admin/transactions'
     | '/admin/users'
@@ -696,6 +708,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminTellersRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/settings': {
+      id: '/admin/settings'
+      path: '/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AdminSettingsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/security': {
       id: '/admin/security'
       path: '/security'
@@ -755,6 +774,7 @@ interface AdminRouteChildren {
   AdminFloatRoute: typeof AdminFloatRoute
   AdminReportsRoute: typeof AdminReportsRoute
   AdminSecurityRoute: typeof AdminSecurityRoute
+  AdminSettingsRoute: typeof AdminSettingsRoute
   AdminTellersRoute: typeof AdminTellersRoute
   AdminTransactionsRoute: typeof AdminTransactionsRoute
   AdminUsersRoute: typeof AdminUsersRoute
@@ -768,6 +788,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminFloatRoute: AdminFloatRoute,
   AdminReportsRoute: AdminReportsRoute,
   AdminSecurityRoute: AdminSecurityRoute,
+  AdminSettingsRoute: AdminSettingsRoute,
   AdminTellersRoute: AdminTellersRoute,
   AdminTransactionsRoute: AdminTransactionsRoute,
   AdminUsersRoute: AdminUsersRoute,
