@@ -432,7 +432,7 @@ function EcocashInternalTransfersTable({ summary }: { summary: EcocashSummary })
     ...summary.inflows.transfersReceived.map((r) => ({ ...r, kind: "Received" as const })),
     ...summary.outflows.transfersSent.map((r) => ({ ...r, kind: "Sent" as const })),
     ...summary.outflows.floatReturns.map((r) => ({ ...r, kind: "Outflow" as const })),
-  ].sort((a, b) => (a.ts < b.ts ? 1 : -1));
+  ].sort((a, b) => (a.ts > b.ts ? 1 : -1));
 
   return (
     <Card>
@@ -580,7 +580,7 @@ function EcocashManualEntries({
   const load = useCallback(async () => {
     setLoading(true);
     const { data, error } = await supabase
-      .from("ecocash_transactions").select("*").order("created_at", { ascending: false });
+      .from("ecocash_transactions").select("*").order("created_at", { ascending: true });
     setLoading(false);
     if (error) return toast.error("Failed to load EcoCash transactions");
     setRows((data ?? []) as EcocashTx[]);
