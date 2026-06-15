@@ -13,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { RateAwareAmountFields, useCurrencyRates } from "@/components/RateAwareAmountFields";
 
 export type WithdrawalKind = "CASH_SWIPE" | "CASH_ADVANCE";
 export type WithdrawalStatus = "successful" | "pending" | "failed";
