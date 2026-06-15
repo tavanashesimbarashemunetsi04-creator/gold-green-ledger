@@ -173,7 +173,7 @@ function FloatPage() {
               <Select value={tellerId} onValueChange={setTellerId}>
                 <SelectTrigger><SelectValue placeholder="Select teller" /></SelectTrigger>
                 <SelectContent>
-                  {profiles.filter(p => p.user_id !== user?.id).map(p => (
+                  {profiles.filter(p => p.user_id !== user?.id && eligibleIds.has(p.user_id)).map(p => (
                     <SelectItem key={p.user_id} value={p.user_id}>
                       {p.full_name || p.username || p.email}
                     </SelectItem>
