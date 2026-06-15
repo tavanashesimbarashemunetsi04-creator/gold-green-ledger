@@ -636,11 +636,18 @@ function EcocashManualEntries({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Add EcoCash Transaction</CardTitle>
-        <CardDescription>Manual inflow or outflow during the open session.</CardDescription>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="space-y-1">
+            <CardTitle>Add EcoCash Transaction</CardTitle>
+            <CardDescription>Manual inflow or outflow during the open session.</CardDescription>
+          </div>
+          <Button type="submit" form="ecocash-tx-form" disabled={submitting || !sessionOpen}>
+            {submitting ? "Adding..." : "Add Transaction"}
+          </Button>
+        </div>
       </CardHeader>
       <CardContent className="space-y-6">
-        <form onSubmit={handleSubmit} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:items-end">
+        <form id="ecocash-tx-form" onSubmit={handleSubmit} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:items-end">
           <div className="space-y-2">
             <Label>Date *</Label>
             <Input type="date" value={txDate} onChange={(e) => setTxDate(e.target.value)} required />
@@ -662,11 +669,6 @@ function EcocashManualEntries({
                 <SelectItem value="outflow">Outflow</SelectItem>
               </SelectContent>
             </Select>
-          </div>
-          <div className="sm:col-span-2 lg:col-span-4 flex justify-end">
-            <Button type="submit" disabled={submitting || !sessionOpen}>
-              {submitting ? "Adding..." : "Add Transaction"}
-            </Button>
           </div>
         </form>
 
