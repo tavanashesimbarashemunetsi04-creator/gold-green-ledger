@@ -163,15 +163,8 @@ export function PaymentEntryForm({ bank, onSubmit }: Props) {
                 maxLength={20}
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="code">Code</Label>
-              <Input
-                id="code"
-                value={form.code}
-                onChange={(e) => update("code", e.target.value)}
-                maxLength={50}
-              />
-            </div>
+          </div>
+
           </div>
 
           {/* Payment + Category */}
