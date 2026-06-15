@@ -17,6 +17,7 @@ import { Route as PaymentsRouteImport } from './routes/payments'
 import { Route as ManagerRouteImport } from './routes/manager'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as InternalTransactionsRouteImport } from './routes/internal-transactions'
+import { Route as FinanceRouteImport } from './routes/finance'
 import { Route as FailedRouteImport } from './routes/failed'
 import { Route as EndDayRouteImport } from './routes/end-day'
 import { Route as EcocashRouteImport } from './routes/ecocash'
@@ -71,6 +72,11 @@ const LoginRoute = LoginRouteImport.update({
 const InternalTransactionsRoute = InternalTransactionsRouteImport.update({
   id: '/internal-transactions',
   path: '/internal-transactions',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FinanceRoute = FinanceRouteImport.update({
+  id: '/finance',
+  path: '/finance',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FailedRoute = FailedRouteImport.update({
@@ -157,6 +163,7 @@ export interface FileRoutesByFullPath {
   '/ecocash': typeof EcocashRoute
   '/end-day': typeof EndDayRoute
   '/failed': typeof FailedRoute
+  '/finance': typeof FinanceRoute
   '/internal-transactions': typeof InternalTransactionsRoute
   '/login': typeof LoginRoute
   '/manager': typeof ManagerRouteWithChildren
@@ -181,6 +188,7 @@ export interface FileRoutesByTo {
   '/ecocash': typeof EcocashRoute
   '/end-day': typeof EndDayRoute
   '/failed': typeof FailedRoute
+  '/finance': typeof FinanceRoute
   '/internal-transactions': typeof InternalTransactionsRoute
   '/login': typeof LoginRoute
   '/payments': typeof PaymentsRoute
@@ -206,6 +214,7 @@ export interface FileRoutesById {
   '/ecocash': typeof EcocashRoute
   '/end-day': typeof EndDayRoute
   '/failed': typeof FailedRoute
+  '/finance': typeof FinanceRoute
   '/internal-transactions': typeof InternalTransactionsRoute
   '/login': typeof LoginRoute
   '/manager': typeof ManagerRouteWithChildren
@@ -233,6 +242,7 @@ export interface FileRouteTypes {
     | '/ecocash'
     | '/end-day'
     | '/failed'
+    | '/finance'
     | '/internal-transactions'
     | '/login'
     | '/manager'
@@ -257,6 +267,7 @@ export interface FileRouteTypes {
     | '/ecocash'
     | '/end-day'
     | '/failed'
+    | '/finance'
     | '/internal-transactions'
     | '/login'
     | '/payments'
@@ -281,6 +292,7 @@ export interface FileRouteTypes {
     | '/ecocash'
     | '/end-day'
     | '/failed'
+    | '/finance'
     | '/internal-transactions'
     | '/login'
     | '/manager'
@@ -307,6 +319,7 @@ export interface RootRouteChildren {
   EcocashRoute: typeof EcocashRoute
   EndDayRoute: typeof EndDayRoute
   FailedRoute: typeof FailedRoute
+  FinanceRoute: typeof FinanceRoute
   InternalTransactionsRoute: typeof InternalTransactionsRoute
   LoginRoute: typeof LoginRoute
   ManagerRoute: typeof ManagerRouteWithChildren
@@ -373,6 +386,13 @@ declare module '@tanstack/react-router' {
       path: '/internal-transactions'
       fullPath: '/internal-transactions'
       preLoaderRoute: typeof InternalTransactionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/finance': {
+      id: '/finance'
+      path: '/finance'
+      fullPath: '/finance'
+      preLoaderRoute: typeof FinanceRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/failed': {
@@ -524,6 +544,7 @@ const rootRouteChildren: RootRouteChildren = {
   EcocashRoute: EcocashRoute,
   EndDayRoute: EndDayRoute,
   FailedRoute: FailedRoute,
+  FinanceRoute: FinanceRoute,
   InternalTransactionsRoute: InternalTransactionsRoute,
   LoginRoute: LoginRoute,
   ManagerRoute: ManagerRouteWithChildren,
