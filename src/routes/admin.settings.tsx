@@ -49,6 +49,7 @@ import {
   Wallet,
   ShieldCheck,
   Palette,
+  Coins,
 } from "lucide-react";
 import {
   saveAppSettings,
@@ -62,6 +63,11 @@ import {
   adminResetPassword,
   adminSetUserStatus,
 } from "@/lib/admin-users.functions";
+import {
+  getCurrencyRates,
+  saveCurrencyRates,
+  getRateHistory,
+} from "@/lib/currency.functions";
 
 export const Route = createFileRoute("/admin/settings")({
   component: AdminSettingsPage,
@@ -255,6 +261,7 @@ function AdminSettingsPage() {
       <CashHandling settings={settings} setSettings={setSettings} />
       <SecuritySection settings={settings} setSettings={setSettings} />
       <PersonalisationSection settings={settings} setSettings={setSettings} />
+      <CurrenciesSection />
 
       <div className="sticky bottom-4 z-30 mx-auto flex max-w-3xl items-center justify-between rounded-xl border bg-background/95 px-4 py-3 shadow-lg backdrop-blur">
         <p className="text-sm text-muted-foreground">
@@ -1020,6 +1027,143 @@ function PersonalisationSection({
           </Select>
         </div>
       </div>
+    </SectionCard>
+  );
+}
+
+// ============================= 7. Currencies =============================
+function CurrenciesSection() {
+  const getRatesFn = useServerFn(getCurrencyRates);
+  const saveRatesFn = useServerFn(saveCurrencyRates);
+  const getHistoryFn = useServerFn(getRateHistory);
+
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [payments, setPayments] = useState("0");
+  const [withdrawals, setWithdrawals] = useState("0");
+  const [paymentsUpdated, setPaymentsUpdated] = useState<string | null>(null);
+  const [withdrawalsUpdated, setWithdrawalsUpdated] = useState<string | null>(null);
+  const [history, setHistory] = useState<Array<{ id: string; kind: string; old_rate: number | null; new_rate: number; changed_at: string }>>([]);
+
+  const load = async () => {
+    setLoading(true);
+    try {
+      const r = await getRatesFn();
+      if (r) {
+        setPayments(String(r.payments_rate ?? 0));
+        setWithdrawals(String(r.withdrawals_rate ?? 0));
+        setPaymentsUpdated(r.payments_updated_at ?? null);
+        setWithdrawalsUpdated(r.withdrawals_updated_at ?? null);
+      }
+      const h = await getHistoryFn();
+      setHistory(h as never);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to load rates");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { load(); }, []);
+
+  const onSave = async () => {
+    const p = Number(payments);
+    const w = Number(withdrawals);
+    if (!(p >= 0) || !(w >= 0)) return toast.error("Rates must be non-negative numbers");
+    setSaving(true);
+    try {
+      await saveRatesFn({ data: { payments_rate: p, withdrawals_rate: w } });
+      toast.success("Rates saved");
+      await load();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to save rates");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <SectionCard
+      title="7. Currencies"
+      description="Manage exchange rates used by all tellers. Changes apply immediately to new transactions."
+      icon={Coins}
+    >
+      {loading ? (
+        <div className="flex items-center justify-center py-6">
+          <Loader2 className="h-5 w-5 animate-spin" />
+        </div>
+      ) : (
+        <div className="space-y-6">
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="rounded-lg border p-4 space-y-2">
+              <Label>Payments Rate</Label>
+              <Input
+                type="number"
+                step="0.0001"
+                min="0"
+                value={payments}
+                onChange={(e) => setPayments(e.target.value)}
+              />
+              <p className="text-xs text-muted-foreground">
+                Last updated: {paymentsUpdated ? new Date(paymentsUpdated).toLocaleString() : "—"}
+              </p>
+            </div>
+            <div className="rounded-lg border p-4 space-y-2">
+              <Label>Withdrawals Rate</Label>
+              <Input
+                type="number"
+                step="0.0001"
+                min="0"
+                value={withdrawals}
+                onChange={(e) => setWithdrawals(e.target.value)}
+              />
+              <p className="text-xs text-muted-foreground">
+                Last updated: {withdrawalsUpdated ? new Date(withdrawalsUpdated).toLocaleString() : "—"}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex justify-end">
+            <Button onClick={onSave} disabled={saving}>
+              {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+              Save Rates
+            </Button>
+          </div>
+
+          <div>
+            <h4 className="mb-2 text-sm font-medium">Recent rate changes</h4>
+            <div className="overflow-x-auto rounded-lg border">
+              <table className="w-full text-sm">
+                <thead className="bg-muted/50">
+                  <tr>
+                    <th className="px-3 py-2 text-left">Kind</th>
+                    <th className="px-3 py-2 text-left">Old</th>
+                    <th className="px-3 py-2 text-left">New</th>
+                    <th className="px-3 py-2 text-left">When</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {history.map((h) => (
+                    <tr key={h.id} className="border-t">
+                      <td className="px-3 py-2 capitalize">{h.kind}</td>
+                      <td className="px-3 py-2">{h.old_rate ?? "—"}</td>
+                      <td className="px-3 py-2">{h.new_rate}</td>
+                      <td className="px-3 py-2">{new Date(h.changed_at).toLocaleString()}</td>
+                    </tr>
+                  ))}
+                  {history.length === 0 && (
+                    <tr>
+                      <td colSpan={4} className="px-3 py-6 text-center text-muted-foreground">
+                        No changes yet.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
     </SectionCard>
   );
 }

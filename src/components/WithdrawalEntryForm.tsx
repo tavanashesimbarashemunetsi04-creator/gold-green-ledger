@@ -13,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { RateAwareAmountFields, useCurrencyRates } from "@/components/RateAwareAmountFields";
 
 export type WithdrawalKind = "CASH_SWIPE" | "CASH_ADVANCE";
 export type WithdrawalStatus = "successful" | "pending" | "failed";
@@ -65,6 +66,8 @@ export function WithdrawalEntryForm({ kind, onSubmitted }: Props) {
   const [signature, setSignature] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const padRef = useRef<SignaturePadHandle>(null);
+  const rates = useCurrencyRates();
+  const withdrawalsRate = rates?.withdrawals_rate ?? 0;
 
   const update = (key: keyof typeof form, value: string) =>
     setForm((f) => ({ ...f, [key]: value }));
@@ -196,48 +199,31 @@ export function WithdrawalEntryForm({ kind, onSubmitted }: Props) {
           </div>
 
           {/* Financials */}
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            <div className="space-y-2">
-              <Label htmlFor="code">Code</Label>
-              <Input
-                id="code"
-                value={form.code}
-                onChange={(e) => update("code", e.target.value)}
-                maxLength={50}
-                className="max-w-[200px]"
+          {isSwipe ? (
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              <RateAwareAmountFields
+                kind="withdrawal"
+                defaultRate={withdrawalsRate}
+                usdValue={form.usd_amount}
+                zwgValue={form.zwg_amount}
+                onUsdChange={(v) => update("usd_amount", v)}
+                onZwgChange={(v) => update("zwg_amount", v)}
+                onCodeChange={(c) => setForm((f) => ({ ...f, code: String(c) }))}
+                reference={`${txType} ${form.name || form.card_number}`.trim()}
               />
             </div>
-
-            {isSwipe ? (
-              <>
-                <div className="space-y-2">
-                  <Label htmlFor="usd_amount">USD Amount</Label>
-                  <Input
-                    id="usd_amount"
-                    type="number"
-                    inputMode="decimal"
-                    step="0.01"
-                    min="0"
-                    value={form.usd_amount}
-                    onChange={(e) => update("usd_amount", e.target.value)}
-                    className="max-w-[200px]"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="zwg_amount">ZWG Amount</Label>
-                  <Input
-                    id="zwg_amount"
-                    type="number"
-                    inputMode="decimal"
-                    step="0.01"
-                    min="0"
-                    value={form.zwg_amount}
-                    onChange={(e) => update("zwg_amount", e.target.value)}
-                    className="max-w-[200px]"
-                  />
-                </div>
-              </>
-            ) : (
+          ) : (
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="space-y-2">
+                <Label htmlFor="code">Code</Label>
+                <Input
+                  id="code"
+                  value={form.code}
+                  onChange={(e) => update("code", e.target.value)}
+                  maxLength={50}
+                  className="max-w-[200px]"
+                />
+              </div>
               <div className="space-y-2">
                 <Label htmlFor="amount">Amount *</Label>
                 <Input
@@ -251,8 +237,8 @@ export function WithdrawalEntryForm({ kind, onSubmitted }: Props) {
                   required
                 />
               </div>
-            )}
-          </div>
+            </div>
+          )}
 
           {/* Status */}
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">

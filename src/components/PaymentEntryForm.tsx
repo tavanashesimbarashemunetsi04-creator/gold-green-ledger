@@ -12,6 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { RateAwareAmountFields, useCurrencyRates } from "@/components/RateAwareAmountFields";
 
 export type BankTab = "ZB" | "BANCABC" | "CBZ" | "AFC";
 
@@ -73,6 +74,8 @@ interface Props {
 export function PaymentEntryForm({ bank, onSubmit }: Props) {
   const [form, setForm] = useState(initialState);
   const [submitting, setSubmitting] = useState(false);
+  const rates = useCurrencyRates();
+  const paymentsRate = rates?.payments_rate ?? 0;
 
   const update = <K extends keyof typeof initialState>(key: K, value: string) =>
     setForm((f) => ({ ...f, [key]: value }));
@@ -160,16 +163,9 @@ export function PaymentEntryForm({ bank, onSubmit }: Props) {
                 maxLength={20}
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="code">Code</Label>
-              <Input
-                id="code"
-                value={form.code}
-                onChange={(e) => update("code", e.target.value)}
-                maxLength={50}
-              />
-            </div>
           </div>
+
+
 
           {/* Payment + Category */}
           <div className="grid gap-4 sm:grid-cols-2">
@@ -223,32 +219,18 @@ export function PaymentEntryForm({ bank, onSubmit }: Props) {
             </div>
           </div>
 
-          {/* Amounts */}
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="usd_amount">USD Amount</Label>
-              <Input
-                id="usd_amount"
-                type="number"
-                inputMode="decimal"
-                step="0.01"
-                min="0"
-                value={form.usd_amount}
-                onChange={(e) => update("usd_amount", e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="zwg_amount">ZWG Amount</Label>
-              <Input
-                id="zwg_amount"
-                type="number"
-                inputMode="decimal"
-                step="0.01"
-                min="0"
-                value={form.zwg_amount}
-                onChange={(e) => update("zwg_amount", e.target.value)}
-              />
-            </div>
+          {/* Code + Amounts (auto-calc using Admin-set Payments Rate) */}
+          <div className="grid gap-4 sm:grid-cols-3">
+            <RateAwareAmountFields
+              kind="payment"
+              defaultRate={paymentsRate}
+              usdValue={form.usd_amount}
+              zwgValue={form.zwg_amount}
+              onUsdChange={(v) => update("usd_amount", v)}
+              onZwgChange={(v) => update("zwg_amount", v)}
+              onCodeChange={(c) => setForm((f) => ({ ...f, code: String(c) }))}
+              reference={`${bank} ${form.account_name || form.account_number || ""}`.trim()}
+            />
           </div>
 
           {/* Status */}

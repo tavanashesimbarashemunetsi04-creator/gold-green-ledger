@@ -308,6 +308,110 @@ export type Database = {
           },
         ]
       }
+      code_overrides: {
+        Row: {
+          branch_id: string | null
+          created_at: string
+          edited_rate: number
+          id: string
+          original_rate: number
+          reference: string | null
+          transaction_type: string
+          user_id: string
+        }
+        Insert: {
+          branch_id?: string | null
+          created_at?: string
+          edited_rate: number
+          id?: string
+          original_rate: number
+          reference?: string | null
+          transaction_type: string
+          user_id: string
+        }
+        Update: {
+          branch_id?: string | null
+          created_at?: string
+          edited_rate?: number
+          id?: string
+          original_rate?: number
+          reference?: string | null
+          transaction_type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "code_overrides_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      currency_rate_history: {
+        Row: {
+          changed_at: string
+          changed_by: string | null
+          id: string
+          kind: string
+          new_rate: number
+          old_rate: number | null
+        }
+        Insert: {
+          changed_at?: string
+          changed_by?: string | null
+          id?: string
+          kind: string
+          new_rate: number
+          old_rate?: number | null
+        }
+        Update: {
+          changed_at?: string
+          changed_by?: string | null
+          id?: string
+          kind?: string
+          new_rate?: number
+          old_rate?: number | null
+        }
+        Relationships: []
+      }
+      currency_rates: {
+        Row: {
+          created_at: string
+          key: string
+          payments_rate: number
+          payments_updated_at: string
+          payments_updated_by: string | null
+          updated_at: string
+          withdrawals_rate: number
+          withdrawals_updated_at: string
+          withdrawals_updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          key: string
+          payments_rate?: number
+          payments_updated_at?: string
+          payments_updated_by?: string | null
+          updated_at?: string
+          withdrawals_rate?: number
+          withdrawals_updated_at?: string
+          withdrawals_updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          key?: string
+          payments_rate?: number
+          payments_updated_at?: string
+          payments_updated_by?: string | null
+          updated_at?: string
+          withdrawals_rate?: number
+          withdrawals_updated_at?: string
+          withdrawals_updated_by?: string | null
+        }
+        Relationships: []
+      }
       ecocash_sessions: {
         Row: {
           branch_id: string | null
