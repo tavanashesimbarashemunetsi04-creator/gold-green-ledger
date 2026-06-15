@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
 import { Button } from "@/components/ui/button";
@@ -56,9 +56,13 @@ export function RateAwareAmountFields({
     if (!overridden) setCode(String(defaultRate || ""));
   }, [defaultRate, overridden]);
 
+  const onCodeChangeRef = useRef(onCodeChange);
   useEffect(() => {
-    onCodeChange?.(Number(code) || 0, overridden);
-  }, [code, overridden, onCodeChange]);
+    onCodeChangeRef.current = onCodeChange;
+  }, [onCodeChange]);
+  useEffect(() => {
+    onCodeChangeRef.current?.(Number(code) || 0, overridden);
+  }, [code, overridden]);
 
   const recalcFromUsd = (usd: string) => {
     onUsdChange(usd);
