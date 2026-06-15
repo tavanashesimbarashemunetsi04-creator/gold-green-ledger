@@ -18,7 +18,19 @@ import {
   Loader2,
   Bell,
   MonitorSmartphone,
+  TrendingUp,
+  ArrowDownToLine,
+  ArrowUpFromLine,
+  Repeat2,
+  DollarSign,
+  CalendarRange,
+  ListChecks,
 } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import {
+  getTellerPerformance,
+  type TellerPerformance,
+} from "@/lib/teller-stats.functions";
 
 export const Route = createFileRoute("/account")({
   component: AccountPage,
