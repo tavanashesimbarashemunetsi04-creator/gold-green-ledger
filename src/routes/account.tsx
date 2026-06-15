@@ -123,6 +123,62 @@ function AccountPage() {
 
   // Security alerts
   const [alerts, setAlerts] = useState<SecurityAlert[]>([]);
+  // Performance summary
+  const fetchPerformance = useServerFn(getTellerPerformance);
+  const [perf, setPerf] = useState<TellerPerformance | null>(null);
+  const [perfLoading, setPerfLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    const load = async () => {
+      try {
+        const p = await fetchPerformance();
+        if (!cancelled) {
+          setPerf(p);
+          setPerfLoading(false);
+        }
+      } catch {
+        if (!cancelled) setPerfLoading(false);
+      }
+    };
+    load();
+    const ch = supabase
+      .channel(`teller_perf_${user.id}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "payments" },
+        load,
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "cash_swipes" },
+        load,
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "cash_advance" },
+        load,
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "internal_transactions" },
+        load,
+      )
+      .subscribe();
+    return () => {
+      cancelled = true;
+      supabase.removeChannel(ch);
+    };
+  }, [user, fetchPerformance]);
+
+  const fmtMoney = (n: number) =>
+    new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+      maximumFractionDigits: 2,
+    }).format(n || 0);
+
 
   const primaryRole = useMemo(
     () => (roles.includes("admin") ? "admin" : roles.includes("manager") ? "manager" : roles[0] ?? "teller"),
