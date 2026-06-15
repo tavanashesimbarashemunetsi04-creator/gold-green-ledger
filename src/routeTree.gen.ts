@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WithdrawalsRouteImport } from './routes/withdrawals'
 import { Route as TellerFloatRouteImport } from './routes/teller-float'
+import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as PendingRouteImport } from './routes/pending'
 import { Route as PaymentsRouteImport } from './routes/payments'
 import { Route as ManagerRouteImport } from './routes/manager'
@@ -40,6 +41,11 @@ const WithdrawalsRoute = WithdrawalsRouteImport.update({
 const TellerFloatRoute = TellerFloatRouteImport.update({
   id: '/teller-float',
   path: '/teller-float',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PendingRoute = PendingRouteImport.update({
@@ -156,6 +162,7 @@ export interface FileRoutesByFullPath {
   '/manager': typeof ManagerRouteWithChildren
   '/payments': typeof PaymentsRoute
   '/pending': typeof PendingRoute
+  '/settings': typeof SettingsRoute
   '/teller-float': typeof TellerFloatRoute
   '/withdrawals': typeof WithdrawalsRoute
   '/admin/float': typeof AdminFloatRoute
@@ -178,6 +185,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/payments': typeof PaymentsRoute
   '/pending': typeof PendingRoute
+  '/settings': typeof SettingsRoute
   '/teller-float': typeof TellerFloatRoute
   '/withdrawals': typeof WithdrawalsRoute
   '/admin/float': typeof AdminFloatRoute
@@ -203,6 +211,7 @@ export interface FileRoutesById {
   '/manager': typeof ManagerRouteWithChildren
   '/payments': typeof PaymentsRoute
   '/pending': typeof PendingRoute
+  '/settings': typeof SettingsRoute
   '/teller-float': typeof TellerFloatRoute
   '/withdrawals': typeof WithdrawalsRoute
   '/admin/float': typeof AdminFloatRoute
@@ -229,6 +238,7 @@ export interface FileRouteTypes {
     | '/manager'
     | '/payments'
     | '/pending'
+    | '/settings'
     | '/teller-float'
     | '/withdrawals'
     | '/admin/float'
@@ -251,6 +261,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/payments'
     | '/pending'
+    | '/settings'
     | '/teller-float'
     | '/withdrawals'
     | '/admin/float'
@@ -275,6 +286,7 @@ export interface FileRouteTypes {
     | '/manager'
     | '/payments'
     | '/pending'
+    | '/settings'
     | '/teller-float'
     | '/withdrawals'
     | '/admin/float'
@@ -300,6 +312,7 @@ export interface RootRouteChildren {
   ManagerRoute: typeof ManagerRouteWithChildren
   PaymentsRoute: typeof PaymentsRoute
   PendingRoute: typeof PendingRoute
+  SettingsRoute: typeof SettingsRoute
   TellerFloatRoute: typeof TellerFloatRoute
   WithdrawalsRoute: typeof WithdrawalsRoute
 }
@@ -318,6 +331,13 @@ declare module '@tanstack/react-router' {
       path: '/teller-float'
       fullPath: '/teller-float'
       preLoaderRoute: typeof TellerFloatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pending': {
@@ -509,19 +529,10 @@ const rootRouteChildren: RootRouteChildren = {
   ManagerRoute: ManagerRouteWithChildren,
   PaymentsRoute: PaymentsRoute,
   PendingRoute: PendingRoute,
+  SettingsRoute: SettingsRoute,
   TellerFloatRoute: TellerFloatRoute,
   WithdrawalsRoute: WithdrawalsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
