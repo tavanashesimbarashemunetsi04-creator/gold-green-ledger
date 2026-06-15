@@ -165,7 +165,7 @@ export function PaymentEntryForm({ bank, onSubmit }: Props) {
             </div>
           </div>
 
-          </div>
+
 
           {/* Payment + Category */}
           <div className="grid gap-4 sm:grid-cols-2">
