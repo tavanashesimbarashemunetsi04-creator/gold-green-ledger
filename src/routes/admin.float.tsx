@@ -38,6 +38,7 @@ function FloatPage() {
   const self = useServerFn(selfAssignFloat);
 
   const [profiles, setProfiles] = useState<Profile[]>([]);
+  const [eligibleIds, setEligibleIds] = useState<Set<string>>(new Set());
   const [branches, setBranches] = useState<Branch[]>([]);
   const [rows, setRows] = useState<Assignment[]>([]);
   const [balance, setBalance] = useState<number>(0);
@@ -54,16 +55,18 @@ function FloatPage() {
   const [selfRef, setSelfRef] = useState("");
 
   const load = useCallback(async () => {
-    const [p, b, a, bal] = await Promise.all([
+    const [p, b, a, bal, roles] = await Promise.all([
       supabase.from("profiles").select("user_id, full_name, email, username").order("full_name"),
       supabase.from("branches").select("id, name").order("name"),
       supabase.from("float_assignments").select("*").order("created_at", { ascending: false }).limit(100),
       supabase.from("user_float_balances").select("balance").eq("user_id", user?.id ?? "").maybeSingle(),
+      supabase.from("user_roles").select("user_id, role").in("role", ["teller", "finance_manager"]),
     ]);
     setProfiles((p.data ?? []) as Profile[]);
     setBranches((b.data ?? []) as Branch[]);
     setRows((a.data ?? []) as Assignment[]);
     setBalance(Number(bal.data?.balance ?? 0));
+    setEligibleIds(new Set(((roles.data ?? []) as { user_id: string }[]).map((r) => r.user_id)));
   }, [user?.id]);
 
   useEffect(() => { void load(); }, [load]);
@@ -170,7 +173,7 @@ function FloatPage() {
               <Select value={tellerId} onValueChange={setTellerId}>
                 <SelectTrigger><SelectValue placeholder="Select teller" /></SelectTrigger>
                 <SelectContent>
-                  {profiles.filter(p => p.user_id !== user?.id).map(p => (
+                  {profiles.filter(p => p.user_id !== user?.id && eligibleIds.has(p.user_id)).map(p => (
                     <SelectItem key={p.user_id} value={p.user_id}>
                       {p.full_name || p.username || p.email}
                     </SelectItem>
