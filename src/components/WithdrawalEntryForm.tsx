@@ -66,6 +66,8 @@ export function WithdrawalEntryForm({ kind, onSubmitted }: Props) {
   const [signature, setSignature] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const padRef = useRef<SignaturePadHandle>(null);
+  const rates = useCurrencyRates();
+  const withdrawalsRate = rates?.withdrawals_rate ?? 0;
 
   const update = (key: keyof typeof form, value: string) =>
     setForm((f) => ({ ...f, [key]: value }));
