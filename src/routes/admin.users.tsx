@@ -113,7 +113,7 @@ function statusBadge(s: AccountStatus) {
 }
 
 function AdminUsersPage() {
-  const { isAdmin, loading: authLoading } = useAuth();
+  const { isAdmin, loading: authLoading, user } = useAuth();
 
   const [profiles, setProfiles] = useState<ProfileRow[]>([]);
   const [rolesMap, setRolesMap] = useState<Record<string, Role[]>>({});
