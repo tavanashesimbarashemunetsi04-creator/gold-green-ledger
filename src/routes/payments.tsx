@@ -20,8 +20,9 @@ const banks: { id: BankTab; label: string }[] = [
 
 function PaymentsPage() {
   const [selected, setSelected] = useState<BankTab>("ZB");
-  const { isEcocashMode } = useDashboardState(15000);
-  if (isEcocashMode) return <EcocashLockNotice moduleName="Payments" />;
+  const { isEcocashMode, isDayOpen, isAdmin, ready } = useDayStatus(15000);
+  if (ready && isEcocashMode) return <EcocashLockNotice moduleName="Payments" />;
+  if (!isAdmin && (!ready || !isDayOpen)) return <NoOpenDayNotice moduleName="Payments" />;
 
   const handleSubmit = async (entry: PaymentEntry) => {
     console.log("Payment entry:", entry);
