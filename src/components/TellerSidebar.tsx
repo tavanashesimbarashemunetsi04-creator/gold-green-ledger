@@ -1,7 +1,7 @@
 import logoMark from "@/assets/logo-mark.png";
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/useAuth";
-import { useDashboardState } from "@/hooks/useDashboardState";
+import { useDayStatus } from "@/hooks/useDayStatus";
 import { useDailyRole, ROLE_ALLOWED_ROUTES } from "@/hooks/useDailyRole";
 import { DAILY_ROLE_LABEL } from "@/lib/daily-role.functions";
 import { useEffect, useState } from "react";
@@ -44,7 +44,7 @@ export function TellerSidebar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const navigate = useNavigate();
   const { user, roles, isAdmin, isFinanceManager, signOut } = useAuth();
-  const { isDayOpen, isEcocashMode } = useDashboardState(20000);
+  const { isDayOpen, isEcocashMode, ready: dayReady } = useDayStatus(20000);
   const { role: dailyRole } = useDailyRole();
   const allowedRoutes = dailyRole ? ROLE_ALLOWED_ROUTES[dailyRole] : null;
   const primaryRole = roles.includes("admin")
@@ -121,7 +121,7 @@ export function TellerSidebar() {
                 "/payments", "/withdrawals",
                 "/changes-refunds", "/end-day",
               ].includes(item.url);
-              const locked = ecocashLocked || (item.requiresDay && !isDayOpen && !isEcocashMode && !isAdmin);
+              const locked = ecocashLocked || (item.requiresDay && !isAdmin && (!dayReady || (!isDayOpen && !isEcocashMode)));
               const cls = `group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all ${
                 active
                   ? "bg-[var(--gold)] text-gold-foreground shadow-[var(--shadow-gold)]"

@@ -3,8 +3,9 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Landmark } from "lucide-react";
 import { PaymentEntryForm, type BankTab, type PaymentEntry } from "@/components/PaymentEntryForm";
-import { useDashboardState } from "@/hooks/useDashboardState";
+import { useDayStatus } from "@/hooks/useDayStatus";
 import { EcocashLockNotice } from "@/components/EcocashLockNotice";
+import { NoOpenDayNotice } from "@/components/NoOpenDayNotice";
 
 export const Route = createFileRoute("/payments")({
   component: PaymentsPage,
@@ -19,8 +20,9 @@ const banks: { id: BankTab; label: string }[] = [
 
 function PaymentsPage() {
   const [selected, setSelected] = useState<BankTab>("ZB");
-  const { isEcocashMode } = useDashboardState(15000);
-  if (isEcocashMode) return <EcocashLockNotice moduleName="Payments" />;
+  const { isEcocashMode, isDayOpen, isAdmin, ready } = useDayStatus(15000);
+  if (ready && isEcocashMode) return <EcocashLockNotice moduleName="Payments" />;
+  if (!isAdmin && (!ready || !isDayOpen)) return <NoOpenDayNotice moduleName="Payments" />;
 
   const handleSubmit = async (entry: PaymentEntry) => {
     console.log("Payment entry:", entry);

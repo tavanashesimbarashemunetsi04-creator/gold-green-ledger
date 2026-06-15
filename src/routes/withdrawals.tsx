@@ -3,8 +3,9 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { CreditCard, Banknote } from "lucide-react";
 import { WithdrawalEntryForm, type WithdrawalKind } from "@/components/WithdrawalEntryForm";
-import { useDashboardState } from "@/hooks/useDashboardState";
+import { useDayStatus } from "@/hooks/useDayStatus";
 import { EcocashLockNotice } from "@/components/EcocashLockNotice";
+import { NoOpenDayNotice } from "@/components/NoOpenDayNotice";
 
 export const Route = createFileRoute("/withdrawals")({
   component: WithdrawalsPage,
@@ -17,8 +18,9 @@ const types: { id: WithdrawalKind; label: string; icon: typeof CreditCard }[] = 
 
 function WithdrawalsPage() {
   const [selected, setSelected] = useState<WithdrawalKind>("CASH_SWIPE");
-  const { isEcocashMode } = useDashboardState(15000);
-  if (isEcocashMode) return <EcocashLockNotice moduleName="Withdrawals" />;
+  const { isEcocashMode, isDayOpen, isAdmin, ready } = useDayStatus(15000);
+  if (ready && isEcocashMode) return <EcocashLockNotice moduleName="Withdrawals" />;
+  if (!isAdmin && (!ready || !isDayOpen)) return <NoOpenDayNotice moduleName="Withdrawals" />;
 
   return (
     <div className="p-8">
