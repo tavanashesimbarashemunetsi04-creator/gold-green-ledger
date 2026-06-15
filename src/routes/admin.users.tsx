@@ -132,10 +132,14 @@ function AdminUsersPage() {
     status: AccountStatus;
     label: string;
   } | null>(null);
+  const [deleting, setDeleting] = useState<ProfileRow | null>(null);
+  const [deletingBusy, setDeletingBusy] = useState(false);
 
   const createUser = useServerFn(adminCreateUser);
   const resetPassword = useServerFn(adminResetPassword);
   const setUserStatus = useServerFn(adminSetUserStatus);
+  const deleteUser = useServerFn(adminDeleteUser);
+
 
   const load = async () => {
     setLoading(true);
