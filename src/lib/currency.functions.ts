@@ -79,7 +79,9 @@ export const saveCurrencyRates = createServerFn({ method: "POST" })
       });
     }
 
-    const { error } = await admin.from("currency_rates").upsert(patch, { onConflict: "key" });
+    const { error } = await admin
+      .from("currency_rates")
+      .upsert(patch as never, { onConflict: "key" });
     if (error) throw new Error(error.message);
 
     if (history.length) {
