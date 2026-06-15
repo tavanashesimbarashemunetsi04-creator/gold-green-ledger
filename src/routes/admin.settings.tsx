@@ -261,6 +261,7 @@ function AdminSettingsPage() {
       <CashHandling settings={settings} setSettings={setSettings} />
       <SecuritySection settings={settings} setSettings={setSettings} />
       <PersonalisationSection settings={settings} setSettings={setSettings} />
+      <CurrenciesSection />
 
       <div className="sticky bottom-4 z-30 mx-auto flex max-w-3xl items-center justify-between rounded-xl border bg-background/95 px-4 py-3 shadow-lg backdrop-blur">
         <p className="text-sm text-muted-foreground">
