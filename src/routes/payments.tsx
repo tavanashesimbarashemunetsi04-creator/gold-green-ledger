@@ -3,8 +3,9 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Landmark } from "lucide-react";
 import { PaymentEntryForm, type BankTab, type PaymentEntry } from "@/components/PaymentEntryForm";
-import { useDashboardState } from "@/hooks/useDashboardState";
+import { useDayStatus } from "@/hooks/useDayStatus";
 import { EcocashLockNotice } from "@/components/EcocashLockNotice";
+import { NoOpenDayNotice } from "@/components/NoOpenDayNotice";
 
 export const Route = createFileRoute("/payments")({
   component: PaymentsPage,
