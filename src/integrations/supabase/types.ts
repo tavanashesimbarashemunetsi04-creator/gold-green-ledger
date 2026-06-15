@@ -14,6 +14,84 @@ export type Database = {
   }
   public: {
     Tables: {
+      app_setting_history: {
+        Row: {
+          change_reason: string | null
+          changed_at: string
+          changed_by: string | null
+          id: string
+          new_value: Json | null
+          old_value: Json | null
+          setting_key: string
+        }
+        Insert: {
+          change_reason?: string | null
+          changed_at?: string
+          changed_by?: string | null
+          id?: string
+          new_value?: Json | null
+          old_value?: Json | null
+          setting_key: string
+        }
+        Update: {
+          change_reason?: string | null
+          changed_at?: string
+          changed_by?: string | null
+          id?: string
+          new_value?: Json | null
+          old_value?: Json | null
+          setting_key?: string
+        }
+        Relationships: []
+      }
+      app_settings: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          id: string
+          key: string
+          label: string
+          last_modified_at: string
+          last_modified_by: string | null
+          sort_order: number
+          updated_at: string
+          validation: Json
+          value: Json
+          value_type: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          key: string
+          label: string
+          last_modified_at?: string
+          last_modified_by?: string | null
+          sort_order?: number
+          updated_at?: string
+          validation?: Json
+          value?: Json
+          value_type?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          key?: string
+          label?: string
+          last_modified_at?: string
+          last_modified_by?: string | null
+          sort_order?: number
+          updated_at?: string
+          validation?: Json
+          value?: Json
+          value_type?: string
+        }
+        Relationships: []
+      }
       approvals: {
         Row: {
           approver_label: string | null
@@ -454,6 +532,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      feature_flags: {
+        Row: {
+          created_at: string
+          description: string | null
+          enabled: boolean
+          id: string
+          key: string
+          last_modified_at: string
+          last_modified_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          enabled?: boolean
+          id?: string
+          key: string
+          last_modified_at?: string
+          last_modified_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          enabled?: boolean
+          id?: string
+          key?: string
+          last_modified_at?: string
+          last_modified_by?: string | null
+        }
+        Relationships: []
       }
       float_assignments: {
         Row: {
