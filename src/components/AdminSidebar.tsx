@@ -26,7 +26,7 @@ const items = [
   { title: "Audit Logs", url: "/admin/audit", icon: ScrollText },
   { title: "Security", url: "/admin/security", icon: ShieldCheck },
   { title: "Reports", url: "/admin/reports", icon: FileBarChart },
-  { title: "Settings", url: "/admin/settings", icon: SettingsIcon },
+  
 ];
 
 export const ADMIN_SIDEBAR_WIDTH = "18rem";
