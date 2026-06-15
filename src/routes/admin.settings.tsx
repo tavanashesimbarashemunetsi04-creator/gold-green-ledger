@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState, useEffect, useRef } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient, QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
   listSettings,
@@ -48,8 +48,18 @@ type Setting = {
 };
 
 export const Route = createFileRoute("/admin/settings")({
-  component: AdminSettingsPage,
+  component: AdminSettingsRoute,
 });
+
+const queryClient = new QueryClient();
+
+function AdminSettingsRoute() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <AdminSettingsPage />
+    </QueryClientProvider>
+  );
+}
 
 const CATEGORIES: { key: string; label: string; icon: any }[] = [
   { key: "organization", label: "Organization", icon: Building },
