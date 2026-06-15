@@ -3,8 +3,9 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { CreditCard, Banknote } from "lucide-react";
 import { WithdrawalEntryForm, type WithdrawalKind } from "@/components/WithdrawalEntryForm";
-import { useDashboardState } from "@/hooks/useDashboardState";
+import { useDayStatus } from "@/hooks/useDayStatus";
 import { EcocashLockNotice } from "@/components/EcocashLockNotice";
+import { NoOpenDayNotice } from "@/components/NoOpenDayNotice";
 
 export const Route = createFileRoute("/withdrawals")({
   component: WithdrawalsPage,
