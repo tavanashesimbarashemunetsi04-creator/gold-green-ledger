@@ -78,7 +78,7 @@ function FloatPage() {
   }, [load]);
 
   if (loading) return null;
-  if (!isAdmin && !isFinanceManager) return <Navigate to="/" />;
+  if (!isAdmin) return <Navigate to="/" />;
 
   const submit = async () => {
     const amt = Number(amount);
