@@ -58,13 +58,16 @@ import {
   Lock,
   Eye,
   UserCog,
+  Trash2,
 } from "lucide-react";
 import {
   adminCreateUser,
   adminResetPassword,
   adminSetUserStatus,
+  adminDeleteUser,
 } from "@/lib/admin-users.functions";
 import { grantRole } from "@/lib/float.functions";
+
 
 export const Route = createFileRoute("/admin/users")({
   component: AdminUsersPage,
