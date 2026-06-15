@@ -121,7 +121,7 @@ export function TellerSidebar() {
                 "/payments", "/withdrawals",
                 "/changes-refunds", "/end-day",
               ].includes(item.url);
-              const locked = ecocashLocked || (item.requiresDay && !isDayOpen && !isEcocashMode && !isAdmin);
+              const locked = ecocashLocked || (item.requiresDay && !isAdmin && (!dayReady || (!isDayOpen && !isEcocashMode)));
               const cls = `group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all ${
                 active
                   ? "bg-[var(--gold)] text-gold-foreground shadow-[var(--shadow-gold)]"
