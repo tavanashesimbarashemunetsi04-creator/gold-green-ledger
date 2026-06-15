@@ -48,8 +48,18 @@ type Setting = {
 };
 
 export const Route = createFileRoute("/admin/settings")({
-  component: AdminSettingsPage,
+  component: AdminSettingsRoute,
 });
+
+const queryClient = new QueryClient();
+
+function AdminSettingsRoute() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <AdminSettingsPage />
+    </QueryClientProvider>
+  );
+}
 
 const CATEGORIES: { key: string; label: string; icon: any }[] = [
   { key: "organization", label: "Organization", icon: Building },
