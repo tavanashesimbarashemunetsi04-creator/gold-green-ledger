@@ -7,7 +7,7 @@ export const Route = createFileRoute("/admin")({
 });
 
 function AdminLayout() {
-  const { loading, isAdmin, isFinanceManager } = useAuth();
+  const { loading, isAdmin } = useAuth();
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
@@ -15,7 +15,7 @@ function AdminLayout() {
       </div>
     );
   }
-  if (!isAdmin && !isFinanceManager) return <Navigate to="/" />;
+  if (!isAdmin) return <Navigate to="/" />;
   return (
     <div className="min-h-screen bg-background">
       <AdminSidebar />
