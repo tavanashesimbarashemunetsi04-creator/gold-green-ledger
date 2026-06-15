@@ -384,6 +384,39 @@ function AccountPage() {
         </div>
       </header>
 
+      {/* Performance Summary */}
+      <section className="rounded-2xl border border-border bg-card p-6 shadow-[var(--shadow-soft)]">
+        <div className="mb-4 flex items-center gap-2">
+          <TrendingUp className="h-5 w-5 text-primary" />
+          <h2 className="text-lg font-semibold text-foreground">Performance Summary</h2>
+        </div>
+
+        {/* Today */}
+        <div className="mb-2 flex items-center gap-2">
+          <CalendarRange className="h-4 w-4 text-muted-foreground" />
+          <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Today's Performance</h3>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+          <KpiCard label="Total Transactions" value={perf?.today.total ?? 0} icon={ListChecks} loading={perfLoading} />
+          <KpiCard label="Deposits Processed" value={perf?.today.deposits ?? 0} icon={ArrowDownToLine} loading={perfLoading} />
+          <KpiCard label="Withdrawals Processed" value={perf?.today.withdrawals ?? 0} icon={ArrowUpFromLine} loading={perfLoading} />
+          <KpiCard label="Internal Transactions" value={perf?.today.internal ?? 0} icon={Repeat2} loading={perfLoading} />
+          <KpiCard label="Transaction Value" value={fmtMoney(perf?.today.value ?? 0)} icon={DollarSign} loading={perfLoading} accent />
+        </div>
+
+        {/* Monthly */}
+        <div className="mt-6 mb-2 flex items-center gap-2">
+          <CalendarRange className="h-4 w-4 text-muted-foreground" />
+          <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Monthly Performance</h3>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <KpiCard label="Transactions Completed" value={perf?.month.total ?? 0} icon={ListChecks} loading={perfLoading} />
+          <KpiCard label="Total Value Processed" value={fmtMoney(perf?.month.value ?? 0)} icon={DollarSign} loading={perfLoading} accent />
+        </div>
+      </section>
+
+
+
       {/* Profile Card */}
       <section className="rounded-2xl border border-border bg-card p-6 shadow-[var(--shadow-soft)]">
         <div className="mb-4 flex items-center justify-between">
