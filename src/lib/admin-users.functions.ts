@@ -159,3 +159,25 @@ export const adminSetUserStatus = createServerFn({ method: "POST" })
     });
     return { ok: true };
   });
+
+export const adminDeleteUser = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z.object({ user_id: z.string().uuid() }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.userId);
+    if (data.user_id === context.userId) {
+      throw new Error("You cannot delete your own account");
+    }
+
+    // Best-effort cleanup of related rows; rely on FK cascades where present
+    await supabaseAdmin.from("user_roles").delete().eq("user_id", data.user_id);
+    await supabaseAdmin.from("profiles").delete().eq("user_id", data.user_id);
+
+    const { error } = await supabaseAdmin.auth.admin.deleteUser(data.user_id);
+    if (error) throw new Error(error.message);
+
+    await logAudit(context.userId, "user_deleted", "profiles", data.user_id, {});
+    return { ok: true };
+  });

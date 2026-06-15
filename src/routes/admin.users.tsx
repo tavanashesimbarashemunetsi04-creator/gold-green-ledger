@@ -58,13 +58,16 @@ import {
   Lock,
   Eye,
   UserCog,
+  Trash2,
 } from "lucide-react";
 import {
   adminCreateUser,
   adminResetPassword,
   adminSetUserStatus,
+  adminDeleteUser,
 } from "@/lib/admin-users.functions";
 import { grantRole } from "@/lib/float.functions";
+
 
 export const Route = createFileRoute("/admin/users")({
   component: AdminUsersPage,
@@ -110,7 +113,7 @@ function statusBadge(s: AccountStatus) {
 }
 
 function AdminUsersPage() {
-  const { isAdmin, loading: authLoading } = useAuth();
+  const { isAdmin, loading: authLoading, user } = useAuth();
 
   const [profiles, setProfiles] = useState<ProfileRow[]>([]);
   const [rolesMap, setRolesMap] = useState<Record<string, Role[]>>({});
@@ -129,10 +132,14 @@ function AdminUsersPage() {
     status: AccountStatus;
     label: string;
   } | null>(null);
+  const [deleting, setDeleting] = useState<ProfileRow | null>(null);
+  const [deletingBusy, setDeletingBusy] = useState(false);
 
   const createUser = useServerFn(adminCreateUser);
   const resetPassword = useServerFn(adminResetPassword);
   const setUserStatus = useServerFn(adminSetUserStatus);
+  const deleteUser = useServerFn(adminDeleteUser);
+
 
   const load = async () => {
     setLoading(true);
@@ -337,8 +344,17 @@ function AdminUsersPage() {
                               <Lock className="mr-2 h-4 w-4" /> Lock
                             </DropdownMenuItem>
                           )}
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            disabled={p.user_id === user?.id}
+                            onClick={() => setDeleting(p)}
+                            className="text-destructive focus:text-destructive"
+                          >
+                            <Trash2 className="mr-2 h-4 w-4" /> Delete account
+                          </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
+
                     </td>
                   </tr>
                 );
@@ -408,7 +424,44 @@ function AdminUsersPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <AlertDialog open={!!deleting} onOpenChange={(o) => !o && !deletingBusy && setDeleting(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete account</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete <strong>{deleting?.email}</strong> and
+              remove their profile and roles. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deletingBusy}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={deletingBusy}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={async (e) => {
+                e.preventDefault();
+                if (!deleting) return;
+                setDeletingBusy(true);
+                try {
+                  await deleteUser({ data: { user_id: deleting.user_id } });
+                  toast.success("Account deleted");
+                  setDeleting(null);
+                  await load();
+                } catch (err) {
+                  toast.error(err instanceof Error ? err.message : "Failed to delete");
+                } finally {
+                  setDeletingBusy(false);
+                }
+              }}
+            >
+              {deletingBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
+
   );
 }
 
