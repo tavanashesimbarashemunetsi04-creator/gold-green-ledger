@@ -26,12 +26,26 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AccountRouteImport } from './routes/account'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ManagerIndexRouteImport } from './routes/manager.index'
+import { Route as FinanceIndexRouteImport } from './routes/finance.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as ManagerBalancingRouteImport } from './routes/manager.balancing'
 import { Route as ManagerAuditRouteImport } from './routes/manager.audit'
+import { Route as FinanceTellersRouteImport } from './routes/finance.tellers'
+import { Route as FinanceSettingsRouteImport } from './routes/finance.settings'
+import { Route as FinanceReportsRouteImport } from './routes/finance.reports'
+import { Route as FinanceReceivedCashRouteImport } from './routes/finance.received-cash'
+import { Route as FinanceFloatRouteImport } from './routes/finance.float'
+import { Route as FinanceAuditRouteImport } from './routes/finance.audit'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
+import { Route as AdminTransactionsRouteImport } from './routes/admin.transactions'
+import { Route as AdminTellersRouteImport } from './routes/admin.tellers'
 import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
+import { Route as AdminSecurityRouteImport } from './routes/admin.security'
+import { Route as AdminReportsRouteImport } from './routes/admin.reports'
 import { Route as AdminFloatRouteImport } from './routes/admin.float'
+import { Route as AdminBranchesRouteImport } from './routes/admin.branches'
+import { Route as AdminAuditRouteImport } from './routes/admin.audit'
+import { Route as AdminApprovalsRouteImport } from './routes/admin.approvals'
 import { Route as ManagerTellerUserIdRouteImport } from './routes/manager.teller.$userId'
 
 const WithdrawalsRoute = WithdrawalsRouteImport.update({
@@ -119,6 +133,11 @@ const ManagerIndexRoute = ManagerIndexRouteImport.update({
   path: '/',
   getParentRoute: () => ManagerRoute,
 } as any)
+const FinanceIndexRoute = FinanceIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => FinanceRoute,
+} as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -134,9 +153,49 @@ const ManagerAuditRoute = ManagerAuditRouteImport.update({
   path: '/audit',
   getParentRoute: () => ManagerRoute,
 } as any)
+const FinanceTellersRoute = FinanceTellersRouteImport.update({
+  id: '/tellers',
+  path: '/tellers',
+  getParentRoute: () => FinanceRoute,
+} as any)
+const FinanceSettingsRoute = FinanceSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => FinanceRoute,
+} as any)
+const FinanceReportsRoute = FinanceReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => FinanceRoute,
+} as any)
+const FinanceReceivedCashRoute = FinanceReceivedCashRouteImport.update({
+  id: '/received-cash',
+  path: '/received-cash',
+  getParentRoute: () => FinanceRoute,
+} as any)
+const FinanceFloatRoute = FinanceFloatRouteImport.update({
+  id: '/float',
+  path: '/float',
+  getParentRoute: () => FinanceRoute,
+} as any)
+const FinanceAuditRoute = FinanceAuditRouteImport.update({
+  id: '/audit',
+  path: '/audit',
+  getParentRoute: () => FinanceRoute,
+} as any)
 const AdminUsersRoute = AdminUsersRouteImport.update({
   id: '/users',
   path: '/users',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminTransactionsRoute = AdminTransactionsRouteImport.update({
+  id: '/transactions',
+  path: '/transactions',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminTellersRoute = AdminTellersRouteImport.update({
+  id: '/tellers',
+  path: '/tellers',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminSettingsRoute = AdminSettingsRouteImport.update({
@@ -144,9 +203,34 @@ const AdminSettingsRoute = AdminSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminSecurityRoute = AdminSecurityRouteImport.update({
+  id: '/security',
+  path: '/security',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminReportsRoute = AdminReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminFloatRoute = AdminFloatRouteImport.update({
   id: '/float',
   path: '/float',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminBranchesRoute = AdminBranchesRouteImport.update({
+  id: '/branches',
+  path: '/branches',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminAuditRoute = AdminAuditRouteImport.update({
+  id: '/audit',
+  path: '/audit',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminApprovalsRoute = AdminApprovalsRouteImport.update({
+  id: '/approvals',
+  path: '/approvals',
   getParentRoute: () => AdminRoute,
 } as any)
 const ManagerTellerUserIdRoute = ManagerTellerUserIdRouteImport.update({
@@ -163,7 +247,7 @@ export interface FileRoutesByFullPath {
   '/ecocash': typeof EcocashRoute
   '/end-day': typeof EndDayRoute
   '/failed': typeof FailedRoute
-  '/finance': typeof FinanceRoute
+  '/finance': typeof FinanceRouteWithChildren
   '/internal-transactions': typeof InternalTransactionsRoute
   '/login': typeof LoginRoute
   '/manager': typeof ManagerRouteWithChildren
@@ -172,12 +256,26 @@ export interface FileRoutesByFullPath {
   '/settings': typeof SettingsRoute
   '/teller-float': typeof TellerFloatRoute
   '/withdrawals': typeof WithdrawalsRoute
+  '/admin/approvals': typeof AdminApprovalsRoute
+  '/admin/audit': typeof AdminAuditRoute
+  '/admin/branches': typeof AdminBranchesRoute
   '/admin/float': typeof AdminFloatRoute
+  '/admin/reports': typeof AdminReportsRoute
+  '/admin/security': typeof AdminSecurityRoute
   '/admin/settings': typeof AdminSettingsRoute
+  '/admin/tellers': typeof AdminTellersRoute
+  '/admin/transactions': typeof AdminTransactionsRoute
   '/admin/users': typeof AdminUsersRoute
+  '/finance/audit': typeof FinanceAuditRoute
+  '/finance/float': typeof FinanceFloatRoute
+  '/finance/received-cash': typeof FinanceReceivedCashRoute
+  '/finance/reports': typeof FinanceReportsRoute
+  '/finance/settings': typeof FinanceSettingsRoute
+  '/finance/tellers': typeof FinanceTellersRoute
   '/manager/audit': typeof ManagerAuditRoute
   '/manager/balancing': typeof ManagerBalancingRoute
   '/admin/': typeof AdminIndexRoute
+  '/finance/': typeof FinanceIndexRoute
   '/manager/': typeof ManagerIndexRoute
   '/manager/teller/$userId': typeof ManagerTellerUserIdRoute
 }
@@ -188,7 +286,6 @@ export interface FileRoutesByTo {
   '/ecocash': typeof EcocashRoute
   '/end-day': typeof EndDayRoute
   '/failed': typeof FailedRoute
-  '/finance': typeof FinanceRoute
   '/internal-transactions': typeof InternalTransactionsRoute
   '/login': typeof LoginRoute
   '/payments': typeof PaymentsRoute
@@ -196,12 +293,26 @@ export interface FileRoutesByTo {
   '/settings': typeof SettingsRoute
   '/teller-float': typeof TellerFloatRoute
   '/withdrawals': typeof WithdrawalsRoute
+  '/admin/approvals': typeof AdminApprovalsRoute
+  '/admin/audit': typeof AdminAuditRoute
+  '/admin/branches': typeof AdminBranchesRoute
   '/admin/float': typeof AdminFloatRoute
+  '/admin/reports': typeof AdminReportsRoute
+  '/admin/security': typeof AdminSecurityRoute
   '/admin/settings': typeof AdminSettingsRoute
+  '/admin/tellers': typeof AdminTellersRoute
+  '/admin/transactions': typeof AdminTransactionsRoute
   '/admin/users': typeof AdminUsersRoute
+  '/finance/audit': typeof FinanceAuditRoute
+  '/finance/float': typeof FinanceFloatRoute
+  '/finance/received-cash': typeof FinanceReceivedCashRoute
+  '/finance/reports': typeof FinanceReportsRoute
+  '/finance/settings': typeof FinanceSettingsRoute
+  '/finance/tellers': typeof FinanceTellersRoute
   '/manager/audit': typeof ManagerAuditRoute
   '/manager/balancing': typeof ManagerBalancingRoute
   '/admin': typeof AdminIndexRoute
+  '/finance': typeof FinanceIndexRoute
   '/manager': typeof ManagerIndexRoute
   '/manager/teller/$userId': typeof ManagerTellerUserIdRoute
 }
@@ -214,7 +325,7 @@ export interface FileRoutesById {
   '/ecocash': typeof EcocashRoute
   '/end-day': typeof EndDayRoute
   '/failed': typeof FailedRoute
-  '/finance': typeof FinanceRoute
+  '/finance': typeof FinanceRouteWithChildren
   '/internal-transactions': typeof InternalTransactionsRoute
   '/login': typeof LoginRoute
   '/manager': typeof ManagerRouteWithChildren
@@ -223,12 +334,26 @@ export interface FileRoutesById {
   '/settings': typeof SettingsRoute
   '/teller-float': typeof TellerFloatRoute
   '/withdrawals': typeof WithdrawalsRoute
+  '/admin/approvals': typeof AdminApprovalsRoute
+  '/admin/audit': typeof AdminAuditRoute
+  '/admin/branches': typeof AdminBranchesRoute
   '/admin/float': typeof AdminFloatRoute
+  '/admin/reports': typeof AdminReportsRoute
+  '/admin/security': typeof AdminSecurityRoute
   '/admin/settings': typeof AdminSettingsRoute
+  '/admin/tellers': typeof AdminTellersRoute
+  '/admin/transactions': typeof AdminTransactionsRoute
   '/admin/users': typeof AdminUsersRoute
+  '/finance/audit': typeof FinanceAuditRoute
+  '/finance/float': typeof FinanceFloatRoute
+  '/finance/received-cash': typeof FinanceReceivedCashRoute
+  '/finance/reports': typeof FinanceReportsRoute
+  '/finance/settings': typeof FinanceSettingsRoute
+  '/finance/tellers': typeof FinanceTellersRoute
   '/manager/audit': typeof ManagerAuditRoute
   '/manager/balancing': typeof ManagerBalancingRoute
   '/admin/': typeof AdminIndexRoute
+  '/finance/': typeof FinanceIndexRoute
   '/manager/': typeof ManagerIndexRoute
   '/manager/teller/$userId': typeof ManagerTellerUserIdRoute
 }
@@ -251,12 +376,26 @@ export interface FileRouteTypes {
     | '/settings'
     | '/teller-float'
     | '/withdrawals'
+    | '/admin/approvals'
+    | '/admin/audit'
+    | '/admin/branches'
     | '/admin/float'
+    | '/admin/reports'
+    | '/admin/security'
     | '/admin/settings'
+    | '/admin/tellers'
+    | '/admin/transactions'
     | '/admin/users'
+    | '/finance/audit'
+    | '/finance/float'
+    | '/finance/received-cash'
+    | '/finance/reports'
+    | '/finance/settings'
+    | '/finance/tellers'
     | '/manager/audit'
     | '/manager/balancing'
     | '/admin/'
+    | '/finance/'
     | '/manager/'
     | '/manager/teller/$userId'
   fileRoutesByTo: FileRoutesByTo
@@ -267,7 +406,6 @@ export interface FileRouteTypes {
     | '/ecocash'
     | '/end-day'
     | '/failed'
-    | '/finance'
     | '/internal-transactions'
     | '/login'
     | '/payments'
@@ -275,12 +413,26 @@ export interface FileRouteTypes {
     | '/settings'
     | '/teller-float'
     | '/withdrawals'
+    | '/admin/approvals'
+    | '/admin/audit'
+    | '/admin/branches'
     | '/admin/float'
+    | '/admin/reports'
+    | '/admin/security'
     | '/admin/settings'
+    | '/admin/tellers'
+    | '/admin/transactions'
     | '/admin/users'
+    | '/finance/audit'
+    | '/finance/float'
+    | '/finance/received-cash'
+    | '/finance/reports'
+    | '/finance/settings'
+    | '/finance/tellers'
     | '/manager/audit'
     | '/manager/balancing'
     | '/admin'
+    | '/finance'
     | '/manager'
     | '/manager/teller/$userId'
   id:
@@ -301,12 +453,26 @@ export interface FileRouteTypes {
     | '/settings'
     | '/teller-float'
     | '/withdrawals'
+    | '/admin/approvals'
+    | '/admin/audit'
+    | '/admin/branches'
     | '/admin/float'
+    | '/admin/reports'
+    | '/admin/security'
     | '/admin/settings'
+    | '/admin/tellers'
+    | '/admin/transactions'
     | '/admin/users'
+    | '/finance/audit'
+    | '/finance/float'
+    | '/finance/received-cash'
+    | '/finance/reports'
+    | '/finance/settings'
+    | '/finance/tellers'
     | '/manager/audit'
     | '/manager/balancing'
     | '/admin/'
+    | '/finance/'
     | '/manager/'
     | '/manager/teller/$userId'
   fileRoutesById: FileRoutesById
@@ -319,7 +485,7 @@ export interface RootRouteChildren {
   EcocashRoute: typeof EcocashRoute
   EndDayRoute: typeof EndDayRoute
   FailedRoute: typeof FailedRoute
-  FinanceRoute: typeof FinanceRoute
+  FinanceRoute: typeof FinanceRouteWithChildren
   InternalTransactionsRoute: typeof InternalTransactionsRoute
   LoginRoute: typeof LoginRoute
   ManagerRoute: typeof ManagerRouteWithChildren
@@ -451,6 +617,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ManagerIndexRouteImport
       parentRoute: typeof ManagerRoute
     }
+    '/finance/': {
+      id: '/finance/'
+      path: '/'
+      fullPath: '/finance/'
+      preLoaderRoute: typeof FinanceIndexRouteImport
+      parentRoute: typeof FinanceRoute
+    }
     '/admin/': {
       id: '/admin/'
       path: '/'
@@ -472,11 +645,67 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ManagerAuditRouteImport
       parentRoute: typeof ManagerRoute
     }
+    '/finance/tellers': {
+      id: '/finance/tellers'
+      path: '/tellers'
+      fullPath: '/finance/tellers'
+      preLoaderRoute: typeof FinanceTellersRouteImport
+      parentRoute: typeof FinanceRoute
+    }
+    '/finance/settings': {
+      id: '/finance/settings'
+      path: '/settings'
+      fullPath: '/finance/settings'
+      preLoaderRoute: typeof FinanceSettingsRouteImport
+      parentRoute: typeof FinanceRoute
+    }
+    '/finance/reports': {
+      id: '/finance/reports'
+      path: '/reports'
+      fullPath: '/finance/reports'
+      preLoaderRoute: typeof FinanceReportsRouteImport
+      parentRoute: typeof FinanceRoute
+    }
+    '/finance/received-cash': {
+      id: '/finance/received-cash'
+      path: '/received-cash'
+      fullPath: '/finance/received-cash'
+      preLoaderRoute: typeof FinanceReceivedCashRouteImport
+      parentRoute: typeof FinanceRoute
+    }
+    '/finance/float': {
+      id: '/finance/float'
+      path: '/float'
+      fullPath: '/finance/float'
+      preLoaderRoute: typeof FinanceFloatRouteImport
+      parentRoute: typeof FinanceRoute
+    }
+    '/finance/audit': {
+      id: '/finance/audit'
+      path: '/audit'
+      fullPath: '/finance/audit'
+      preLoaderRoute: typeof FinanceAuditRouteImport
+      parentRoute: typeof FinanceRoute
+    }
     '/admin/users': {
       id: '/admin/users'
       path: '/users'
       fullPath: '/admin/users'
       preLoaderRoute: typeof AdminUsersRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/transactions': {
+      id: '/admin/transactions'
+      path: '/transactions'
+      fullPath: '/admin/transactions'
+      preLoaderRoute: typeof AdminTransactionsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/tellers': {
+      id: '/admin/tellers'
+      path: '/tellers'
+      fullPath: '/admin/tellers'
+      preLoaderRoute: typeof AdminTellersRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/settings': {
@@ -486,11 +715,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminSettingsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/security': {
+      id: '/admin/security'
+      path: '/security'
+      fullPath: '/admin/security'
+      preLoaderRoute: typeof AdminSecurityRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/reports': {
+      id: '/admin/reports'
+      path: '/reports'
+      fullPath: '/admin/reports'
+      preLoaderRoute: typeof AdminReportsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/float': {
       id: '/admin/float'
       path: '/float'
       fullPath: '/admin/float'
       preLoaderRoute: typeof AdminFloatRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/branches': {
+      id: '/admin/branches'
+      path: '/branches'
+      fullPath: '/admin/branches'
+      preLoaderRoute: typeof AdminBranchesRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/audit': {
+      id: '/admin/audit'
+      path: '/audit'
+      fullPath: '/admin/audit'
+      preLoaderRoute: typeof AdminAuditRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/approvals': {
+      id: '/admin/approvals'
+      path: '/approvals'
+      fullPath: '/admin/approvals'
+      preLoaderRoute: typeof AdminApprovalsRouteImport
       parentRoute: typeof AdminRoute
     }
     '/manager/teller/$userId': {
@@ -504,20 +768,57 @@ declare module '@tanstack/react-router' {
 }
 
 interface AdminRouteChildren {
+  AdminApprovalsRoute: typeof AdminApprovalsRoute
+  AdminAuditRoute: typeof AdminAuditRoute
+  AdminBranchesRoute: typeof AdminBranchesRoute
   AdminFloatRoute: typeof AdminFloatRoute
+  AdminReportsRoute: typeof AdminReportsRoute
+  AdminSecurityRoute: typeof AdminSecurityRoute
   AdminSettingsRoute: typeof AdminSettingsRoute
+  AdminTellersRoute: typeof AdminTellersRoute
+  AdminTransactionsRoute: typeof AdminTransactionsRoute
   AdminUsersRoute: typeof AdminUsersRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminApprovalsRoute: AdminApprovalsRoute,
+  AdminAuditRoute: AdminAuditRoute,
+  AdminBranchesRoute: AdminBranchesRoute,
   AdminFloatRoute: AdminFloatRoute,
+  AdminReportsRoute: AdminReportsRoute,
+  AdminSecurityRoute: AdminSecurityRoute,
   AdminSettingsRoute: AdminSettingsRoute,
+  AdminTellersRoute: AdminTellersRoute,
+  AdminTransactionsRoute: AdminTransactionsRoute,
   AdminUsersRoute: AdminUsersRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
+interface FinanceRouteChildren {
+  FinanceAuditRoute: typeof FinanceAuditRoute
+  FinanceFloatRoute: typeof FinanceFloatRoute
+  FinanceReceivedCashRoute: typeof FinanceReceivedCashRoute
+  FinanceReportsRoute: typeof FinanceReportsRoute
+  FinanceSettingsRoute: typeof FinanceSettingsRoute
+  FinanceTellersRoute: typeof FinanceTellersRoute
+  FinanceIndexRoute: typeof FinanceIndexRoute
+}
+
+const FinanceRouteChildren: FinanceRouteChildren = {
+  FinanceAuditRoute: FinanceAuditRoute,
+  FinanceFloatRoute: FinanceFloatRoute,
+  FinanceReceivedCashRoute: FinanceReceivedCashRoute,
+  FinanceReportsRoute: FinanceReportsRoute,
+  FinanceSettingsRoute: FinanceSettingsRoute,
+  FinanceTellersRoute: FinanceTellersRoute,
+  FinanceIndexRoute: FinanceIndexRoute,
+}
+
+const FinanceRouteWithChildren =
+  FinanceRoute._addFileChildren(FinanceRouteChildren)
 
 interface ManagerRouteChildren {
   ManagerAuditRoute: typeof ManagerAuditRoute
@@ -544,7 +845,7 @@ const rootRouteChildren: RootRouteChildren = {
   EcocashRoute: EcocashRoute,
   EndDayRoute: EndDayRoute,
   FailedRoute: FailedRoute,
-  FinanceRoute: FinanceRoute,
+  FinanceRoute: FinanceRouteWithChildren,
   InternalTransactionsRoute: InternalTransactionsRoute,
   LoginRoute: LoginRoute,
   ManagerRoute: ManagerRouteWithChildren,
