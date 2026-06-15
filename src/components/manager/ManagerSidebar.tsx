@@ -7,12 +7,9 @@ import {
   ScrollText,
   ArrowLeftRight,
   LogOut,
-  Users,
-  Building2,
   UserCog,
   ListChecks,
-  ShieldCheck,
-  FileBarChart,
+  UserCircle2,
   Settings as SettingsIcon,
 } from "lucide-react";
 
@@ -25,17 +22,15 @@ const managerItems: Item[] = [
 ];
 
 const adminItems: Item[] = [
-  { title: "Admin Dashboard", url: "/admin", icon: LayoutDashboard, exact: true },
-  { title: "Users", url: "/admin/users", icon: Users },
   { title: "Float Management", url: "/admin/float", icon: ArrowLeftRight },
-  { title: "Branches", url: "/admin/branches", icon: Building2 },
   { title: "Tellers", url: "/admin/tellers", icon: UserCog },
   { title: "Approvals", url: "/admin/approvals", icon: ListChecks },
   { title: "Transactions", url: "/admin/transactions", icon: ArrowLeftRight },
-  { title: "Audit Logs (Admin)", url: "/admin/audit", icon: ScrollText },
-  { title: "Security", url: "/admin/security", icon: ShieldCheck },
-  { title: "Reports", url: "/admin/reports", icon: FileBarChart },
-  { title: "Settings", url: "/admin/settings", icon: SettingsIcon },
+];
+
+const accountItems: Item[] = [
+  { title: "My Account", url: "/account", icon: UserCircle2 },
+  { title: "Settings", url: "/settings", icon: SettingsIcon },
 ];
 
 export const MANAGER_SIDEBAR_WIDTH = "18rem";
@@ -47,7 +42,9 @@ export function ManagerSidebar() {
   const items: Item[] = [
     ...managerItems,
     ...(isAdmin || isFinanceManager ? adminItems : []),
+    ...accountItems,
   ];
+
 
 
   return (
