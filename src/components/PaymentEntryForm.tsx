@@ -74,6 +74,8 @@ interface Props {
 export function PaymentEntryForm({ bank, onSubmit }: Props) {
   const [form, setForm] = useState(initialState);
   const [submitting, setSubmitting] = useState(false);
+  const rates = useCurrencyRates();
+  const paymentsRate = rates?.payments_rate ?? 0;
 
   const update = <K extends keyof typeof initialState>(key: K, value: string) =>
     setForm((f) => ({ ...f, [key]: value }));
