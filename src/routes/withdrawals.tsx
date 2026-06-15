@@ -18,8 +18,9 @@ const types: { id: WithdrawalKind; label: string; icon: typeof CreditCard }[] = 
 
 function WithdrawalsPage() {
   const [selected, setSelected] = useState<WithdrawalKind>("CASH_SWIPE");
-  const { isEcocashMode } = useDashboardState(15000);
-  if (isEcocashMode) return <EcocashLockNotice moduleName="Withdrawals" />;
+  const { isEcocashMode, isDayOpen, isAdmin, ready } = useDayStatus(15000);
+  if (ready && isEcocashMode) return <EcocashLockNotice moduleName="Withdrawals" />;
+  if (!isAdmin && (!ready || !isDayOpen)) return <NoOpenDayNotice moduleName="Withdrawals" />;
 
   return (
     <div className="p-8">
