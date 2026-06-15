@@ -219,32 +219,18 @@ export function PaymentEntryForm({ bank, onSubmit }: Props) {
             </div>
           </div>
 
-          {/* Amounts */}
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="usd_amount">USD Amount</Label>
-              <Input
-                id="usd_amount"
-                type="number"
-                inputMode="decimal"
-                step="0.01"
-                min="0"
-                value={form.usd_amount}
-                onChange={(e) => update("usd_amount", e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="zwg_amount">ZWG Amount</Label>
-              <Input
-                id="zwg_amount"
-                type="number"
-                inputMode="decimal"
-                step="0.01"
-                min="0"
-                value={form.zwg_amount}
-                onChange={(e) => update("zwg_amount", e.target.value)}
-              />
-            </div>
+          {/* Code + Amounts (auto-calc using Admin-set Payments Rate) */}
+          <div className="grid gap-4 sm:grid-cols-3">
+            <RateAwareAmountFields
+              kind="payment"
+              defaultRate={paymentsRate}
+              usdValue={form.usd_amount}
+              zwgValue={form.zwg_amount}
+              onUsdChange={(v) => update("usd_amount", v)}
+              onZwgChange={(v) => update("zwg_amount", v)}
+              onCodeChange={(c) => setForm((f) => ({ ...f, code: String(c) }))}
+              reference={`${bank} ${form.account_name || form.account_number || ""}`.trim()}
+            />
           </div>
 
           {/* Status */}
