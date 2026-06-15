@@ -49,6 +49,7 @@ import {
   Wallet,
   ShieldCheck,
   Palette,
+  Coins,
 } from "lucide-react";
 import {
   saveAppSettings,
