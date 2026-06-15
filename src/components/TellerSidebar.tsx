@@ -1,7 +1,7 @@
 import logoMark from "@/assets/logo-mark.png";
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/useAuth";
-import { useDashboardState } from "@/hooks/useDashboardState";
+import { useDayStatus } from "@/hooks/useDayStatus";
 import { useDailyRole, ROLE_ALLOWED_ROUTES } from "@/hooks/useDailyRole";
 import { DAILY_ROLE_LABEL } from "@/lib/daily-role.functions";
 import { useEffect, useState } from "react";
