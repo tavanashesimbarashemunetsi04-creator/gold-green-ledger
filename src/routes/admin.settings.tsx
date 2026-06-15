@@ -63,6 +63,11 @@ import {
   adminResetPassword,
   adminSetUserStatus,
 } from "@/lib/admin-users.functions";
+import {
+  getCurrencyRates,
+  saveCurrencyRates,
+  getRateHistory,
+} from "@/lib/currency.functions";
 
 export const Route = createFileRoute("/admin/settings")({
   component: AdminSettingsPage,
