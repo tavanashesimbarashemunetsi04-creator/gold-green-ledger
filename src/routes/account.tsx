@@ -548,3 +548,50 @@ function Field({ label, value, hint }: { label: string; value: string; hint?: st
     </div>
   );
 }
+
+function KpiCard({
+  label,
+  value,
+  icon: Icon,
+  loading,
+  accent,
+}: {
+  label: string;
+  value: number | string;
+  icon: React.ComponentType<{ className?: string }>;
+  loading?: boolean;
+  accent?: boolean;
+}) {
+  return (
+    <div
+      className={
+        "rounded-xl border border-border bg-background p-4 shadow-[var(--shadow-soft)] " +
+        (accent ? "bg-[var(--gradient-primary)] text-primary-foreground" : "")
+      }
+    >
+      <div className="flex items-center justify-between">
+        <span
+          className={
+            "text-xs uppercase tracking-wide " +
+            (accent ? "text-primary-foreground/80" : "text-muted-foreground")
+          }
+        >
+          {label}
+        </span>
+        <Icon
+          className={
+            "h-4 w-4 " + (accent ? "text-primary-foreground/90" : "text-primary")
+          }
+        />
+      </div>
+      <div className="mt-2 text-2xl font-semibold tabular-nums">
+        {loading ? (
+          <Loader2 className="h-5 w-5 animate-spin opacity-70" />
+        ) : (
+          value
+        )}
+      </div>
+    </div>
+  );
+}
+
