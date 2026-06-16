@@ -134,9 +134,11 @@ function EndDayPage() {
   const phyZwg = Number(physicalZwg) || 0;
   const varUsd = phyUsd - totals.expectedUsd;
   const varZwg = phyZwg - totals.expectedZwg;
-  const balanced = Math.abs(varUsd) < 0.005;
-  const varianceExists = !balanced;
-  const physicalEntered = physicalUsd.trim() !== "";
+  const usdBalanced = Math.abs(varUsd) < 0.005;
+  const zwgBalanced = Math.abs(varZwg) < 0.005;
+  const balanced = usdBalanced && zwgBalanced;
+  const varianceExists = !usdBalanced || !zwgBalanced;
+  const physicalEntered = physicalUsd.trim() !== "" && physicalZwg.trim() !== "";
   const reasonOk = !varianceExists || reason.trim().length > 0;
 
   const closeFn = useServerFn(closeDayWithBalancing);
@@ -225,9 +227,9 @@ function EndDayPage() {
         />
       </div>
 
-      {/* Two-column layout */}
-      <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-        {/* INFLOWS */}
+      {/* Three-column layout: Inflows | Balance | Outflows */}
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
+        {/* INFLOWS — LEFT */}
         <section className="rounded-2xl border border-success/30 bg-card shadow-[var(--shadow-soft)]">
           <SectionHeader
             title="INFLOWS"
@@ -237,7 +239,6 @@ function EndDayPage() {
             totalZwg={totals.inflowZwg}
           />
           <div className="space-y-5 p-4 md:p-5">
-            {/* Opening Float */}
             <Subsection title="Opening Float" subtitle="From approved float" tone="muted">
               <LineTable
                 rows={[
@@ -277,7 +278,84 @@ function EndDayPage() {
           </div>
         </section>
 
-        {/* OUTFLOWS */}
+        {/* BALANCE — MIDDLE */}
+        <div className="space-y-5">
+          <section className="rounded-2xl border border-primary/30 bg-card p-5 shadow-[var(--shadow-soft)] md:p-6">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--gradient-primary)] text-primary-foreground">
+                <Calculator className="h-5 w-5" />
+              </div>
+              <div>
+                <h2 className="text-lg font-bold">Cash Balance Summary</h2>
+                <p className="text-xs text-muted-foreground">Expected = Total Inflows − Total Outflows</p>
+              </div>
+            </div>
+            <div className="mt-4 grid grid-cols-1 gap-3">
+              <BalanceCell currency="USD" expected={totals.expectedUsd} />
+              <BalanceCell currency="ZWG" expected={totals.expectedZwg} />
+            </div>
+          </section>
+
+          <section className="rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-soft)] md:p-6">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--gradient-gold)] text-gold-foreground">
+                <Scale className="h-5 w-5" />
+              </div>
+              <div>
+                <h2 className="text-lg font-bold">Physical Cash Count</h2>
+                <p className="text-xs text-muted-foreground">Enter counted cash to compute variance.</p>
+              </div>
+            </div>
+            <div className="mt-4 grid grid-cols-1 gap-3">
+              <PhysicalInput
+                currency="USD"
+                value={physicalUsd}
+                onChange={setPhysicalUsd}
+                expected={totals.expectedUsd}
+                variance={varUsd}
+              />
+              <PhysicalInput
+                currency="ZWG"
+                value={physicalZwg}
+                onChange={setPhysicalZwg}
+                expected={totals.expectedZwg}
+                variance={varZwg}
+              />
+            </div>
+
+            {varianceExists && physicalEntered && (
+              <div className="mt-5">
+                <Label htmlFor="reason" className="flex items-center gap-2 text-sm font-medium">
+                  <TriangleAlert className="h-4 w-4 text-warning" />
+                  Variance reason (required)
+                </Label>
+                <Textarea
+                  id="reason"
+                  value={reason}
+                  onChange={(e) => setReason(e.target.value)}
+                  placeholder="Explain the cause of the variance — cash misplacement, miscount, system error, etc."
+                  rows={3}
+                  className="mt-2"
+                />
+              </div>
+            )}
+
+            <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t pt-4 print:hidden">
+              <div className="text-xs text-muted-foreground">
+                All balancing actions are permanently logged with timestamp, device, and session ID.
+              </div>
+              <Button
+                variant="destructive"
+                disabled={!physicalEntered || !reasonOk}
+                onClick={() => setConfirmOpen(true)}
+              >
+                <Lock className="mr-2 h-4 w-4" /> Confirm & Close Day
+              </Button>
+            </div>
+          </section>
+        </div>
+
+        {/* OUTFLOWS — RIGHT */}
         <section className="rounded-2xl border border-destructive/30 bg-card shadow-[var(--shadow-soft)]">
           <SectionHeader
             title="OUTFLOWS"
@@ -303,74 +381,6 @@ function EndDayPage() {
           </div>
         </section>
       </div>
-
-      {/* Cash Balance Summary */}
-      <section className="rounded-2xl border border-primary/30 bg-card p-5 shadow-[var(--shadow-soft)] md:p-6">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--gradient-primary)] text-primary-foreground">
-            <Calculator className="h-5 w-5" />
-          </div>
-          <div>
-            <h2 className="text-lg font-bold">Cash Balance Summary</h2>
-            <p className="text-xs text-muted-foreground">Expected = Total Inflows − Total Outflows</p>
-          </div>
-        </div>
-        <div className="mt-4 grid grid-cols-1 gap-4">
-          <BalanceCell currency="USD" expected={totals.expectedUsd} />
-        </div>
-      </section>
-
-      {/* Physical Cash Count + Variance */}
-      <section className="rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-soft)] md:p-6">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--gradient-gold)] text-gold-foreground">
-            <Scale className="h-5 w-5" />
-          </div>
-          <div>
-            <h2 className="text-lg font-bold">Physical Cash Count</h2>
-            <p className="text-xs text-muted-foreground">Enter counted cash to compute variance.</p>
-          </div>
-        </div>
-        <div className="mt-4 grid grid-cols-1 gap-4">
-          <PhysicalInput
-            currency="USD"
-            value={physicalUsd}
-            onChange={setPhysicalUsd}
-            expected={totals.expectedUsd}
-            variance={varUsd}
-          />
-        </div>
-
-        {varianceExists && physicalEntered && (
-          <div className="mt-5">
-            <Label htmlFor="reason" className="flex items-center gap-2 text-sm font-medium">
-              <TriangleAlert className="h-4 w-4 text-warning" />
-              Variance reason (required)
-            </Label>
-            <Textarea
-              id="reason"
-              value={reason}
-              onChange={(e) => setReason(e.target.value)}
-              placeholder="Explain the cause of the variance — cash misplacement, miscount, system error, etc."
-              rows={3}
-              className="mt-2"
-            />
-          </div>
-        )}
-
-        <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t pt-4 print:hidden">
-          <div className="text-xs text-muted-foreground">
-            All balancing actions are permanently logged with timestamp, device, and session ID.
-          </div>
-          <Button
-            variant="destructive"
-            disabled={!physicalEntered || !reasonOk}
-            onClick={() => setConfirmOpen(true)}
-          >
-            <Lock className="mr-2 h-4 w-4" /> Confirm & Close Day
-          </Button>
-        </div>
-      </section>
 
       {/* Confirm dialog */}
       <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
