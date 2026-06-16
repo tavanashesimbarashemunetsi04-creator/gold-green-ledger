@@ -134,9 +134,11 @@ function EndDayPage() {
   const phyZwg = Number(physicalZwg) || 0;
   const varUsd = phyUsd - totals.expectedUsd;
   const varZwg = phyZwg - totals.expectedZwg;
-  const balanced = Math.abs(varUsd) < 0.005;
-  const varianceExists = !balanced;
-  const physicalEntered = physicalUsd.trim() !== "";
+  const usdBalanced = Math.abs(varUsd) < 0.005;
+  const zwgBalanced = Math.abs(varZwg) < 0.005;
+  const balanced = usdBalanced && zwgBalanced;
+  const varianceExists = !usdBalanced || !zwgBalanced;
+  const physicalEntered = physicalUsd.trim() !== "" && physicalZwg.trim() !== "";
   const reasonOk = !varianceExists || reason.trim().length > 0;
 
   const closeFn = useServerFn(closeDayWithBalancing);
