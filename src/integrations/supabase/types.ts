@@ -882,6 +882,68 @@ export type Database = {
           },
         ]
       }
+      received_cash: {
+        Row: {
+          branch_id: string | null
+          business_date: string
+          created_at: string
+          expected_amount: number
+          id: string
+          notes: string | null
+          received_amount: number
+          received_at: string
+          received_by_user_id: string
+          session_id: string
+          session_type: string
+          teller_user_id: string
+          updated_at: string
+          variance_amount: number
+          variance_reason: string | null
+        }
+        Insert: {
+          branch_id?: string | null
+          business_date?: string
+          created_at?: string
+          expected_amount?: number
+          id?: string
+          notes?: string | null
+          received_amount: number
+          received_at?: string
+          received_by_user_id: string
+          session_id: string
+          session_type: string
+          teller_user_id: string
+          updated_at?: string
+          variance_amount?: number
+          variance_reason?: string | null
+        }
+        Update: {
+          branch_id?: string | null
+          business_date?: string
+          created_at?: string
+          expected_amount?: number
+          id?: string
+          notes?: string | null
+          received_amount?: number
+          received_at?: string
+          received_by_user_id?: string
+          session_id?: string
+          session_type?: string
+          teller_user_id?: string
+          updated_at?: string
+          variance_amount?: number
+          variance_reason?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "received_cash_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       security_alerts: {
         Row: {
           alert_type: string
