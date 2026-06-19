@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useServerFn } from "@tanstack/react-start";
 import { useAuth } from "@/hooks/useAuth";
+import { useDayStatus } from "@/hooks/useDayStatus";
 import { Button } from "@/components/ui/button";
 import {
   Card,
