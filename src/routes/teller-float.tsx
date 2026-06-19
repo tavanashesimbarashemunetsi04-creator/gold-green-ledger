@@ -162,26 +162,49 @@ function TellerFloatPage() {
       )}
 
       <Card>
-        <CardHeader><CardTitle>History</CardTitle></CardHeader>
-        <CardContent>
+        <CardHeader>
+          <CardTitle>History — Current Open Day</CardTitle>
+          <CardDescription>
+            {dayOpenedAt
+              ? `Float funding transactions since ${new Date(dayOpenedAt).toLocaleString()}`
+              : "No open day. Open your day to start a new history view."}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="rounded-lg border p-3">
+              <p className="text-xs text-muted-foreground">Total funded today</p>
+              <p className="text-xl font-semibold">
+                ${historyRows.reduce((s, r) => s + Number(r.amount), 0).toFixed(2)}
+              </p>
+            </div>
+            <div className="rounded-lg border p-3">
+              <p className="text-xs text-muted-foreground">Transactions today</p>
+              <p className="text-xl font-semibold">{historyRows.length}</p>
+            </div>
+          </div>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Date</TableHead>
-                <TableHead className="text-right">Amount</TableHead>
-                <TableHead>Reference</TableHead>
+                <TableHead>Date &amp; Time</TableHead>
+                <TableHead>Float Type</TableHead>
+                <TableHead className="text-right">Amount Funded</TableHead>
+                <TableHead>Funding Username</TableHead>
                 <TableHead>Status</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {rows.length === 0 && (
-                <TableRow><TableCell colSpan={4} className="text-center text-muted-foreground">No float yet</TableCell></TableRow>
+              {historyRows.length === 0 && (
+                <TableRow><TableCell colSpan={5} className="text-center text-muted-foreground">
+                  {dayOpenedAt ? "No float funding yet for this open day" : "No open day"}
+                </TableCell></TableRow>
               )}
-              {rows.map(r => (
+              {historyRows.map(r => (
                 <TableRow key={r.id}>
                   <TableCell className="text-xs">{new Date(r.created_at).toLocaleString()}</TableCell>
+                  <TableCell className="text-xs">{r.notes || r.reference || "Float assignment"}</TableCell>
                   <TableCell className="text-right font-medium">${Number(r.amount).toFixed(2)}</TableCell>
-                  <TableCell className="text-xs">{r.reference || "—"}</TableCell>
+                  <TableCell className="text-xs">{funderNames[r.assigned_by_user_id] || "—"}</TableCell>
                   <TableCell><Badge variant={r.status === "approved" ? "default" : r.status === "rejected" ? "destructive" : "secondary"}>{r.status}</Badge></TableCell>
                 </TableRow>
               ))}
@@ -189,6 +212,7 @@ function TellerFloatPage() {
           </Table>
         </CardContent>
       </Card>
+
 
       <Dialog open={!!rejecting} onOpenChange={(o) => !o && setRejecting(null)}>
         <DialogContent>
