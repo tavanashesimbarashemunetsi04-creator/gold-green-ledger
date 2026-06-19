@@ -150,6 +150,12 @@ export function TellerTransfersModule() {
 
   const filterRows = (status: TransferStatus | "all") => {
     let rows = status === "all" ? transfers : transfers.filter((t) => t.status === status);
+    // Open-day scoping: only show transfers created during the current open day
+    if (dayOpenedAt) {
+      rows = rows.filter((t) => t.created_at >= dayOpenedAt);
+    } else {
+      rows = [];
+    }
     const q = search.trim().toLowerCase();
     if (q) {
       rows = rows.filter(
