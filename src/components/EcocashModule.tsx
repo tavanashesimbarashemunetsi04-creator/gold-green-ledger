@@ -147,7 +147,7 @@ function EcocashOperational({ onRefreshDash }: { onRefreshDash: () => void }) {
         <>
           <EcocashBalancingPanel summary={summary} />
           <EcocashInternalTransfersTable summary={summary} />
-          <EcocashManualEntries sessionOpen={ecocashOpen} userId={user?.id ?? null} userEmail={user?.email ?? null} />
+          <EcocashManualEntries sessionOpen={ecocashOpen} sessionOpenedAt={summary.session?.opened_at ?? null} userId={user?.id ?? null} userEmail={user?.email ?? null} />
         </>
       )}
     </div>
