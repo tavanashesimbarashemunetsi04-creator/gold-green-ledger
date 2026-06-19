@@ -622,6 +622,8 @@ function EcocashManualEntries({
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     return rows.filter((r) => {
+      // Open-day scoping: only entries since the current EcoCash session opened
+      if (!sessionOpenedAt || r.created_at < sessionOpenedAt) return false;
       if (q && !r.description.toLowerCase().includes(q) &&
           !(r.created_by_label ?? "").toLowerCase().includes(q)) return false;
       if (dateFilter && !r.created_at.startsWith(dateFilter)) return false;
@@ -631,7 +633,7 @@ function EcocashManualEntries({
       if (kind === "manual" && r.source !== "manual_entry") return false;
       return true;
     });
-  }, [rows, search, dateFilter, kind]);
+  }, [rows, search, dateFilter, kind, sessionOpenedAt]);
 
   return (
     <Card>
