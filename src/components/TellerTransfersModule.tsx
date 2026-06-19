@@ -80,6 +80,7 @@ function fmtTs(s: string | null) {
 export function TellerTransfersModule() {
   const { user } = useAuth();
   const uid = user?.id ?? "";
+  const { dayOpenedAt } = useDayStatus(15000);
 
   const fetchTellers = useServerFn(listOpenTellers);
   const fetchTransfers = useServerFn(listTransfers);
