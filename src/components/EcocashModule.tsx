@@ -564,8 +564,8 @@ function CloseEcocashDialog({
 /* ---------------- Manual Entries (existing trial balance) ---------------- */
 
 function EcocashManualEntries({
-  sessionOpen, userId, userEmail,
-}: { sessionOpen: boolean; userId: string | null; userEmail: string | null }) {
+  sessionOpen, sessionOpenedAt, userId, userEmail,
+}: { sessionOpen: boolean; sessionOpenedAt: string | null; userId: string | null; userEmail: string | null }) {
   const [rows, setRows] = useState<EcocashTx[]>([]);
   const [loading, setLoading] = useState(false);
   const [txDate, setTxDate] = useState(() => new Date().toISOString().slice(0, 10));
