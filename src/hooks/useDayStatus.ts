@@ -59,5 +59,6 @@ export function useDayStatus(pollMs = 20000) {
     isDayOpen: status?.isDayOpen ?? false,
     isEcocashMode: status?.isEcocashMode ?? false,
     isAdmin: status?.isAdmin ?? false,
+    dayOpenedAt: status?.dayOpenedAt ?? null,
   };
 }
