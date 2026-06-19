@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useServerFn } from "@tanstack/react-start";
 import { useAuth } from "@/hooks/useAuth";
+import { useDayStatus } from "@/hooks/useDayStatus";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -79,6 +80,7 @@ function fmtTs(s: string | null) {
 export function TellerTransfersModule() {
   const { user } = useAuth();
   const uid = user?.id ?? "";
+  const { dayOpenedAt } = useDayStatus(15000);
 
   const fetchTellers = useServerFn(listOpenTellers);
   const fetchTransfers = useServerFn(listTransfers);
@@ -148,6 +150,12 @@ export function TellerTransfersModule() {
 
   const filterRows = (status: TransferStatus | "all") => {
     let rows = status === "all" ? transfers : transfers.filter((t) => t.status === status);
+    // Open-day scoping: only show transfers created during the current open day
+    if (dayOpenedAt) {
+      rows = rows.filter((t) => t.requested_at >= dayOpenedAt);
+    } else {
+      rows = [];
+    }
     const q = search.trim().toLowerCase();
     if (q) {
       rows = rows.filter(

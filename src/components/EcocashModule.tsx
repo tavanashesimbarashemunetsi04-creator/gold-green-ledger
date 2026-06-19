@@ -147,7 +147,7 @@ function EcocashOperational({ onRefreshDash }: { onRefreshDash: () => void }) {
         <>
           <EcocashBalancingPanel summary={summary} />
           <EcocashInternalTransfersTable summary={summary} />
-          <EcocashManualEntries sessionOpen={ecocashOpen} userId={user?.id ?? null} userEmail={user?.email ?? null} />
+          <EcocashManualEntries sessionOpen={ecocashOpen} sessionOpenedAt={summary.session?.opened_at ?? null} userId={user?.id ?? null} userEmail={user?.email ?? null} />
         </>
       )}
     </div>
@@ -564,8 +564,8 @@ function CloseEcocashDialog({
 /* ---------------- Manual Entries (existing trial balance) ---------------- */
 
 function EcocashManualEntries({
-  sessionOpen, userId, userEmail,
-}: { sessionOpen: boolean; userId: string | null; userEmail: string | null }) {
+  sessionOpen, sessionOpenedAt, userId, userEmail,
+}: { sessionOpen: boolean; sessionOpenedAt: string | null; userId: string | null; userEmail: string | null }) {
   const [rows, setRows] = useState<EcocashTx[]>([]);
   const [loading, setLoading] = useState(false);
   const [txDate, setTxDate] = useState(() => new Date().toISOString().slice(0, 10));
@@ -622,6 +622,8 @@ function EcocashManualEntries({
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     return rows.filter((r) => {
+      // Open-day scoping: only entries since the current EcoCash session opened
+      if (!sessionOpenedAt || r.created_at < sessionOpenedAt) return false;
       if (q && !r.description.toLowerCase().includes(q) &&
           !(r.created_by_label ?? "").toLowerCase().includes(q)) return false;
       if (dateFilter && !r.created_at.startsWith(dateFilter)) return false;
@@ -631,7 +633,7 @@ function EcocashManualEntries({
       if (kind === "manual" && r.source !== "manual_entry") return false;
       return true;
     });
-  }, [rows, search, dateFilter, kind]);
+  }, [rows, search, dateFilter, kind, sessionOpenedAt]);
 
   return (
     <Card>
