@@ -152,7 +152,7 @@ export function TellerTransfersModule() {
     let rows = status === "all" ? transfers : transfers.filter((t) => t.status === status);
     // Open-day scoping: only show transfers created during the current open day
     if (dayOpenedAt) {
-      rows = rows.filter((t) => t.created_at >= dayOpenedAt);
+      rows = rows.filter((t) => t.requested_at >= dayOpenedAt);
     } else {
       rows = [];
     }
