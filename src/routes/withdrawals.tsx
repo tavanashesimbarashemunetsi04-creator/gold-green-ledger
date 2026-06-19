@@ -19,28 +19,28 @@ const types: { id: WithdrawalKind; label: string; icon: typeof CreditCard }[] = 
 
 const swipeColumns: HistoryColumn[] = [
   { key: "name", label: "Name" },
-  { key: "card_number", label: "Card Number" },
+  { key: "card_last4", label: "Card Number" },
   { key: "phone_number", label: "Phone Number" },
   { key: "id_number", label: "ID Number" },
   { key: "transaction_type", label: "Transaction Type" },
   { key: "code", label: "Code" },
   { key: "usd_amount", label: "USD Amount", align: "right",
-    render: (r) => r.usd_amount != null ? Number(r.usd_amount).toFixed(2) : "—" },
+    render: (r) => r.usd_amount != null ? Number(r.usd_amount as number).toFixed(2) : "—" },
   { key: "zwg_amount", label: "ZWG Amount", align: "right",
-    render: (r) => r.zwg_amount != null ? Number(r.zwg_amount).toFixed(2) : "—" },
+    render: (r) => r.zwg_amount != null ? Number(r.zwg_amount as number).toFixed(2) : "—" },
   { key: "status", label: "Status", render: (r) => <span className="capitalize">{String(r.status)}</span> },
   { key: "notes", label: "Notes" },
 ];
 
 const advanceColumns: HistoryColumn[] = [
   { key: "name", label: "Name" },
-  { key: "card_number", label: "Card Number" },
+  { key: "card_last4", label: "Card Number" },
   { key: "phone_number", label: "Phone Number" },
   { key: "id_number", label: "ID Number" },
   { key: "transaction_type", label: "Transaction Type" },
   { key: "code", label: "Code" },
   { key: "amount", label: "Amount", align: "right",
-    render: (r) => r.amount != null ? Number(r.amount).toFixed(2) : "—" },
+    render: (r) => r.amount != null ? Number(r.amount as number).toFixed(2) : "—" },
   { key: "status", label: "Status", render: (r) => <span className="capitalize">{String(r.status)}</span> },
   { key: "notes", label: "Notes" },
 ];
