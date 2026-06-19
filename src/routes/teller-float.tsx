@@ -19,6 +19,7 @@ type Assignment = {
   id: string; assigned_by_user_id: string; assigned_to_user_id: string; amount: number;
   reference: string | null; status: "pending"|"approved"|"rejected"|"cancelled"; created_at: string;
   approved_at: string | null; rejected_at: string | null; rejection_reason: string | null;
+  notes: string | null;
 };
 
 function TellerFloatPage() {
@@ -27,19 +28,54 @@ function TellerFloatPage() {
   const reject = useServerFn(rejectFloat);
 
   const [rows, setRows] = useState<Assignment[]>([]);
+  const [historyRows, setHistoryRows] = useState<Assignment[]>([]);
+  const [funderNames, setFunderNames] = useState<Record<string, string>>({});
   const [balance, setBalance] = useState(0);
+  const [dayOpenedAt, setDayOpenedAt] = useState<string | null>(null);
   const [rejecting, setRejecting] = useState<Assignment | null>(null);
   const [reason, setReason] = useState("");
   const [busy, setBusy] = useState(false);
 
   const load = useCallback(async () => {
     if (!user?.id) return;
+
+    // Determine current open day window (teller or ecocash session)
+    const [ts, es] = await Promise.all([
+      supabase.from("teller_sessions").select("opened_at")
+        .eq("user_id", user.id).eq("status", "open")
+        .order("opened_at", { ascending: false }).limit(1).maybeSingle(),
+      supabase.from("ecocash_sessions").select("opened_at")
+        .eq("user_id", user.id).eq("status", "open")
+        .order("opened_at", { ascending: false }).limit(1).maybeSingle(),
+    ]);
+    const openedAt: string | null = ts.data?.opened_at ?? es.data?.opened_at ?? null;
+    setDayOpenedAt(openedAt);
+
     const [a, bal] = await Promise.all([
       supabase.from("float_assignments").select("*")
         .eq("assigned_to_user_id", user.id).order("created_at", { ascending: false }).limit(50),
       supabase.from("user_float_balances").select("balance").eq("user_id", user.id).maybeSingle(),
     ]);
-    setRows((a.data ?? []) as Assignment[]);
+    const all = (a.data ?? []) as Assignment[];
+    setRows(all);
+
+    // History limited to current open day only
+    const history = openedAt ? all.filter(r => r.created_at >= openedAt) : [];
+    setHistoryRows(history);
+
+    const funderIds = Array.from(new Set(history.map(r => r.assigned_by_user_id)));
+    if (funderIds.length > 0) {
+      const { data: profs } = await supabase.from("profiles")
+        .select("user_id, username, display_name, email").in("user_id", funderIds);
+      const map: Record<string, string> = {};
+      (profs ?? []).forEach((p: { user_id: string; username: string | null; display_name: string | null; email: string | null }) => {
+        map[p.user_id] = p.username || p.display_name || p.email || p.user_id;
+      });
+      setFunderNames(map);
+    } else {
+      setFunderNames({});
+    }
+
     setBalance(Number(bal.data?.balance ?? 0));
   }, [user?.id]);
 
@@ -48,6 +84,8 @@ function TellerFloatPage() {
   useEffect(() => {
     const ch = supabase.channel("teller_float")
       .on("postgres_changes", { event: "*", schema: "public", table: "float_assignments" }, () => load())
+      .on("postgres_changes", { event: "*", schema: "public", table: "teller_sessions" }, () => load())
+      .on("postgres_changes", { event: "*", schema: "public", table: "ecocash_sessions" }, () => load())
       .subscribe();
     return () => { supabase.removeChannel(ch); };
   }, [load]);
