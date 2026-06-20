@@ -296,6 +296,10 @@ export type EodLine = {
   ref: string;
   usd: number;
   zwg: number;
+  accountName?: string | null;
+  category?: string | null;
+  code?: string | null;
+  kind?: "swipe" | "advance" | null;
 };
 
 export type EndDaySummary = {
@@ -447,12 +451,16 @@ export const getEndDaySummary = createServerFn({ method: "GET" })
 
     const paymentsByBank: Record<string, EodLine[]> = { ZB: [], CBZ: [], BANCABC: [], AFC: [] };
     (pays ?? []).forEach((r: any) => {
+      const acct = r.account_number || r.phone_number || "—";
       const line: EodLine = {
         id: r.id, ts: r.created_at,
-        narration: r.account_number || r.phone_number || r.category || "—",
+        narration: acct,
         type: r.payment_type ?? "payment",
         ref: r.code || `PAY-${r.id.slice(0, 6).toUpperCase()}`,
         usd: Number(r.usd_amount ?? 0), zwg: Number(r.zwg_amount ?? 0),
+        accountName: acct,
+        category: r.category ?? null,
+        code: r.code ?? null,
       };
       const bank = (r.bank as string) || "OTHER";
       if (!paymentsByBank[bank]) paymentsByBank[bank] = [];
@@ -510,6 +518,9 @@ export const getEndDaySummary = createServerFn({ method: "GET" })
           type: r.transaction_type ?? "withdrawal",
           ref: r.code || `SW-${r.id.slice(0, 6).toUpperCase()}`,
           usd: Number(r.usd_amount ?? 0), zwg: Number(r.zwg_amount ?? 0),
+          accountName: r.name ?? null,
+          code: r.code ?? null,
+          kind: "swipe" as const,
         })),
         advances: (advs ?? []).map((r: any) => ({
           id: r.id, ts: r.created_at,
@@ -517,6 +528,9 @@ export const getEndDaySummary = createServerFn({ method: "GET" })
           type: r.transaction_type ?? "cash_advance",
           ref: r.code || `CA-${r.id.slice(0, 6).toUpperCase()}`,
           usd: Number(r.amount ?? 0), zwg: 0,
+          accountName: r.name ?? null,
+          code: r.code ?? null,
+          kind: "advance" as const,
         })),
         internal: mapUit(uitOut ?? []),
       },

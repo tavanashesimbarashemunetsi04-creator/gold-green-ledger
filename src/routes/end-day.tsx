@@ -252,10 +252,10 @@ function EndDayPage() {
         </TabsList>
 
         <TabsContent value="summary" className="mt-4">
-          {/* Three-column layout: Inflows | Balance | Outflows */}
-          <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
-            {/* INFLOWS — LEFT */}
-            <section className="rounded-2xl border border-success/30 bg-card shadow-[var(--shadow-soft)]">
+          {/* Stacked layout: Inflows (big) | thin Expected strip | Outflows (big) | Balancing controls */}
+          <div className="space-y-5">
+            {/* INFLOWS — TOP (big) */}
+            <section className="rounded-2xl border-2 border-success/40 bg-card shadow-[var(--shadow-soft)]">
               <SectionHeader
                 title="INFLOWS"
                 icon={ArrowDownToLine}
@@ -263,7 +263,7 @@ function EndDayPage() {
                 totalUsd={totals.inflowUsd}
                 totalZwg={totals.inflowZwg}
               />
-              <div className="space-y-5 p-4 md:p-5">
+              <div className="grid grid-cols-1 gap-5 p-5 md:p-6 lg:grid-cols-2">
                 <Subsection title="Opening Float" subtitle="From approved float" tone="muted">
                   <LineTable
                     rows={[
@@ -295,16 +295,58 @@ function EndDayPage() {
                       search={search}
                       showTotal
                       emptyText={`No ${bank} payments`}
+                      variant="payment"
                     />
                   </Subsection>
                 ))}
-
+              </div>
+              <div className="px-5 pb-5 md:px-6 md:pb-6">
                 <GrandTotal label="Total Inflows" usd={totals.inflowUsd} zwg={totals.inflowZwg} tone="success" />
               </div>
             </section>
 
-            {/* BALANCE — MIDDLE */}
-            <div className="space-y-5">
+            {/* THIN DIVIDER — Expected Cash Balance */}
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-primary/40 bg-primary/5 px-5 py-2.5 shadow-sm">
+              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-primary">
+                <Calculator className="h-4 w-4" />
+                Expected Cash Balance
+                <span className="text-[10px] font-normal normal-case tracking-normal text-muted-foreground">(Inflows − Outflows)</span>
+              </div>
+              <div className="flex items-center gap-5 text-sm font-bold tabular-nums">
+                <span>USD {fmt(totals.expectedUsd)}</span>
+                <span>ZWG {fmt(totals.expectedZwg)}</span>
+              </div>
+            </div>
+
+            {/* OUTFLOWS — MIDDLE (big) */}
+            <section className="rounded-2xl border-2 border-destructive/40 bg-card shadow-[var(--shadow-soft)]">
+              <SectionHeader
+                title="OUTFLOWS"
+                icon={ArrowUpFromLine}
+                tone="destructive"
+                totalUsd={totals.outflowUsd}
+                totalZwg={totals.outflowZwg}
+              />
+              <div className="grid grid-cols-1 gap-5 p-5 md:p-6 lg:grid-cols-2">
+                <Subsection title="Cash Swipes" subtitle="Withdrawals">
+                  <LineTable rows={data?.outflows.swipes ?? []} search={search} showTotal emptyText="No swipes" variant="withdrawal" />
+                </Subsection>
+
+                <Subsection title="Cash Advance">
+                  <LineTable rows={data?.outflows.advances ?? []} search={search} showTotal emptyText="No cash advances" variant="withdrawal" />
+                </Subsection>
+
+                <Subsection title="Internal Transactions" subtitle="Outflow">
+                  <LineTable rows={data?.outflows.internal ?? []} search={search} showTotal emptyText="No internal outflows" />
+                </Subsection>
+              </div>
+              <div className="px-5 pb-5 md:px-6 md:pb-6">
+                <GrandTotal label="Total Outflows" usd={totals.outflowUsd} zwg={totals.outflowZwg} tone="destructive" />
+              </div>
+            </section>
+
+            {/* BALANCING CONTROLS — BOTTOM */}
+            <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
               <section className="rounded-2xl border border-primary/30 bg-card p-5 shadow-[var(--shadow-soft)] md:p-6">
                 <div className="flex items-center gap-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--gradient-primary)] text-primary-foreground">
@@ -315,7 +357,7 @@ function EndDayPage() {
                     <p className="text-xs text-muted-foreground">Expected = Total Inflows − Total Outflows</p>
                   </div>
                 </div>
-                <div className="mt-4 grid grid-cols-1 gap-3">
+                <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
                   <BalanceCell currency="USD" expected={totals.expectedUsd} />
                   <BalanceCell currency="ZWG" expected={totals.expectedZwg} />
                 </div>
@@ -391,34 +433,9 @@ function EndDayPage() {
                 </section>
               )}
             </div>
-
-            {/* OUTFLOWS — RIGHT */}
-            <section className="rounded-2xl border border-destructive/30 bg-card shadow-[var(--shadow-soft)]">
-              <SectionHeader
-                title="OUTFLOWS"
-                icon={ArrowUpFromLine}
-                tone="destructive"
-                totalUsd={totals.outflowUsd}
-                totalZwg={totals.outflowZwg}
-              />
-              <div className="space-y-5 p-4 md:p-5">
-                <Subsection title="Cash Swipes" subtitle="Withdrawals">
-                  <LineTable rows={data?.outflows.swipes ?? []} search={search} showTotal emptyText="No swipes" />
-                </Subsection>
-
-                <Subsection title="Cash Advance">
-                  <LineTable rows={data?.outflows.advances ?? []} search={search} showTotal emptyText="No cash advances" />
-                </Subsection>
-
-                <Subsection title="Internal Transactions" subtitle="Outflow">
-                  <LineTable rows={data?.outflows.internal ?? []} search={search} showTotal emptyText="No internal outflows" />
-                </Subsection>
-
-                <GrandTotal label="Total Outflows" usd={totals.outflowUsd} zwg={totals.outflowZwg} tone="destructive" />
-              </div>
-            </section>
           </div>
         </TabsContent>
+
 
         <TabsContent value="payments" className="mt-4">
           <section className="rounded-2xl border border-border bg-card p-4 shadow-[var(--shadow-soft)] md:p-5">
@@ -431,7 +448,9 @@ function EndDayPage() {
                   search={search}
                   showTotal
                   emptyText={`No ${bank} payments`}
+                  variant="payment"
                 />
+
               </div>
             ))}
           </section>
@@ -442,11 +461,12 @@ function EndDayPage() {
             <h2 className="mb-3 text-sm font-bold uppercase tracking-wider text-muted-foreground">Withdrawals (Cash Swipes & Advances)</h2>
             <div className="mb-4">
               <h3 className="mb-1 text-sm font-semibold">Cash Swipes</h3>
-              <LineTable rows={data?.outflows.swipes ?? []} search={search} showTotal emptyText="No swipes" />
+              <LineTable rows={data?.outflows.swipes ?? []} search={search} showTotal emptyText="No swipes" variant="withdrawal" />
             </div>
             <div>
               <h3 className="mb-1 text-sm font-semibold">Cash Advances</h3>
-              <LineTable rows={data?.outflows.advances ?? []} search={search} showTotal emptyText="No cash advances" />
+              <LineTable rows={data?.outflows.advances ?? []} search={search} showTotal emptyText="No cash advances" variant="withdrawal" />
+
             </div>
           </section>
         </TabsContent>
@@ -559,16 +579,24 @@ function Subsection({
   );
 }
 
+function dateTimeOf(iso: string) {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  return `${d.toLocaleDateString()} ${d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
+}
+
 function LineTable({
   rows,
   search,
   showTotal,
   emptyText,
+  variant = "default",
 }: {
   rows: EodLine[];
   search: string;
   showTotal?: boolean;
   emptyText?: string;
+  variant?: "default" | "payment" | "withdrawal";
 }) {
   const q = search.trim().toLowerCase();
   const filtered = q
@@ -576,7 +604,10 @@ function LineTable({
         (r) =>
           r.narration.toLowerCase().includes(q) ||
           r.ref.toLowerCase().includes(q) ||
-          r.type.toLowerCase().includes(q),
+          r.type.toLowerCase().includes(q) ||
+          (r.accountName ?? "").toLowerCase().includes(q) ||
+          (r.category ?? "").toLowerCase().includes(q) ||
+          (r.code ?? "").toLowerCase().includes(q),
       )
     : rows;
   const usd = filtered.reduce((a, r) => a + r.usd, 0);
@@ -584,6 +615,90 @@ function LineTable({
 
   if (!filtered.length) {
     return <p className="px-1 py-2 text-xs italic text-muted-foreground">{emptyText ?? "No matching entries"}</p>;
+  }
+
+  if (variant === "payment") {
+    return (
+      <div className="overflow-x-auto">
+        <table className="w-full text-xs">
+          <thead>
+            <tr className="text-left text-[10px] uppercase tracking-wider text-muted-foreground">
+              <th className="py-1.5 pr-2 font-medium">Date & Time</th>
+              <th className="py-1.5 pr-2 font-medium">Account Name</th>
+              <th className="py-1.5 pr-2 font-medium">Category</th>
+              <th className="py-1.5 pr-2 font-medium">Code</th>
+              <th className="py-1.5 pr-2 text-right font-medium">USD</th>
+              <th className="py-1.5 text-right font-medium">ZIG</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.map((r) => (
+              <tr key={r.id} className="border-t border-border/60">
+                <td className="py-1.5 pr-2 text-muted-foreground tabular-nums">{dateTimeOf(r.ts)}</td>
+                <td className="py-1.5 pr-2 font-medium text-foreground">{r.accountName ?? r.narration ?? "—"}</td>
+                <td className="py-1.5 pr-2 text-muted-foreground">{r.category ?? "—"}</td>
+                <td className="py-1.5 pr-2 text-muted-foreground">{r.code ?? r.ref ?? "—"}</td>
+                <td className="py-1.5 pr-2 text-right tabular-nums">{fmt(r.usd)}</td>
+                <td className="py-1.5 text-right tabular-nums">{fmt(r.zwg)}</td>
+              </tr>
+            ))}
+            {showTotal && (
+              <tr className="border-t-2 border-border bg-muted/30">
+                <td colSpan={4} className="py-1.5 pr-2 text-right text-[11px] font-bold uppercase tracking-wider">
+                  Subtotal
+                </td>
+                <td className="py-1.5 pr-2 text-right font-bold tabular-nums">{fmt(usd)}</td>
+                <td className="py-1.5 text-right font-bold tabular-nums">{fmt(zwg)}</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    );
+  }
+
+  if (variant === "withdrawal") {
+    // Cash advances should show no ZWG column; cash swipes show ZWG.
+    const showZwg = filtered.some((r) => r.kind === "swipe");
+    return (
+      <div className="overflow-x-auto">
+        <table className="w-full text-xs">
+          <thead>
+            <tr className="text-left text-[10px] uppercase tracking-wider text-muted-foreground">
+              <th className="py-1.5 pr-2 font-medium">Date & Time</th>
+              <th className="py-1.5 pr-2 font-medium">Name</th>
+              <th className="py-1.5 pr-2 font-medium">Code</th>
+              <th className="py-1.5 pr-2 text-right font-medium">USD</th>
+              {showZwg && <th className="py-1.5 text-right font-medium">ZWG</th>}
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.map((r) => (
+              <tr key={r.id} className="border-t border-border/60">
+                <td className="py-1.5 pr-2 text-muted-foreground tabular-nums">{dateTimeOf(r.ts)}</td>
+                <td className="py-1.5 pr-2 font-medium text-foreground">{r.accountName ?? r.narration ?? "—"}</td>
+                <td className="py-1.5 pr-2 text-muted-foreground">{r.code ?? r.ref ?? "—"}</td>
+                <td className="py-1.5 pr-2 text-right tabular-nums">{fmt(r.usd)}</td>
+                {showZwg && (
+                  <td className="py-1.5 text-right tabular-nums">
+                    {r.kind === "swipe" ? fmt(r.zwg) : "—"}
+                  </td>
+                )}
+              </tr>
+            ))}
+            {showTotal && (
+              <tr className="border-t-2 border-border bg-muted/30">
+                <td colSpan={3} className="py-1.5 pr-2 text-right text-[11px] font-bold uppercase tracking-wider">
+                  Subtotal
+                </td>
+                <td className="py-1.5 pr-2 text-right font-bold tabular-nums">{fmt(usd)}</td>
+                {showZwg && <td className="py-1.5 text-right font-bold tabular-nums">{fmt(zwg)}</td>}
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    );
   }
 
   return (
@@ -624,6 +739,7 @@ function LineTable({
     </div>
   );
 }
+
 
 function GrandTotal({ label, usd, zwg, tone }: { label: string; usd: number; zwg: number; tone: "success" | "destructive" }) {
   const color = tone === "success" ? "bg-success text-white" : "bg-destructive text-white";
