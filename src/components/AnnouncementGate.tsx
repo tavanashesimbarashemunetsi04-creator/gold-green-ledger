@@ -54,19 +54,28 @@ export function AnnouncementGate() {
 
     fetchIt();
 
-    // Real-time push: instant delivery via Supabase Realtime
-    // (WebSocket). No polling required.
-    const channel = supabase
-      .channel("app-settings-announcement")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "app_settings", filter: "key=eq.global" },
-        (payload) => {
-          const next = (payload.new ?? {}) as { value?: unknown };
-          setAnnouncement(extractAnnouncement(next.value));
-        },
-      )
-      .subscribe();
+    // Real-time push: instant delivery via Supabase Realtime (WebSocket).
+    // Ensure the socket carries the user's auth so RLS-bound postgres_changes
+    // events actually reach the client.
+    let channel: ReturnType<typeof supabase.channel> | null = null;
+    (async () => {
+      const { data: sess } = await supabase.auth.getSession();
+      const token = sess.session?.access_token;
+      if (token) supabase.realtime.setAuth(token);
+      if (cancelled) return;
+      channel = supabase
+        .channel("app-settings-announcement")
+        .on(
+          "postgres_changes",
+          { event: "*", schema: "public", table: "app_settings", filter: "key=eq.global" },
+          (payload) => {
+            const next = (payload.new ?? {}) as { value?: unknown };
+            setAnnouncement(extractAnnouncement(next.value));
+          },
+        )
+        .subscribe();
+    })();
+
 
     // Safety net: refetch on tab focus in case the socket was offline.
     const onFocus = () => fetchIt();
@@ -75,7 +84,7 @@ export function AnnouncementGate() {
     return () => {
       cancelled = true;
       window.removeEventListener("focus", onFocus);
-      supabase.removeChannel(channel);
+      if (channel) supabase.removeChannel(channel);
     };
   }, [user]);
 
