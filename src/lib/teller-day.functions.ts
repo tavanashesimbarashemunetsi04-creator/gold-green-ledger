@@ -451,12 +451,16 @@ export const getEndDaySummary = createServerFn({ method: "GET" })
 
     const paymentsByBank: Record<string, EodLine[]> = { ZB: [], CBZ: [], BANCABC: [], AFC: [] };
     (pays ?? []).forEach((r: any) => {
+      const acct = r.account_number || r.phone_number || "—";
       const line: EodLine = {
         id: r.id, ts: r.created_at,
-        narration: r.account_number || r.phone_number || r.category || "—",
+        narration: acct,
         type: r.payment_type ?? "payment",
         ref: r.code || `PAY-${r.id.slice(0, 6).toUpperCase()}`,
         usd: Number(r.usd_amount ?? 0), zwg: Number(r.zwg_amount ?? 0),
+        accountName: acct,
+        category: r.category ?? null,
+        code: r.code ?? null,
       };
       const bank = (r.bank as string) || "OTHER";
       if (!paymentsByBank[bank]) paymentsByBank[bank] = [];
