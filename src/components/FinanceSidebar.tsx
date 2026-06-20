@@ -17,9 +17,6 @@ const items = [
   { title: "Dashboard", url: "/finance", icon: LayoutDashboard, exact: true },
   { title: "Float Management", url: "/finance/float", icon: ArrowLeftRight },
   { title: "Received Cash", url: "/finance/received-cash", icon: Wallet },
-  { title: "Tellers", url: "/finance/tellers", icon: Users },
-  { title: "Audit Logs", url: "/finance/audit", icon: ScrollText },
-  { title: "Reports", url: "/finance/reports", icon: FileBarChart },
   { title: "Settings", url: "/finance/settings", icon: SettingsIcon },
 ];
 
