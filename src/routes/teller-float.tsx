@@ -58,7 +58,7 @@ function TellerFloatPage() {
   const openDayFn = useServerFn(openDay);
 
   const [rows, setRows] = useState<Assignment[]>([]);
-  const [historyRows, setHistoryRows] = useState<Assignment[]>([]);
+  const [historyRows, setHistoryRows] = useState<HistoryItem[]>([]);
   const [funderNames, setFunderNames] = useState<Record<string, string>>({});
   const [balance, setBalance] = useState(0);
   const [dayOpenedAt, setDayOpenedAt] = useState<string | null>(null);
@@ -93,11 +93,52 @@ function TellerFloatPage() {
     const all = (a.data ?? []) as Assignment[];
     setRows(all);
 
-    // History limited to current open day only
-    const history = openedAt ? all.filter(r => r.created_at >= openedAt) : [];
+    // Other float fundings (inflows) for this user since the day was opened.
+    let inflowItems: HistoryItem[] = [];
+    if (openedAt) {
+      const { data: uits } = await supabase.from("user_internal_transactions")
+        .select("id, amount, category, notes, created_at, created_by_user_id, related_float_assignment_id")
+        .eq("user_id", user.id)
+        .eq("kind", "inflow")
+        .gte("created_at", openedAt)
+        .order("created_at", { ascending: false });
+      inflowItems = (uits ?? [])
+        // Skip inflows that mirror a float_assignment row (avoid duplicate display)
+        .filter((u) => !u.related_float_assignment_id)
+        .map((u) => ({
+          id: `uit-${u.id}`,
+          created_at: u.created_at,
+          amount: Number(u.amount),
+          label: u.notes || CATEGORY_LABEL[u.category as string] || String(u.category),
+          funderId: (u.created_by_user_id as string | null) ?? null,
+          status: "approved" as const,
+          source: "inflow" as const,
+        }));
+    }
+
+    // Assigned floats within the current open day
+    const assignmentItems: HistoryItem[] = openedAt
+      ? all
+          .filter((r) => r.created_at >= openedAt)
+          .map((r) => ({
+            id: `fa-${r.id}`,
+            created_at: r.created_at,
+            amount: Number(r.amount),
+            label: r.notes || r.reference || "Float assignment",
+            funderId: r.assigned_by_user_id,
+            status: r.status,
+            source: "assignment" as const,
+          }))
+      : [];
+
+    const history = [...assignmentItems, ...inflowItems].sort((x, y) =>
+      y.created_at.localeCompare(x.created_at),
+    );
     setHistoryRows(history);
 
-    const funderIds = Array.from(new Set(history.map(r => r.assigned_by_user_id)));
+    const funderIds = Array.from(
+      new Set(history.map((r) => r.funderId).filter((v): v is string => !!v)),
+    );
     if (funderIds.length > 0) {
       const { data: profs } = await supabase.from("profiles")
         .select("user_id, username, display_name, email").in("user_id", funderIds);
@@ -120,6 +161,7 @@ function TellerFloatPage() {
       .on("postgres_changes", { event: "*", schema: "public", table: "float_assignments" }, () => load())
       .on("postgres_changes", { event: "*", schema: "public", table: "teller_sessions" }, () => load())
       .on("postgres_changes", { event: "*", schema: "public", table: "ecocash_sessions" }, () => load())
+      .on("postgres_changes", { event: "*", schema: "public", table: "user_internal_transactions" }, () => load())
       .subscribe();
     return () => { supabase.removeChannel(ch); };
   }, [load]);
