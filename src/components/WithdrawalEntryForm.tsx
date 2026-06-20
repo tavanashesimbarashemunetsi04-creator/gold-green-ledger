@@ -70,7 +70,7 @@ export function WithdrawalEntryForm({ kind, onSubmitted }: Props) {
   const rates = useCurrencyRates();
   const withdrawalsRate = rates?.withdrawals_rate ?? 0;
 
-  const update = (key: keyof typeof form, value: string) =>
+  const update = <K extends keyof typeof form>(key: K, value: (typeof form)[K]) =>
     setForm((f) => ({ ...f, [key]: value }));
 
   const reset = () => {
