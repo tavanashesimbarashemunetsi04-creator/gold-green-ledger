@@ -6,17 +6,34 @@ import { Megaphone } from "lucide-react";
 
 type Announcement = { message: string; updated_at: string } | null;
 
+// Session-scoped: a fresh login always re-prompts.
 const ACK_KEY = "afs_announcement_ack";
+
+function readAck(): string | null {
+  if (typeof window === "undefined") return null;
+  try {
+    return window.sessionStorage.getItem(ACK_KEY);
+  } catch {
+    return null;
+  }
+}
+
+function extractAnnouncement(value: unknown): Announcement {
+  const v = (value ?? {}) as { announcement?: Announcement };
+  const a = v.announcement;
+  if (a && a.message && a.message.trim().length > 0 && a.updated_at) return a;
+  return null;
+}
 
 export function AnnouncementGate() {
   const { user } = useAuth();
   const [announcement, setAnnouncement] = useState<Announcement>(null);
   const [acked, setAcked] = useState<string | null>(null);
 
+  // Initial ack read + reset on user identity change (logout / login)
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    setAcked(localStorage.getItem(ACK_KEY));
-  }, []);
+    setAcked(readAck());
+  }, [user?.id]);
 
   useEffect(() => {
     if (!user) {
@@ -32,28 +49,38 @@ export function AnnouncementGate() {
         .eq("key", "global")
         .maybeSingle();
       if (cancelled) return;
-      const v = (data?.value ?? {}) as { announcement?: Announcement };
-      const a = v.announcement;
-      if (a && a.message && a.message.trim().length > 0 && a.updated_at) {
-        setAnnouncement(a);
-      } else {
-        setAnnouncement(null);
-      }
+      setAnnouncement(extractAnnouncement(data?.value));
     };
 
     fetchIt();
-    // Poll frequently so a newly-posted announcement reaches every connected
-    // user within a few seconds of the admin saving.
-    const id = window.setInterval(fetchIt, 5_000);
+
+    // Real-time push via Supabase Realtime Broadcast (WebSocket).
+    // The server fn that updates rates also sends an `announcement` event
+    // on this channel, so every connected user gets it instantly.
+    let channel: ReturnType<typeof supabase.channel> | null = null;
+    (async () => {
+      const { data: sess } = await supabase.auth.getSession();
+      const token = sess.session?.access_token;
+      if (token) supabase.realtime.setAuth(token);
+      if (cancelled) return;
+      channel = supabase
+        .channel("global-announcements")
+        .on("broadcast", { event: "announcement" }, ({ payload }) => {
+          const a = payload as Announcement;
+          if (a && a.message && a.updated_at) setAnnouncement(a);
+        })
+        .subscribe();
+    })();
+
+    // Safety net: refetch on tab focus in case the socket was offline.
     const onFocus = () => fetchIt();
-    const onVisible = () => { if (document.visibilityState === "visible") fetchIt(); };
     window.addEventListener("focus", onFocus);
-    document.addEventListener("visibilitychange", onVisible);
+
+
     return () => {
       cancelled = true;
-      window.clearInterval(id);
       window.removeEventListener("focus", onFocus);
-      document.removeEventListener("visibilitychange", onVisible);
+      if (channel) supabase.removeChannel(channel);
     };
   }, [user]);
 
@@ -61,7 +88,11 @@ export function AnnouncementGate() {
   if (acked === announcement.updated_at) return null;
 
   const handleAck = () => {
-    localStorage.setItem(ACK_KEY, announcement.updated_at);
+    try {
+      window.sessionStorage.setItem(ACK_KEY, announcement.updated_at);
+    } catch {
+      /* storage unavailable — keep state-only ack */
+    }
     setAcked(announcement.updated_at);
   };
 
@@ -69,6 +100,7 @@ export function AnnouncementGate() {
     <div
       role="dialog"
       aria-modal="true"
+      aria-label="Important Notice from Admin"
       className="fixed inset-0 z-[9999] flex items-center justify-center bg-background/95 p-6 backdrop-blur-sm"
     >
       <div className="max-w-2xl w-full rounded-2xl border-2 border-primary bg-card p-8 shadow-2xl">
@@ -90,7 +122,7 @@ export function AnnouncementGate() {
         </div>
         <p className="text-sm text-muted-foreground mb-4">
           Please read the notice carefully. Click the button below to confirm you
-          have noted these changes.
+          have noted these changes. The dashboard will remain locked until you do.
         </p>
         <div className="flex justify-end">
           <Button size="lg" onClick={handleAck} className="px-8">
