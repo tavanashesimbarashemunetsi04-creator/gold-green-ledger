@@ -1191,3 +1191,52 @@ function CurrenciesSection() {
     </SectionCard>
   );
 }
+
+function AnnouncementSection({
+  settings,
+  setSettings,
+}: {
+  settings: Settings;
+  setSettings: (s: Settings) => void;
+}) {
+  const a = settings.announcement;
+  const update = (patch: Partial<Settings["announcement"]>) =>
+    setSettings({ ...settings, announcement: { ...a, ...patch } });
+
+  return (
+    <SectionCard
+      title="0. Staff Announcement"
+      description="Post a full-screen notice every user must acknowledge on login or while working."
+      icon={Megaphone}
+    >
+      <div className="space-y-3">
+        <Label>Announcement Message</Label>
+        <Textarea
+          rows={5}
+          value={a.message}
+          placeholder="e.g. Effective today, the EcoCash commission rate has changed to 2.5%."
+          onChange={(e) => update({ message: e.target.value })}
+        />
+        <div className="flex items-center justify-between text-xs text-muted-foreground">
+          <span>
+            {a.updated_at
+              ? `Last posted: ${new Date(a.updated_at).toLocaleString()}`
+              : "No announcement currently active."}
+          </span>
+          {a.message.trim().length > 0 && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => update({ message: "", updated_at: "" })}
+            >
+              Clear announcement
+            </Button>
+          )}
+        </div>
+        <p className="text-xs text-muted-foreground">
+          Saving a new message re-prompts every user, even those who acknowledged a previous notice.
+        </p>
+      </div>
+    </SectionCard>
+  );
+}
