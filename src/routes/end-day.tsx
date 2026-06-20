@@ -448,7 +448,9 @@ function EndDayPage() {
                   search={search}
                   showTotal
                   emptyText={`No ${bank} payments`}
+                  variant="payment"
                 />
+
               </div>
             ))}
           </section>
