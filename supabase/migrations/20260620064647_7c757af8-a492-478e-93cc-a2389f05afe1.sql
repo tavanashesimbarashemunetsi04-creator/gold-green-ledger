@@ -1,0 +1,1 @@
+ALTER TYPE public.internal_tx_category ADD VALUE IF NOT EXISTS 'end_of_day_cashout';
