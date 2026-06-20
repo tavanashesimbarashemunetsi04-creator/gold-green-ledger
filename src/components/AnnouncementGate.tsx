@@ -42,10 +42,18 @@ export function AnnouncementGate() {
     };
 
     fetchIt();
-    const id = window.setInterval(fetchIt, 30_000);
+    // Poll frequently so a newly-posted announcement reaches every connected
+    // user within a few seconds of the admin saving.
+    const id = window.setInterval(fetchIt, 5_000);
+    const onFocus = () => fetchIt();
+    const onVisible = () => { if (document.visibilityState === "visible") fetchIt(); };
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onVisible);
     return () => {
       cancelled = true;
       window.clearInterval(id);
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onVisible);
     };
   }, [user]);
 
