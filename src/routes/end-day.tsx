@@ -9,6 +9,7 @@ import {
   Banknote,
   Calculator,
   CheckCircle2,
+  Download,
   Loader2,
   Lock,
   Printer,
