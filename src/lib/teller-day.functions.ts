@@ -300,6 +300,7 @@ export type EodLine = {
 
 export type EndDaySummary = {
   session: Session | null;
+  isClosed: boolean;
   branchName: string | null;
   username: string | null;
   openingFloat: { reference: string | null; usd: number; zwg: number } | null;
@@ -312,6 +313,7 @@ export type EndDaySummary = {
     advances: EodLine[];
     internal: EodLine[];
   };
+  ecocash: EodLine[];
 };
 
 export const getEndDaySummary = createServerFn({ method: "GET" })
@@ -332,22 +334,39 @@ export const getEndDaySummary = createServerFn({ method: "GET" })
       branchName = br?.name ?? null;
     }
 
-    const { data: session } = await supabaseAdmin
+    // Prefer the currently OPEN session; fall back to the most recent CLOSED
+    // session so the teller can still review their previous day after closing.
+    const { data: openSession } = await supabaseAdmin
       .from("teller_sessions")
       .select("id, session_code, branch_id, opened_at, opened_float_amount, closed_at, closing_cash_at_hand, status")
       .eq("user_id", uid).eq("status", "open").maybeSingle();
 
+    let session = openSession as Session | null;
+    if (!session) {
+      const { data: lastClosed } = await supabaseAdmin
+        .from("teller_sessions")
+        .select("id, session_code, branch_id, opened_at, opened_float_amount, closed_at, closing_cash_at_hand, status")
+        .eq("user_id", uid).eq("status", "closed")
+        .order("closed_at", { ascending: false })
+        .limit(1).maybeSingle();
+      session = (lastClosed as Session) ?? null;
+    }
+    const isClosed = !!session && session.status === "closed";
+
     const empty: EndDaySummary = {
-      session: (session as Session) ?? null,
+      session,
+      isClosed,
       branchName,
       username: profile?.username ?? profile?.display_name ?? null,
       openingFloat: null,
       inflows: { internal: [], paymentsByBank: { ZB: [], CBZ: [], BANCABC: [], AFC: [] } },
       outflows: { swipes: [], advances: [], internal: [] },
+      ecocash: [],
     };
     if (!session) return empty;
 
     const sinceIso = session.opened_at;
+    const untilIso = session.closed_at ?? new Date().toISOString();
 
     // Opening float from approved float_assignment linked to opening_float UIT
     const { data: openingUit } = await supabaseAdmin
