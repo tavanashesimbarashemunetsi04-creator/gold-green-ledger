@@ -492,9 +492,7 @@ export const closeDayWithBalancing = createServerFn({ method: "POST" })
     const varianceUsd = data.physicalUsd - data.expectedUsd;
     const varianceZwg = data.physicalZwg - data.expectedZwg;
 
-    if (Math.abs(varianceUsd) > 0.005 && !data.varianceReason) {
-      throw new Error("Variance reason is required when physical count does not match expected balance");
-    }
+    // Variance no longer blocks closing — it is recorded and flagged for the manager.
 
     // Pre-close audit log capturing balancing snapshot
     await supabaseAdmin.from("audit_logs").insert({
