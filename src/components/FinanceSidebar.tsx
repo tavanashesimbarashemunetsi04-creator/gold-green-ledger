@@ -5,11 +5,8 @@ import {
   LayoutDashboard,
   ArrowLeftRight,
   Wallet,
-  ScrollText,
-  FileBarChart,
   Settings as SettingsIcon,
   LogOut,
-  Users,
   ShieldCheck,
 } from "lucide-react";
 
