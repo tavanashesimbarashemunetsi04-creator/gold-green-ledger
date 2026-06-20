@@ -105,10 +105,37 @@ export const saveCurrencyRates = createServerFn({ method: "POST" })
         .eq("key", "global")
         .maybeSingle();
       const value = ((existing?.value as Record<string, unknown>) ?? {}) as Record<string, unknown>;
-      value.announcement = { message, updated_at };
+      const ann = { message, updated_at };
+      value.announcement = ann;
       await admin
         .from("app_settings")
         .upsert({ key: "global", value: value as never, updated_at } as never, { onConflict: "key" });
+
+      // Real-time broadcast: push the announcement to every connected user
+      // over Supabase Realtime Broadcast (WebSocket). Clients don't need DB
+      // polling — they receive the message the instant we send it.
+      try {
+        const { createClient } = await import("@supabase/supabase-js");
+        const rt = createClient(
+          process.env.SUPABASE_URL!,
+          process.env.SUPABASE_SERVICE_ROLE_KEY!,
+          { auth: { persistSession: false, autoRefreshToken: false } },
+        );
+        const ch = rt.channel("global-announcements");
+        await new Promise<void>((resolve) => {
+          ch.subscribe(async (status) => {
+            if (status === "SUBSCRIBED") {
+              await ch.send({ type: "broadcast", event: "announcement", payload: ann });
+              await rt.removeChannel(ch);
+              resolve();
+            }
+          });
+          // Don't block the response indefinitely.
+          setTimeout(() => resolve(), 3000);
+        });
+      } catch {
+        /* broadcast best-effort; DB row still triggers fallback on next fetch */
+      }
     }
     await admin.from("audit_logs").insert({
       actor_user_id: context.userId,
