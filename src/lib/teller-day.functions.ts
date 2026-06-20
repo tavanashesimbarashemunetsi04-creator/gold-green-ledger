@@ -300,6 +300,7 @@ export type EodLine = {
 
 export type EndDaySummary = {
   session: Session | null;
+  isClosed: boolean;
   branchName: string | null;
   username: string | null;
   openingFloat: { reference: string | null; usd: number; zwg: number } | null;
@@ -312,6 +313,7 @@ export type EndDaySummary = {
     advances: EodLine[];
     internal: EodLine[];
   };
+  ecocash: EodLine[];
 };
 
 export const getEndDaySummary = createServerFn({ method: "GET" })
@@ -332,22 +334,39 @@ export const getEndDaySummary = createServerFn({ method: "GET" })
       branchName = br?.name ?? null;
     }
 
-    const { data: session } = await supabaseAdmin
+    // Prefer the currently OPEN session; fall back to the most recent CLOSED
+    // session so the teller can still review their previous day after closing.
+    const { data: openSession } = await supabaseAdmin
       .from("teller_sessions")
       .select("id, session_code, branch_id, opened_at, opened_float_amount, closed_at, closing_cash_at_hand, status")
       .eq("user_id", uid).eq("status", "open").maybeSingle();
 
+    let session = openSession as Session | null;
+    if (!session) {
+      const { data: lastClosed } = await supabaseAdmin
+        .from("teller_sessions")
+        .select("id, session_code, branch_id, opened_at, opened_float_amount, closed_at, closing_cash_at_hand, status")
+        .eq("user_id", uid).eq("status", "closed")
+        .order("closed_at", { ascending: false })
+        .limit(1).maybeSingle();
+      session = (lastClosed as Session) ?? null;
+    }
+    const isClosed = !!session && session.status === "closed";
+
     const empty: EndDaySummary = {
-      session: (session as Session) ?? null,
+      session,
+      isClosed,
       branchName,
       username: profile?.username ?? profile?.display_name ?? null,
       openingFloat: null,
       inflows: { internal: [], paymentsByBank: { ZB: [], CBZ: [], BANCABC: [], AFC: [] } },
       outflows: { swipes: [], advances: [], internal: [] },
+      ecocash: [],
     };
     if (!session) return empty;
 
     const sinceIso = session.opened_at;
+    const untilIso = session.closed_at ?? new Date().toISOString();
 
     // Opening float from approved float_assignment linked to opening_float UIT
     const { data: openingUit } = await supabaseAdmin
@@ -380,14 +399,14 @@ export const getEndDaySummary = createServerFn({ method: "GET" })
       .select("id, amount, category, notes, created_at")
       .eq("user_id", uid).eq("kind", "inflow")
       .neq("category", "opening_float")
-      .gte("created_at", sinceIso)
+      .gte("created_at", sinceIso).lte("created_at", untilIso)
       .order("created_at", { ascending: false });
 
     const { data: uitOut } = await supabaseAdmin
       .from("user_internal_transactions")
       .select("id, amount, category, notes, created_at")
       .eq("user_id", uid).eq("kind", "outflow")
-      .gte("created_at", sinceIso)
+      .gte("created_at", sinceIso).lte("created_at", untilIso)
       .order("created_at", { ascending: false });
 
     // Payments (successful) for this session
@@ -396,7 +415,7 @@ export const getEndDaySummary = createServerFn({ method: "GET" })
       .select("id, created_at, bank, account_number, phone_number, payment_type, code, usd_amount, zwg_amount, category, status")
       .eq("teller_id", uid as never)
       .eq("status", "successful")
-      .gte("created_at", sinceIso)
+      .gte("created_at", sinceIso).lte("created_at", untilIso)
       .order("created_at", { ascending: false });
 
     // Cash swipes (withdrawals) for this session
@@ -406,7 +425,7 @@ export const getEndDaySummary = createServerFn({ method: "GET" })
       .eq("teller_id", uid as never)
       .eq("status", "successful")
       .eq("transaction_type", "withdrawal")
-      .gte("created_at", sinceIso)
+      .gte("created_at", sinceIso).lte("created_at", untilIso)
       .order("created_at", { ascending: false });
 
     // Cash advances
@@ -415,7 +434,15 @@ export const getEndDaySummary = createServerFn({ method: "GET" })
       .select("id, created_at, name, transaction_type, code, amount, status")
       .eq("teller_id", uid as never)
       .eq("status", "successful")
-      .gte("created_at", sinceIso)
+      .gte("created_at", sinceIso).lte("created_at", untilIso)
+      .order("created_at", { ascending: false });
+
+    // Ecocash transactions created by this user during the session window
+    const { data: ecoTx } = await supabaseAdmin
+      .from("ecocash_transactions")
+      .select("id, created_at, description, transaction_type, inflow_amount, outflow_amount, amount, source")
+      .eq("created_by", uid)
+      .gte("created_at", sinceIso).lte("created_at", untilIso)
       .order("created_at", { ascending: false });
 
     const paymentsByBank: Record<string, EodLine[]> = { ZB: [], CBZ: [], BANCABC: [], AFC: [] };
@@ -454,8 +481,24 @@ export const getEndDaySummary = createServerFn({ method: "GET" })
         };
       });
 
+    const ecocash: EodLine[] = (ecoTx ?? []).map((r: any) => {
+      const inflow = Number(r.inflow_amount ?? 0);
+      const outflow = Number(r.outflow_amount ?? 0);
+      const signed = inflow - outflow || Number(r.amount ?? 0);
+      return {
+        id: r.id,
+        ts: r.created_at,
+        narration: r.description || r.source || "Ecocash transaction",
+        type: String(r.transaction_type ?? "ecocash"),
+        ref: `ECO-${r.id.slice(0, 6).toUpperCase()}`,
+        usd: signed,
+        zwg: 0,
+      };
+    });
+
     return {
       session: session as Session,
+      isClosed,
       branchName,
       username: profile?.username ?? profile?.display_name ?? null,
       openingFloat,
@@ -477,6 +520,7 @@ export const getEndDaySummary = createServerFn({ method: "GET" })
         })),
         internal: mapUit(uitOut ?? []),
       },
+      ecocash,
     };
   });
 

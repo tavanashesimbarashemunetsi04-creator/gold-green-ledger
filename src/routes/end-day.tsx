@@ -36,6 +36,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 export const Route = createFileRoute("/end-day")({
   component: EndDayPage,
@@ -84,6 +85,11 @@ function EndDayPage() {
   };
   useEffect(() => {
     refresh();
+    // Real-time refresh: poll every 8s so the tabs reflect new transactions.
+    const t = setInterval(() => {
+      fetcher().then((r) => setData(r)).catch(() => {});
+    }, 8000);
+    return () => clearInterval(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -161,16 +167,17 @@ function EndDayPage() {
   };
 
   const session = data?.session ?? null;
+  const isClosed = !!data?.isClosed;
 
-  /* No session → show empty state */
+  /* No session at all (never opened a day) → show empty state */
   if (!loading && !session) {
     return (
       <main className="mx-auto max-w-5xl space-y-6 p-6">
         <div className="rounded-2xl border border-border bg-card p-10 text-center shadow-[var(--shadow-soft)]">
           <Lock className="mx-auto h-10 w-10 text-muted-foreground" />
-          <h1 className="mt-4 text-2xl font-semibold">No operational day open</h1>
+          <h1 className="mt-4 text-2xl font-semibold">No session history yet</h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Open your day from the dashboard before generating an End Day Summary.
+            Open your day from the dashboard. After closing, the summary will remain available here.
           </p>
           <Button className="mt-6" onClick={() => navigate({ to: "/" })}>
             Back to dashboard
@@ -198,6 +205,14 @@ function EndDayPage() {
             <p className="mt-0.5 text-xs text-white/80">
               Session {session?.session_code} · Opened{" "}
               {session ? new Date(session.opened_at).toLocaleString() : "—"}
+              {isClosed && session?.closed_at && (
+                <>
+                  {" · "}
+                  <span className="rounded-full bg-white/20 px-2 py-0.5 font-semibold uppercase tracking-wider">
+                    Closed {new Date(session.closed_at).toLocaleString()}
+                  </span>
+                </>
+              )}
             </p>
           </div>
           <div className="flex flex-wrap gap-2 print:hidden">
@@ -227,153 +242,236 @@ function EndDayPage() {
         />
       </div>
 
-      {/* Three-column layout: Inflows | Balance | Outflows */}
-      <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
-        {/* INFLOWS — LEFT */}
-        <section className="rounded-2xl border border-success/30 bg-card shadow-[var(--shadow-soft)]">
-          <SectionHeader
-            title="INFLOWS"
-            icon={ArrowDownToLine}
-            tone="success"
-            totalUsd={totals.inflowUsd}
-            totalZwg={totals.inflowZwg}
-          />
-          <div className="space-y-5 p-4 md:p-5">
-            <Subsection title="Opening Float" subtitle="From approved float" tone="muted">
-              <LineTable
-                rows={[
-                  data?.openingFloat
-                    ? {
-                        id: "opening-float",
-                        ts: session?.opened_at ?? "",
-                        narration: "Opening Float",
-                        type: "opening_float",
-                        ref: data.openingFloat.reference ?? "—",
-                        usd: data.openingFloat.usd,
-                        zwg: data.openingFloat.zwg,
-                      }
-                    : null,
-                ].filter(Boolean) as EodLine[]}
-                search={search}
-                showTotal
+      <Tabs defaultValue="summary" className="w-full">
+        <TabsList className="print:hidden">
+          <TabsTrigger value="summary">Summary</TabsTrigger>
+          <TabsTrigger value="payments">Payments</TabsTrigger>
+          <TabsTrigger value="withdrawals">Withdrawals</TabsTrigger>
+          <TabsTrigger value="internal">Internal</TabsTrigger>
+          <TabsTrigger value="ecocash">Ecocash</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="summary" className="mt-4">
+          {/* Three-column layout: Inflows | Balance | Outflows */}
+          <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
+            {/* INFLOWS — LEFT */}
+            <section className="rounded-2xl border border-success/30 bg-card shadow-[var(--shadow-soft)]">
+              <SectionHeader
+                title="INFLOWS"
+                icon={ArrowDownToLine}
+                tone="success"
+                totalUsd={totals.inflowUsd}
+                totalZwg={totals.inflowZwg}
               />
-            </Subsection>
+              <div className="space-y-5 p-4 md:p-5">
+                <Subsection title="Opening Float" subtitle="From approved float" tone="muted">
+                  <LineTable
+                    rows={[
+                      data?.openingFloat
+                        ? {
+                            id: "opening-float",
+                            ts: session?.opened_at ?? "",
+                            narration: "Opening Float",
+                            type: "opening_float",
+                            ref: data.openingFloat.reference ?? "—",
+                            usd: data.openingFloat.usd,
+                            zwg: data.openingFloat.zwg,
+                          }
+                        : null,
+                    ].filter(Boolean) as EodLine[]}
+                    search={search}
+                    showTotal
+                  />
+                </Subsection>
 
-            <Subsection title="Internal Transactions" subtitle="Inflow">
-              <LineTable rows={data?.inflows.internal ?? []} search={search} showTotal emptyText="No internal inflows" />
-            </Subsection>
+                <Subsection title="Internal Transactions" subtitle="Inflow">
+                  <LineTable rows={data?.inflows.internal ?? []} search={search} showTotal emptyText="No internal inflows" />
+                </Subsection>
 
+                {(["ZB", "CBZ", "BANCABC", "AFC"] as const).map((bank) => (
+                  <Subsection key={bank} title={`${bank} Payments`} subtitle="Successful">
+                    <LineTable
+                      rows={data?.inflows.paymentsByBank[bank] ?? []}
+                      search={search}
+                      showTotal
+                      emptyText={`No ${bank} payments`}
+                    />
+                  </Subsection>
+                ))}
+
+                <GrandTotal label="Total Inflows" usd={totals.inflowUsd} zwg={totals.inflowZwg} tone="success" />
+              </div>
+            </section>
+
+            {/* BALANCE — MIDDLE */}
+            <div className="space-y-5">
+              <section className="rounded-2xl border border-primary/30 bg-card p-5 shadow-[var(--shadow-soft)] md:p-6">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--gradient-primary)] text-primary-foreground">
+                    <Calculator className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-bold">Cash Balance Summary</h2>
+                    <p className="text-xs text-muted-foreground">Expected = Total Inflows − Total Outflows</p>
+                  </div>
+                </div>
+                <div className="mt-4 grid grid-cols-1 gap-3">
+                  <BalanceCell currency="USD" expected={totals.expectedUsd} />
+                  <BalanceCell currency="ZWG" expected={totals.expectedZwg} />
+                </div>
+              </section>
+
+              {isClosed ? (
+                <section className="rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-soft)] md:p-6">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted text-muted-foreground">
+                      <CheckCircle2 className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <h2 className="text-lg font-bold">Day Closed</h2>
+                      <p className="text-xs text-muted-foreground">
+                        Closing cash at hand: USD {fmt(Number(session?.closing_cash_at_hand ?? 0))}
+                      </p>
+                    </div>
+                  </div>
+                  <p className="mt-4 text-xs text-muted-foreground">
+                    This is the most recently closed session. Open a new day from the dashboard to start a fresh session.
+                  </p>
+                </section>
+              ) : (
+                <section className="rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-soft)] md:p-6">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--gradient-gold)] text-gold-foreground">
+                      <Scale className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <h2 className="text-lg font-bold">Physical Cash Count</h2>
+                      <p className="text-xs text-muted-foreground">Enter counted cash to compute variance.</p>
+                    </div>
+                  </div>
+                  <div className="mt-4 grid grid-cols-1 gap-3">
+                    <PhysicalInput
+                      currency="USD"
+                      value={physicalUsd}
+                      onChange={setPhysicalUsd}
+                      expected={totals.expectedUsd}
+                      variance={varUsd}
+                    />
+                  </div>
+
+                  {varianceExists && physicalEntered && (
+                    <div className="mt-5">
+                      <Label htmlFor="reason" className="flex items-center gap-2 text-sm font-medium">
+                        <TriangleAlert className="h-4 w-4 text-warning" />
+                        Variance reason (optional — will be flagged for the manager)
+                      </Label>
+                      <Textarea
+                        id="reason"
+                        value={reason}
+                        onChange={(e) => setReason(e.target.value)}
+                        placeholder="Explain the cause of the variance — cash misplacement, miscount, system error, etc."
+                        rows={3}
+                        className="mt-2"
+                      />
+                    </div>
+                  )}
+
+                  <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t pt-4 print:hidden">
+                    <div className="text-xs text-muted-foreground">
+                      All balancing actions are permanently logged with timestamp, device, and session ID.
+                    </div>
+                    <Button
+                      variant="destructive"
+                      disabled={!physicalEntered || !reasonOk}
+                      onClick={() => setConfirmOpen(true)}
+                    >
+                      <Lock className="mr-2 h-4 w-4" /> Confirm & Close Day
+                    </Button>
+                  </div>
+                </section>
+              )}
+            </div>
+
+            {/* OUTFLOWS — RIGHT */}
+            <section className="rounded-2xl border border-destructive/30 bg-card shadow-[var(--shadow-soft)]">
+              <SectionHeader
+                title="OUTFLOWS"
+                icon={ArrowUpFromLine}
+                tone="destructive"
+                totalUsd={totals.outflowUsd}
+                totalZwg={totals.outflowZwg}
+              />
+              <div className="space-y-5 p-4 md:p-5">
+                <Subsection title="Cash Swipes" subtitle="Withdrawals">
+                  <LineTable rows={data?.outflows.swipes ?? []} search={search} showTotal emptyText="No swipes" />
+                </Subsection>
+
+                <Subsection title="Cash Advance">
+                  <LineTable rows={data?.outflows.advances ?? []} search={search} showTotal emptyText="No cash advances" />
+                </Subsection>
+
+                <Subsection title="Internal Transactions" subtitle="Outflow">
+                  <LineTable rows={data?.outflows.internal ?? []} search={search} showTotal emptyText="No internal outflows" />
+                </Subsection>
+
+                <GrandTotal label="Total Outflows" usd={totals.outflowUsd} zwg={totals.outflowZwg} tone="destructive" />
+              </div>
+            </section>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="payments" className="mt-4">
+          <section className="rounded-2xl border border-border bg-card p-4 shadow-[var(--shadow-soft)] md:p-5">
+            <h2 className="mb-3 text-sm font-bold uppercase tracking-wider text-muted-foreground">Payments</h2>
             {(["ZB", "CBZ", "BANCABC", "AFC"] as const).map((bank) => (
-              <Subsection key={bank} title={`${bank} Payments`} subtitle="Successful">
+              <div key={bank} className="mb-4">
+                <h3 className="mb-1 text-sm font-semibold">{bank}</h3>
                 <LineTable
                   rows={data?.inflows.paymentsByBank[bank] ?? []}
                   search={search}
                   showTotal
                   emptyText={`No ${bank} payments`}
                 />
-              </Subsection>
+              </div>
             ))}
-
-            <GrandTotal label="Total Inflows" usd={totals.inflowUsd} zwg={totals.inflowZwg} tone="success" />
-          </div>
-        </section>
-
-        {/* BALANCE — MIDDLE */}
-        <div className="space-y-5">
-          <section className="rounded-2xl border border-primary/30 bg-card p-5 shadow-[var(--shadow-soft)] md:p-6">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--gradient-primary)] text-primary-foreground">
-                <Calculator className="h-5 w-5" />
-              </div>
-              <div>
-                <h2 className="text-lg font-bold">Cash Balance Summary</h2>
-                <p className="text-xs text-muted-foreground">Expected = Total Inflows − Total Outflows</p>
-              </div>
-            </div>
-            <div className="mt-4 grid grid-cols-1 gap-3">
-              <BalanceCell currency="USD" expected={totals.expectedUsd} />
-              <BalanceCell currency="ZWG" expected={totals.expectedZwg} />
-            </div>
           </section>
+        </TabsContent>
 
-          <section className="rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-soft)] md:p-6">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--gradient-gold)] text-gold-foreground">
-                <Scale className="h-5 w-5" />
-              </div>
-              <div>
-                <h2 className="text-lg font-bold">Physical Cash Count</h2>
-                <p className="text-xs text-muted-foreground">Enter counted cash to compute variance.</p>
-              </div>
-            </div>
-            <div className="mt-4 grid grid-cols-1 gap-3">
-              <PhysicalInput
-                currency="USD"
-                value={physicalUsd}
-                onChange={setPhysicalUsd}
-                expected={totals.expectedUsd}
-                variance={varUsd}
-              />
-            </div>
-
-            {varianceExists && physicalEntered && (
-              <div className="mt-5">
-                <Label htmlFor="reason" className="flex items-center gap-2 text-sm font-medium">
-                  <TriangleAlert className="h-4 w-4 text-warning" />
-                  Variance reason (optional — will be flagged for the manager)
-                </Label>
-                <Textarea
-                  id="reason"
-                  value={reason}
-                  onChange={(e) => setReason(e.target.value)}
-                  placeholder="Explain the cause of the variance — cash misplacement, miscount, system error, etc."
-                  rows={3}
-                  className="mt-2"
-                />
-              </div>
-            )}
-
-            <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t pt-4 print:hidden">
-              <div className="text-xs text-muted-foreground">
-                All balancing actions are permanently logged with timestamp, device, and session ID.
-              </div>
-              <Button
-                variant="destructive"
-                disabled={!physicalEntered || !reasonOk}
-                onClick={() => setConfirmOpen(true)}
-              >
-                <Lock className="mr-2 h-4 w-4" /> Confirm & Close Day
-              </Button>
-            </div>
-          </section>
-        </div>
-
-        {/* OUTFLOWS — RIGHT */}
-        <section className="rounded-2xl border border-destructive/30 bg-card shadow-[var(--shadow-soft)]">
-          <SectionHeader
-            title="OUTFLOWS"
-            icon={ArrowUpFromLine}
-            tone="destructive"
-            totalUsd={totals.outflowUsd}
-            totalZwg={totals.outflowZwg}
-          />
-          <div className="space-y-5 p-4 md:p-5">
-            <Subsection title="Cash Swipes" subtitle="Withdrawals">
+        <TabsContent value="withdrawals" className="mt-4">
+          <section className="rounded-2xl border border-border bg-card p-4 shadow-[var(--shadow-soft)] md:p-5">
+            <h2 className="mb-3 text-sm font-bold uppercase tracking-wider text-muted-foreground">Withdrawals (Cash Swipes & Advances)</h2>
+            <div className="mb-4">
+              <h3 className="mb-1 text-sm font-semibold">Cash Swipes</h3>
               <LineTable rows={data?.outflows.swipes ?? []} search={search} showTotal emptyText="No swipes" />
-            </Subsection>
-
-            <Subsection title="Cash Advance">
+            </div>
+            <div>
+              <h3 className="mb-1 text-sm font-semibold">Cash Advances</h3>
               <LineTable rows={data?.outflows.advances ?? []} search={search} showTotal emptyText="No cash advances" />
-            </Subsection>
+            </div>
+          </section>
+        </TabsContent>
 
-            <Subsection title="Internal Transactions" subtitle="Outflow">
+        <TabsContent value="internal" className="mt-4">
+          <section className="rounded-2xl border border-border bg-card p-4 shadow-[var(--shadow-soft)] md:p-5">
+            <h2 className="mb-3 text-sm font-bold uppercase tracking-wider text-muted-foreground">Internal Transactions</h2>
+            <div className="mb-4">
+              <h3 className="mb-1 text-sm font-semibold">Inflows</h3>
+              <LineTable rows={data?.inflows.internal ?? []} search={search} showTotal emptyText="No internal inflows" />
+            </div>
+            <div>
+              <h3 className="mb-1 text-sm font-semibold">Outflows</h3>
               <LineTable rows={data?.outflows.internal ?? []} search={search} showTotal emptyText="No internal outflows" />
-            </Subsection>
+            </div>
+          </section>
+        </TabsContent>
 
-            <GrandTotal label="Total Outflows" usd={totals.outflowUsd} zwg={totals.outflowZwg} tone="destructive" />
-          </div>
-        </section>
-      </div>
+        <TabsContent value="ecocash" className="mt-4">
+          <section className="rounded-2xl border border-border bg-card p-4 shadow-[var(--shadow-soft)] md:p-5">
+            <h2 className="mb-3 text-sm font-bold uppercase tracking-wider text-muted-foreground">Ecocash Transactions</h2>
+            <LineTable rows={data?.ecocash ?? []} search={search} showTotal emptyText="No ecocash transactions" />
+          </section>
+        </TabsContent>
+      </Tabs>
 
       {/* Confirm dialog */}
       <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
