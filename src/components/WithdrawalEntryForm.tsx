@@ -22,15 +22,15 @@ const STATUSES: WithdrawalStatus[] = ["successful", "pending", "failed"];
 export type WithdrawalEntry = {
   date: string;
   name: string;
-  card_number: string;
+  card_last4: string;
   phone_number: string;
   id_number: string;
-  transaction_type: "Cash Swipe" | "Cash Advance";
+  transaction_type: "withdrawal";
   code: string;
   usd_amount?: number | null;
   zwg_amount?: number | null;
   amount?: number;
-  signature_base64: string;
+  signature_url: string;
   created_at: string;
   status: WithdrawalStatus;
 };
