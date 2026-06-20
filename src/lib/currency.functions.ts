@@ -86,6 +86,29 @@ export const saveCurrencyRates = createServerFn({ method: "POST" })
 
     if (history.length) {
       await admin.from("currency_rate_history").insert(history);
+
+      // Broadcast a full-screen announcement to all users so they're aware of
+      // the new rates even without admin communication.
+      const parts = history.map((h) => {
+        const label = h.kind === "payments" ? "Payments code" : "Withdrawals code";
+        const from = h.old_rate == null ? "—" : h.old_rate;
+        return `${label}: ${from} → ${h.new_rate}`;
+      });
+      const message =
+        `Currency code updated by admin.\n\n${parts.join("\n")}\n\n` +
+        `Please use the new code(s) for all new transactions.`;
+      const updated_at = now;
+
+      const { data: existing } = await admin
+        .from("app_settings")
+        .select("value")
+        .eq("key", "global")
+        .maybeSingle();
+      const value = ((existing?.value as Record<string, unknown>) ?? {}) as Record<string, unknown>;
+      value.announcement = { message, updated_at };
+      await admin
+        .from("app_settings")
+        .upsert({ key: "global", value: value as never, updated_at } as never, { onConflict: "key" });
     }
     await admin.from("audit_logs").insert({
       actor_user_id: context.userId,
