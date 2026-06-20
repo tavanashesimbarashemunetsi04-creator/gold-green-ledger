@@ -63,11 +63,13 @@ function TellerFloatPage() {
     const openedAt: string | null = ts.data?.opened_at ?? es.data?.opened_at ?? null;
     setDayOpenedAt(openedAt);
 
-    const [a, bal] = await Promise.all([
+    const [a, bal, prof] = await Promise.all([
       supabase.from("float_assignments").select("*")
         .eq("assigned_to_user_id", user.id).order("created_at", { ascending: false }).limit(50),
       supabase.from("user_float_balances").select("balance").eq("user_id", user.id).maybeSingle(),
+      supabase.from("profiles").select("branch_id").eq("user_id", user.id).maybeSingle(),
     ]);
+    setBranchId((prof.data?.branch_id as string | null) ?? null);
     const all = (a.data ?? []) as Assignment[];
     setRows(all);
 
