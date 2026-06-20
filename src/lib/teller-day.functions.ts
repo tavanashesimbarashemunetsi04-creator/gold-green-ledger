@@ -513,6 +513,23 @@ export const closeDayWithBalancing = createServerFn({ method: "POST" })
       },
     });
 
+    // Flag the day for the manager when there is a variance
+    if (Math.abs(varianceUsd) > 0.005) {
+      const { data: prof } = await supabaseAdmin
+        .from("profiles").select("branch_id").eq("user_id", uid).maybeSingle();
+      const today = new Date().toISOString().slice(0, 10);
+      await supabaseAdmin.from("teller_balancing").upsert({
+        teller_user_id: uid,
+        business_date: today,
+        branch_id: prof?.branch_id ?? null,
+        status: "in_review",
+        expected_usd: data.expectedUsd,
+        physical_usd: data.physicalUsd,
+        variance_usd: varianceUsd,
+        manager_comments: data.varianceReason ?? null,
+      }, { onConflict: "teller_user_id,business_date" });
+    }
+
     const { data: row, error } = await context.supabase.rpc("close_teller_day", {
       _cash_at_hand: data.physicalUsd,
       _device: (data.device ?? null) as never,
