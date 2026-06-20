@@ -1752,6 +1752,7 @@ export type Database = {
         | "other"
         | "teller_transfer_sent"
         | "teller_transfer_received"
+        | "end_of_day_cashout"
       internal_tx_kind: "inflow" | "outflow"
       payment_type_enum: "cash" | "transfer" | "mobile"
       request_type: "inflow" | "outflow"
@@ -1904,6 +1905,7 @@ export const Constants = {
         "other",
         "teller_transfer_sent",
         "teller_transfer_received",
+        "end_of_day_cashout",
       ],
       internal_tx_kind: ["inflow", "outflow"],
       payment_type_enum: ["cash", "transfer", "mobile"],
