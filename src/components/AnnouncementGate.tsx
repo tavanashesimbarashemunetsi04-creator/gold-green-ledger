@@ -6,13 +6,16 @@ import { Megaphone } from "lucide-react";
 
 type Announcement = { message: string; updated_at: string } | null;
 
-// Session-scoped: a fresh login always re-prompts.
-const ACK_KEY = "afs_announcement_ack";
+// Session-scoped AND user-scoped: a fresh login always re-prompts, and
+// switching accounts in the same tab does not inherit the other user's ack.
+const ACK_KEY_PREFIX = "afs_announcement_ack:";
+const ackKeyFor = (userId: string | undefined) =>
+  `${ACK_KEY_PREFIX}${userId ?? "anon"}`;
 
-function readAck(): string | null {
-  if (typeof window === "undefined") return null;
+function readAck(userId: string | undefined): string | null {
+  if (typeof window === "undefined" || !userId) return null;
   try {
-    return window.sessionStorage.getItem(ACK_KEY);
+    return window.sessionStorage.getItem(ackKeyFor(userId));
   } catch {
     return null;
   }
@@ -32,7 +35,7 @@ export function AnnouncementGate() {
 
   // Initial ack read + reset on user identity change (logout / login)
   useEffect(() => {
-    setAcked(readAck());
+    setAcked(readAck(user?.id));
   }, [user?.id]);
 
   useEffect(() => {
@@ -89,7 +92,9 @@ export function AnnouncementGate() {
 
   const handleAck = () => {
     try {
-      window.sessionStorage.setItem(ACK_KEY, announcement.updated_at);
+      if (user?.id) {
+        window.sessionStorage.setItem(ackKeyFor(user.id), announcement.updated_at);
+      }
     } catch {
       /* storage unavailable — keep state-only ack */
     }
