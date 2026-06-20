@@ -399,14 +399,14 @@ export const getEndDaySummary = createServerFn({ method: "GET" })
       .select("id, amount, category, notes, created_at")
       .eq("user_id", uid).eq("kind", "inflow")
       .neq("category", "opening_float")
-      .gte("created_at", sinceIso)
+      .gte("created_at", sinceIso).lte("created_at", untilIso)
       .order("created_at", { ascending: false });
 
     const { data: uitOut } = await supabaseAdmin
       .from("user_internal_transactions")
       .select("id, amount, category, notes, created_at")
       .eq("user_id", uid).eq("kind", "outflow")
-      .gte("created_at", sinceIso)
+      .gte("created_at", sinceIso).lte("created_at", untilIso)
       .order("created_at", { ascending: false });
 
     // Payments (successful) for this session
@@ -415,7 +415,7 @@ export const getEndDaySummary = createServerFn({ method: "GET" })
       .select("id, created_at, bank, account_number, phone_number, payment_type, code, usd_amount, zwg_amount, category, status")
       .eq("teller_id", uid as never)
       .eq("status", "successful")
-      .gte("created_at", sinceIso)
+      .gte("created_at", sinceIso).lte("created_at", untilIso)
       .order("created_at", { ascending: false });
 
     // Cash swipes (withdrawals) for this session
@@ -425,7 +425,7 @@ export const getEndDaySummary = createServerFn({ method: "GET" })
       .eq("teller_id", uid as never)
       .eq("status", "successful")
       .eq("transaction_type", "withdrawal")
-      .gte("created_at", sinceIso)
+      .gte("created_at", sinceIso).lte("created_at", untilIso)
       .order("created_at", { ascending: false });
 
     // Cash advances
@@ -434,7 +434,15 @@ export const getEndDaySummary = createServerFn({ method: "GET" })
       .select("id, created_at, name, transaction_type, code, amount, status")
       .eq("teller_id", uid as never)
       .eq("status", "successful")
-      .gte("created_at", sinceIso)
+      .gte("created_at", sinceIso).lte("created_at", untilIso)
+      .order("created_at", { ascending: false });
+
+    // Ecocash transactions created by this user during the session window
+    const { data: ecoTx } = await supabaseAdmin
+      .from("ecocash_transactions")
+      .select("id, created_at, description, transaction_type, inflow_amount, outflow_amount, amount, source")
+      .eq("created_by", uid)
+      .gte("created_at", sinceIso).lte("created_at", untilIso)
       .order("created_at", { ascending: false });
 
     const paymentsByBank: Record<string, EodLine[]> = { ZB: [], CBZ: [], BANCABC: [], AFC: [] };
@@ -473,8 +481,24 @@ export const getEndDaySummary = createServerFn({ method: "GET" })
         };
       });
 
+    const ecocash: EodLine[] = (ecoTx ?? []).map((r: any) => {
+      const inflow = Number(r.inflow_amount ?? 0);
+      const outflow = Number(r.outflow_amount ?? 0);
+      const signed = inflow - outflow || Number(r.amount ?? 0);
+      return {
+        id: r.id,
+        ts: r.created_at,
+        narration: r.description || r.source || "Ecocash transaction",
+        type: String(r.transaction_type ?? "ecocash"),
+        ref: `ECO-${r.id.slice(0, 6).toUpperCase()}`,
+        usd: signed,
+        zwg: 0,
+      };
+    });
+
     return {
       session: session as Session,
+      isClosed,
       branchName,
       username: profile?.username ?? profile?.display_name ?? null,
       openingFloat,
@@ -496,6 +520,7 @@ export const getEndDaySummary = createServerFn({ method: "GET" })
         })),
         internal: mapUit(uitOut ?? []),
       },
+      ecocash,
     };
   });
 
