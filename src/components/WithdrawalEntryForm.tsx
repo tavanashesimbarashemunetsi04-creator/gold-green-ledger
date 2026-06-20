@@ -88,8 +88,8 @@ export function WithdrawalEntryForm({ kind, onSubmitted }: Props) {
     if (isSwipe) {
       const hasUsd = !!form.usd_amount && Number(form.usd_amount) > 0;
       const hasZwg = !!form.zwg_amount && Number(form.zwg_amount) > 0;
-      if (hasUsd === hasZwg)
-        return toast.error("Enter exactly one of USD or ZWG amount");
+      if (!hasUsd && !hasZwg)
+        return toast.error("Enter USD or ZWG amount");
     } else {
       if (!form.amount || Number(form.amount) <= 0)
         return toast.error("Amount must be greater than 0");
