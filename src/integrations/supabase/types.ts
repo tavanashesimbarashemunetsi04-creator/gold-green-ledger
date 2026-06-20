@@ -588,6 +588,7 @@ export type Database = {
           amount: number
           approved_at: string | null
           assigned_by_user_id: string
+          assigned_role: string | null
           assigned_to_user_id: string
           branch_id: string | null
           created_at: string
@@ -602,6 +603,7 @@ export type Database = {
           amount: number
           approved_at?: string | null
           assigned_by_user_id: string
+          assigned_role?: string | null
           assigned_to_user_id: string
           branch_id?: string | null
           created_at?: string
@@ -616,6 +618,7 @@ export type Database = {
           amount?: number
           approved_at?: string | null
           assigned_by_user_id?: string
+          assigned_role?: string | null
           assigned_to_user_id?: string
           branch_id?: string | null
           created_at?: string
@@ -1342,6 +1345,7 @@ export type Database = {
           amount: number
           approved_at: string | null
           assigned_by_user_id: string
+          assigned_role: string | null
           assigned_to_user_id: string
           branch_id: string | null
           created_at: string
@@ -1621,6 +1625,7 @@ export type Database = {
           amount: number
           approved_at: string | null
           assigned_by_user_id: string
+          assigned_role: string | null
           assigned_to_user_id: string
           branch_id: string | null
           created_at: string

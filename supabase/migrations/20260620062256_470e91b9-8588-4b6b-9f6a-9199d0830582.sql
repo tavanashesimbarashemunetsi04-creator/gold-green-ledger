@@ -1,0 +1,1 @@
+ALTER TABLE public.float_assignments ADD COLUMN IF NOT EXISTS assigned_role TEXT;
