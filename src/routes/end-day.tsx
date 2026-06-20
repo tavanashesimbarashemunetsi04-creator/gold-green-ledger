@@ -263,7 +263,7 @@ function EndDayPage() {
                 totalUsd={totals.inflowUsd}
                 totalZwg={totals.inflowZwg}
               />
-              <div className="grid grid-cols-1 gap-5 p-5 md:p-6 lg:grid-cols-2">
+              <div className="flex flex-col gap-5 p-5 md:p-6">
                 <Subsection title="Opening Float" subtitle="From approved float" tone="muted">
                   <LineTable
                     rows={[
