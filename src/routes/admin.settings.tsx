@@ -5,6 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -50,6 +52,8 @@ import {
   ShieldCheck,
   Palette,
   Coins,
+  Megaphone,
+
 } from "lucide-react";
 import {
   saveAppSettings,
@@ -115,7 +119,12 @@ type Settings = {
     date_format: "DD/MM/YYYY" | "MM/DD/YYYY";
     currency_display: "USD" | "ZWG";
   };
+  announcement: {
+    message: string;
+    updated_at: string;
+  };
 };
+
 
 const DEFAULTS: Settings = {
   transactions: {
@@ -142,7 +151,12 @@ const DEFAULTS: Settings = {
     date_format: "DD/MM/YYYY",
     currency_display: "USD",
   },
+  announcement: {
+    message: "",
+    updated_at: "",
+  },
 };
+
 
 function AdminSettingsPage() {
   const { isAdmin, loading: authLoading } = useAuth();
@@ -173,19 +187,17 @@ function AdminSettingsPage() {
     ]);
     if (s.data?.value) {
       const v = s.data.value as Partial<Settings>;
-      setSettings({
+      const merged: Settings = {
         transactions: { ...DEFAULTS.transactions, ...(v.transactions ?? {}) },
         cash_handling: { ...DEFAULTS.cash_handling, ...(v.cash_handling ?? {}) },
         security: { ...DEFAULTS.security, ...(v.security ?? {}) },
         personalisation: { ...DEFAULTS.personalisation, ...(v.personalisation ?? {}) },
-      });
-      setOriginal({
-        transactions: { ...DEFAULTS.transactions, ...(v.transactions ?? {}) },
-        cash_handling: { ...DEFAULTS.cash_handling, ...(v.cash_handling ?? {}) },
-        security: { ...DEFAULTS.security, ...(v.security ?? {}) },
-        personalisation: { ...DEFAULTS.personalisation, ...(v.personalisation ?? {}) },
-      });
+        announcement: { ...DEFAULTS.announcement, ...(v.announcement ?? {}) },
+      };
+      setSettings(merged);
+      setOriginal(merged);
     }
+
     setProfiles((p.data ?? []) as ProfileRow[]);
     const map: Record<string, Role[]> = {};
     for (const row of (r.data ?? []) as { user_id: string; role: Role }[]) {
@@ -217,8 +229,17 @@ function AdminSettingsPage() {
   const onSave = async () => {
     setSaving(true);
     try {
-      await saveSettingsFn({ data: { value: settings as unknown as Record<string, unknown> } });
-      setOriginal(settings);
+      // bump announcement updated_at if message changed so users get re-notified
+      const toSave: Settings = { ...settings };
+      if (settings.announcement.message.trim() !== original.announcement.message.trim()) {
+        toSave.announcement = {
+          message: settings.announcement.message,
+          updated_at: new Date().toISOString(),
+        };
+      }
+      await saveSettingsFn({ data: { value: toSave as unknown as Record<string, unknown> } });
+      setSettings(toSave);
+      setOriginal(toSave);
       toast.success("Settings saved");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed to save settings");
@@ -226,6 +247,7 @@ function AdminSettingsPage() {
       setSaving(false);
     }
   };
+
 
   return (
     <div className="p-8 pb-32 space-y-6">
@@ -257,11 +279,13 @@ function AdminSettingsPage() {
         setBranchActiveFn={setBranchActiveFn}
       />
 
+      <AnnouncementSection settings={settings} setSettings={setSettings} />
       <TransactionControls settings={settings} setSettings={setSettings} />
       <CashHandling settings={settings} setSettings={setSettings} />
       <SecuritySection settings={settings} setSettings={setSettings} />
       <PersonalisationSection settings={settings} setSettings={setSettings} />
       <CurrenciesSection />
+
 
       <div className="sticky bottom-4 z-30 mx-auto flex max-w-3xl items-center justify-between rounded-xl border bg-background/95 px-4 py-3 shadow-lg backdrop-blur">
         <p className="text-sm text-muted-foreground">
