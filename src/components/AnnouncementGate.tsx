@@ -69,12 +69,18 @@ export function AnnouncementGate() {
           "postgres_changes",
           { event: "*", schema: "public", table: "app_settings", filter: "key=eq.global" },
           (payload) => {
+            // eslint-disable-next-line no-console
+            console.log("[announcement] realtime payload", payload);
             const next = (payload.new ?? {}) as { value?: unknown };
             setAnnouncement(extractAnnouncement(next.value));
           },
         )
-        .subscribe();
+        .subscribe((status) => {
+          // eslint-disable-next-line no-console
+          console.log("[announcement] channel status", status);
+        });
     })();
+
 
 
     // Safety net: refetch on tab focus in case the socket was offline.
