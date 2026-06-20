@@ -252,9 +252,9 @@ function EndDayPage() {
         </TabsList>
 
         <TabsContent value="summary" className="mt-4">
-          {/* Stacked layout: Inflows (big) | thin Expected strip | Outflows (big) | Balancing controls */}
-          <div className="space-y-5">
-            {/* INFLOWS — TOP (big) */}
+          {/* Side-by-side layout: Inflows (left) | thin Expected Cash (middle) | Outflows (right) */}
+          <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[1fr_auto_1fr]">
+            {/* INFLOWS — LEFT (big) */}
             <section className="rounded-2xl border-2 border-success/40 bg-card shadow-[var(--shadow-soft)]">
               <SectionHeader
                 title="INFLOWS"
@@ -306,19 +306,21 @@ function EndDayPage() {
             </section>
 
             {/* THIN DIVIDER — Expected Cash Balance */}
-            <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-primary/40 bg-primary/5 px-5 py-2.5 shadow-sm">
-              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-primary">
-                <Calculator className="h-4 w-4" />
-                Expected Cash Balance
-                <span className="text-[10px] font-normal normal-case tracking-normal text-muted-foreground">(Inflows − Outflows)</span>
+            <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-primary/40 bg-primary/5 px-4 py-6 shadow-sm lg:min-w-[160px]">
+              <Calculator className="h-5 w-5 text-primary" />
+              <div className="text-center text-[10px] font-semibold uppercase tracking-wider text-primary leading-tight">
+                Expected<br/>Cash<br/>Balance
               </div>
-              <div className="flex items-center gap-5 text-sm font-bold tabular-nums">
+              <div className="text-[10px] font-normal normal-case tracking-normal text-muted-foreground text-center">
+                (Inflows − Outflows)
+              </div>
+              <div className="flex flex-col items-center gap-1 text-sm font-bold tabular-nums">
                 <span>USD {fmt(totals.expectedUsd)}</span>
                 <span>ZWG {fmt(totals.expectedZwg)}</span>
               </div>
             </div>
 
-            {/* OUTFLOWS — MIDDLE (big) */}
+            {/* OUTFLOWS — RIGHT (big) */}
             <section className="rounded-2xl border-2 border-destructive/40 bg-card shadow-[var(--shadow-soft)]">
               <SectionHeader
                 title="OUTFLOWS"
@@ -344,95 +346,95 @@ function EndDayPage() {
                 <GrandTotal label="Total Outflows" usd={totals.outflowUsd} zwg={totals.outflowZwg} tone="destructive" />
               </div>
             </section>
+          </div>
 
-            {/* BALANCING CONTROLS — BOTTOM */}
-            <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-              <section className="rounded-2xl border border-primary/30 bg-card p-5 shadow-[var(--shadow-soft)] md:p-6">
+          {/* BALANCING CONTROLS — BELOW */}
+          <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-2">
+            <section className="rounded-2xl border border-primary/30 bg-card p-5 shadow-[var(--shadow-soft)] md:p-6">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--gradient-primary)] text-primary-foreground">
+                  <Calculator className="h-5 w-5" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-bold">Cash Balance Summary</h2>
+                  <p className="text-xs text-muted-foreground">Expected = Total Inflows − Total Outflows</p>
+                </div>
+              </div>
+              <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <BalanceCell currency="USD" expected={totals.expectedUsd} />
+                <BalanceCell currency="ZWG" expected={totals.expectedZwg} />
+              </div>
+            </section>
+
+            {isClosed ? (
+              <section className="rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-soft)] md:p-6">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--gradient-primary)] text-primary-foreground">
-                    <Calculator className="h-5 w-5" />
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted text-muted-foreground">
+                    <CheckCircle2 className="h-5 w-5" />
                   </div>
                   <div>
-                    <h2 className="text-lg font-bold">Cash Balance Summary</h2>
-                    <p className="text-xs text-muted-foreground">Expected = Total Inflows − Total Outflows</p>
+                    <h2 className="text-lg font-bold">Day Closed</h2>
+                    <p className="text-xs text-muted-foreground">
+                      Closing cash at hand: USD {fmt(Number(session?.closing_cash_at_hand ?? 0))}
+                    </p>
                   </div>
                 </div>
-                <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  <BalanceCell currency="USD" expected={totals.expectedUsd} />
-                  <BalanceCell currency="ZWG" expected={totals.expectedZwg} />
-                </div>
+                <p className="mt-4 text-xs text-muted-foreground">
+                  This is the most recently closed session. Open a new day from the dashboard to start a fresh session.
+                </p>
               </section>
+            ) : (
+              <section className="rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-soft)] md:p-6">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--gradient-gold)] text-gold-foreground">
+                    <Scale className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-bold">Physical Cash Count</h2>
+                    <p className="text-xs text-muted-foreground">Enter counted cash to compute variance.</p>
+                  </div>
+                </div>
+                <div className="mt-4 grid grid-cols-1 gap-3">
+                  <PhysicalInput
+                    currency="USD"
+                    value={physicalUsd}
+                    onChange={setPhysicalUsd}
+                    expected={totals.expectedUsd}
+                    variance={varUsd}
+                  />
+                </div>
 
-              {isClosed ? (
-                <section className="rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-soft)] md:p-6">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted text-muted-foreground">
-                      <CheckCircle2 className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <h2 className="text-lg font-bold">Day Closed</h2>
-                      <p className="text-xs text-muted-foreground">
-                        Closing cash at hand: USD {fmt(Number(session?.closing_cash_at_hand ?? 0))}
-                      </p>
-                    </div>
-                  </div>
-                  <p className="mt-4 text-xs text-muted-foreground">
-                    This is the most recently closed session. Open a new day from the dashboard to start a fresh session.
-                  </p>
-                </section>
-              ) : (
-                <section className="rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-soft)] md:p-6">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--gradient-gold)] text-gold-foreground">
-                      <Scale className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <h2 className="text-lg font-bold">Physical Cash Count</h2>
-                      <p className="text-xs text-muted-foreground">Enter counted cash to compute variance.</p>
-                    </div>
-                  </div>
-                  <div className="mt-4 grid grid-cols-1 gap-3">
-                    <PhysicalInput
-                      currency="USD"
-                      value={physicalUsd}
-                      onChange={setPhysicalUsd}
-                      expected={totals.expectedUsd}
-                      variance={varUsd}
+                {varianceExists && physicalEntered && (
+                  <div className="mt-5">
+                    <Label htmlFor="reason" className="flex items-center gap-2 text-sm font-medium">
+                      <TriangleAlert className="h-4 w-4 text-warning" />
+                      Variance reason (optional — will be flagged for the manager)
+                    </Label>
+                    <Textarea
+                      id="reason"
+                      value={reason}
+                      onChange={(e) => setReason(e.target.value)}
+                      placeholder="Explain the cause of the variance — cash misplacement, miscount, system error, etc."
+                      rows={3}
+                      className="mt-2"
                     />
                   </div>
+                )}
 
-                  {varianceExists && physicalEntered && (
-                    <div className="mt-5">
-                      <Label htmlFor="reason" className="flex items-center gap-2 text-sm font-medium">
-                        <TriangleAlert className="h-4 w-4 text-warning" />
-                        Variance reason (optional — will be flagged for the manager)
-                      </Label>
-                      <Textarea
-                        id="reason"
-                        value={reason}
-                        onChange={(e) => setReason(e.target.value)}
-                        placeholder="Explain the cause of the variance — cash misplacement, miscount, system error, etc."
-                        rows={3}
-                        className="mt-2"
-                      />
-                    </div>
-                  )}
-
-                  <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t pt-4 print:hidden">
-                    <div className="text-xs text-muted-foreground">
-                      All balancing actions are permanently logged with timestamp, device, and session ID.
-                    </div>
-                    <Button
-                      variant="destructive"
-                      disabled={!physicalEntered || !reasonOk}
-                      onClick={() => setConfirmOpen(true)}
-                    >
-                      <Lock className="mr-2 h-4 w-4" /> Confirm & Close Day
-                    </Button>
+                <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t pt-4 print:hidden">
+                  <div className="text-xs text-muted-foreground">
+                    All balancing actions are permanently logged with timestamp, device, and session ID.
                   </div>
-                </section>
-              )}
-            </div>
+                  <Button
+                    variant="destructive"
+                    disabled={!physicalEntered || !reasonOk}
+                    onClick={() => setConfirmOpen(true)}
+                  >
+                    <Lock className="mr-2 h-4 w-4" /> Confirm & Close Day
+                  </Button>
+                </div>
+              </section>
+            )}
           </div>
         </TabsContent>
 
