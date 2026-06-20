@@ -66,7 +66,6 @@ function EndDayPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [physicalUsd, setPhysicalUsd] = useState("");
-  const [physicalZwg, setPhysicalZwg] = useState("");
   const [reason, setReason] = useState("");
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [closing, setClosing] = useState(false);
@@ -131,14 +130,11 @@ function EndDayPage() {
   }, [data]);
 
   const phyUsd = Number(physicalUsd) || 0;
-  const phyZwg = Number(physicalZwg) || 0;
   const varUsd = phyUsd - totals.expectedUsd;
-  const varZwg = phyZwg - totals.expectedZwg;
   const usdBalanced = Math.abs(varUsd) < 0.005;
-  const zwgBalanced = Math.abs(varZwg) < 0.005;
-  const balanced = usdBalanced && zwgBalanced;
-  const varianceExists = !usdBalanced || !zwgBalanced;
-  const physicalEntered = physicalUsd.trim() !== "" && physicalZwg.trim() !== "";
+  const balanced = usdBalanced;
+  const varianceExists = !usdBalanced;
+  const physicalEntered = physicalUsd.trim() !== "";
   const reasonOk = !varianceExists || reason.trim().length > 0;
 
   const closeFn = useServerFn(closeDayWithBalancing);
@@ -148,9 +144,7 @@ function EndDayPage() {
       await closeFn({
         data: {
           physicalUsd: phyUsd,
-          physicalZwg: phyZwg,
           expectedUsd: Number(totals.expectedUsd.toFixed(2)),
-          expectedZwg: Number(totals.expectedZwg.toFixed(2)),
           varianceReason: varianceExists ? reason.trim() : null,
           device: deviceString(),
         },
@@ -314,13 +308,6 @@ function EndDayPage() {
                 expected={totals.expectedUsd}
                 variance={varUsd}
               />
-              <PhysicalInput
-                currency="ZWG"
-                value={physicalZwg}
-                onChange={setPhysicalZwg}
-                expected={totals.expectedZwg}
-                variance={varZwg}
-              />
             </div>
 
             {varianceExists && physicalEntered && (
@@ -396,10 +383,6 @@ function EndDayPage() {
             <Row k="Expected USD" v={fmt(totals.expectedUsd)} />
             <Row k="Physical USD" v={fmt(phyUsd)} />
             <Row k="Variance USD" v={fmt(varUsd)} tone={balanced ? "ok" : varUsd > 0 ? "warn" : "err"} />
-            <div className="h-px bg-border" />
-            <Row k="Expected ZWG" v={fmt(totals.expectedZwg)} />
-            <Row k="Physical ZWG" v={fmt(phyZwg)} />
-            <Row k="Variance ZWG" v={fmt(varZwg)} tone={balanced ? "ok" : varZwg > 0 ? "warn" : "err"} />
           </div>
           <DialogFooter className="gap-2">
             <Button variant="outline" disabled={closing} onClick={() => setConfirmOpen(false)}>

@@ -476,9 +476,9 @@ export const closeDayWithBalancing = createServerFn({ method: "POST" })
     z
       .object({
         physicalUsd: z.number().nonnegative().max(1_000_000_000),
-        physicalZwg: z.number().nonnegative().max(1_000_000_000),
+        physicalZwg: z.number().nonnegative().max(1_000_000_000).optional().default(0),
         expectedUsd: z.number().max(1_000_000_000),
-        expectedZwg: z.number().max(1_000_000_000),
+        expectedZwg: z.number().max(1_000_000_000).optional().default(0),
         varianceReason: z.string().trim().max(2000).optional().nullable(),
         device: z.string().trim().max(300).optional(),
       })
@@ -492,7 +492,7 @@ export const closeDayWithBalancing = createServerFn({ method: "POST" })
     const varianceUsd = data.physicalUsd - data.expectedUsd;
     const varianceZwg = data.physicalZwg - data.expectedZwg;
 
-    if ((Math.abs(varianceUsd) > 0.005 || Math.abs(varianceZwg) > 0.005) && !data.varianceReason) {
+    if (Math.abs(varianceUsd) > 0.005 && !data.varianceReason) {
       throw new Error("Variance reason is required when physical count does not match expected balance");
     }
 
