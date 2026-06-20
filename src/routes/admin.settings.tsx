@@ -50,6 +50,8 @@ import {
   ShieldCheck,
   Palette,
   Coins,
+  Megaphone,
+
 } from "lucide-react";
 import {
   saveAppSettings,
@@ -115,7 +117,12 @@ type Settings = {
     date_format: "DD/MM/YYYY" | "MM/DD/YYYY";
     currency_display: "USD" | "ZWG";
   };
+  announcement: {
+    message: string;
+    updated_at: string;
+  };
 };
+
 
 const DEFAULTS: Settings = {
   transactions: {
@@ -142,7 +149,12 @@ const DEFAULTS: Settings = {
     date_format: "DD/MM/YYYY",
     currency_display: "USD",
   },
+  announcement: {
+    message: "",
+    updated_at: "",
+  },
 };
+
 
 function AdminSettingsPage() {
   const { isAdmin, loading: authLoading } = useAuth();
