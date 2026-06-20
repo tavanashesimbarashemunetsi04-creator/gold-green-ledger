@@ -104,11 +104,27 @@ function TellerFloatPage() {
     return () => { supabase.removeChannel(ch); };
   }, [load]);
 
-  const doApprove = async (id: string) => {
+  const doApprove = async (assignment: Assignment) => {
     setBusy(true);
     try {
-      await approve({ data: { assignment_id: id } });
-      toast.success("Float approved — you may open the day");
+      await approve({ data: { assignment_id: assignment.id } });
+      toast.success("Float approved");
+      await load();
+      if (!dayOpenedAt) {
+        setOpenDayPrompt({ amount: Number(assignment.amount) });
+      }
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed");
+    } finally { setBusy(false); }
+  };
+
+  const submitOpenDay = async () => {
+    if (!openDayPrompt) return;
+    setBusy(true);
+    try {
+      await openDayFn({ data: { floatAmount: openDayPrompt.amount, branchId, device: deviceString() } });
+      toast.success("Operational day opened");
+      setOpenDayPrompt(null);
       await load();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed");
