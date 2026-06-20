@@ -135,7 +135,7 @@ function EndDayPage() {
   const balanced = usdBalanced;
   const varianceExists = !usdBalanced;
   const physicalEntered = physicalUsd.trim() !== "";
-  const reasonOk = !varianceExists || reason.trim().length > 0;
+  const reasonOk = true;
 
   const closeFn = useServerFn(closeDayWithBalancing);
   const onClose = async () => {
