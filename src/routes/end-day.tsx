@@ -1,9 +1,10 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import {
   ArrowDownToLine,
+  ArrowLeft,
   ArrowUpFromLine,
   Banknote,
   Calculator,
@@ -200,6 +201,11 @@ function EndDayPage() {
             </p>
           </div>
           <div className="flex flex-wrap gap-2 print:hidden">
+            <Button variant="outline" size="sm" asChild>
+              <Link to="/">
+                <ArrowLeft className="mr-2 h-4 w-4" /> Back to Dashboard
+              </Link>
+            </Button>
             <Button variant="secondary" size="sm" onClick={() => window.print()}>
               <Printer className="mr-2 h-4 w-4" /> Print / Export PDF
             </Button>
