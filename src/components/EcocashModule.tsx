@@ -313,8 +313,11 @@ function OpenEcocashDialog({
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-2">
-          <Label>Opening Float (USD)</Label>
-          <Input type="number" step="0.01" min="0" value={amt} onChange={(e) => setAmt(e.target.value)} />
+          <Label>Opening Float (USD) — from approved float</Label>
+          <Input type="number" value={amt} readOnly disabled />
+          <p className="text-xs text-muted-foreground">
+            This is the float approved by finance and cannot be changed.
+          </p>
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={busy}>Cancel</Button>
