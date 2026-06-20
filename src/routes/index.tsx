@@ -600,8 +600,11 @@ function OpenDayDialog({
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-2">
-          <Label htmlFor="float">Opening float</Label>
-          <Input id="float" type="number" min="0" step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} />
+          <Label htmlFor="float">Opening float (from approved float)</Label>
+          <Input id="float" type="number" value={amount} readOnly disabled />
+          <p className="text-xs text-muted-foreground">
+            This is the float approved by finance and cannot be changed.
+          </p>
         </div>
         <DialogFooter className="gap-2">
           <Button variant="outline" disabled={busy} onClick={() => onOpenChange(false)}>

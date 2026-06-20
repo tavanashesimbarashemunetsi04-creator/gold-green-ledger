@@ -9,11 +9,20 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { approveFloat, rejectFloat } from "@/lib/float.functions";
+import { openDay } from "@/lib/teller-day.functions";
 
 export const Route = createFileRoute("/teller-float")({ component: TellerFloatPage });
+
+function deviceString() {
+  if (typeof navigator === "undefined") return "server";
+  const ua = navigator.userAgent || "";
+  const plat = (navigator as unknown as { platform?: string }).platform || "web";
+  return `${plat} · ${ua.slice(0, 160)}`;
+}
 
 type Assignment = {
   id: string; assigned_by_user_id: string; assigned_to_user_id: string; amount: number;
@@ -26,15 +35,18 @@ function TellerFloatPage() {
   const { user } = useAuth();
   const approve = useServerFn(approveFloat);
   const reject = useServerFn(rejectFloat);
+  const openDayFn = useServerFn(openDay);
 
   const [rows, setRows] = useState<Assignment[]>([]);
   const [historyRows, setHistoryRows] = useState<Assignment[]>([]);
   const [funderNames, setFunderNames] = useState<Record<string, string>>({});
   const [balance, setBalance] = useState(0);
   const [dayOpenedAt, setDayOpenedAt] = useState<string | null>(null);
+  const [branchId, setBranchId] = useState<string | null>(null);
   const [rejecting, setRejecting] = useState<Assignment | null>(null);
   const [reason, setReason] = useState("");
   const [busy, setBusy] = useState(false);
+  const [openDayPrompt, setOpenDayPrompt] = useState<{ amount: number } | null>(null);
 
   const load = useCallback(async () => {
     if (!user?.id) return;
@@ -51,11 +63,13 @@ function TellerFloatPage() {
     const openedAt: string | null = ts.data?.opened_at ?? es.data?.opened_at ?? null;
     setDayOpenedAt(openedAt);
 
-    const [a, bal] = await Promise.all([
+    const [a, bal, prof] = await Promise.all([
       supabase.from("float_assignments").select("*")
         .eq("assigned_to_user_id", user.id).order("created_at", { ascending: false }).limit(50),
       supabase.from("user_float_balances").select("balance").eq("user_id", user.id).maybeSingle(),
+      supabase.from("profiles").select("branch_id").eq("user_id", user.id).maybeSingle(),
     ]);
+    setBranchId((prof.data?.branch_id as string | null) ?? null);
     const all = (a.data ?? []) as Assignment[];
     setRows(all);
 
@@ -90,11 +104,27 @@ function TellerFloatPage() {
     return () => { supabase.removeChannel(ch); };
   }, [load]);
 
-  const doApprove = async (id: string) => {
+  const doApprove = async (assignment: Assignment) => {
     setBusy(true);
     try {
-      await approve({ data: { assignment_id: id } });
-      toast.success("Float approved — you may open the day");
+      await approve({ data: { assignment_id: assignment.id } });
+      toast.success("Float approved");
+      await load();
+      if (!dayOpenedAt) {
+        setOpenDayPrompt({ amount: Number(assignment.amount) });
+      }
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed");
+    } finally { setBusy(false); }
+  };
+
+  const submitOpenDay = async () => {
+    if (!openDayPrompt) return;
+    setBusy(true);
+    try {
+      await openDayFn({ data: { floatAmount: openDayPrompt.amount, branchId, device: deviceString() } });
+      toast.success("Operational day opened");
+      setOpenDayPrompt(null);
       await load();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed");
@@ -152,7 +182,7 @@ function TellerFloatPage() {
                   </p>
                 </div>
                 <div className="flex gap-2">
-                  <Button onClick={() => doApprove(r.id)} disabled={busy}>Approve</Button>
+                  <Button onClick={() => doApprove(r)} disabled={busy}>Approve</Button>
                   <Button variant="destructive" onClick={() => setRejecting(r)} disabled={busy}>Reject</Button>
                 </div>
               </div>
@@ -224,6 +254,32 @@ function TellerFloatPage() {
           <DialogFooter>
             <Button variant="outline" onClick={() => setRejecting(null)}>Cancel</Button>
             <Button variant="destructive" onClick={doReject} disabled={!reason.trim() || busy}>Reject</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!openDayPrompt} onOpenChange={(o) => !o && setOpenDayPrompt(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Open Operational Day</DialogTitle>
+            <DialogDescription>
+              Your approved float will be used as today's opening float. Confirm to open the day.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2">
+            <Label>Opening float (from approved float)</Label>
+            <Input type="number" value={openDayPrompt?.amount ?? 0} readOnly disabled />
+            <p className="text-xs text-muted-foreground">
+              This is the float approved by finance and cannot be changed.
+            </p>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setOpenDayPrompt(null)} disabled={busy}>
+              Later
+            </Button>
+            <Button onClick={submitOpenDay} disabled={busy}>
+              {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Open Day"}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
