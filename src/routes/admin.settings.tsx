@@ -185,19 +185,17 @@ function AdminSettingsPage() {
     ]);
     if (s.data?.value) {
       const v = s.data.value as Partial<Settings>;
-      setSettings({
+      const merged: Settings = {
         transactions: { ...DEFAULTS.transactions, ...(v.transactions ?? {}) },
         cash_handling: { ...DEFAULTS.cash_handling, ...(v.cash_handling ?? {}) },
         security: { ...DEFAULTS.security, ...(v.security ?? {}) },
         personalisation: { ...DEFAULTS.personalisation, ...(v.personalisation ?? {}) },
-      });
-      setOriginal({
-        transactions: { ...DEFAULTS.transactions, ...(v.transactions ?? {}) },
-        cash_handling: { ...DEFAULTS.cash_handling, ...(v.cash_handling ?? {}) },
-        security: { ...DEFAULTS.security, ...(v.security ?? {}) },
-        personalisation: { ...DEFAULTS.personalisation, ...(v.personalisation ?? {}) },
-      });
+        announcement: { ...DEFAULTS.announcement, ...(v.announcement ?? {}) },
+      };
+      setSettings(merged);
+      setOriginal(merged);
     }
+
     setProfiles((p.data ?? []) as ProfileRow[]);
     const map: Record<string, Role[]> = {};
     for (const row of (r.data ?? []) as { user_id: string; role: Role }[]) {
