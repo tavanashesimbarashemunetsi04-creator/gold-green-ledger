@@ -66,7 +66,6 @@ function EndDayPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [physicalUsd, setPhysicalUsd] = useState("");
-  const [physicalZwg, setPhysicalZwg] = useState("");
   const [reason, setReason] = useState("");
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [closing, setClosing] = useState(false);
