@@ -60,6 +60,7 @@ export function WithdrawalEntryForm({ kind, onSubmitted }: Props) {
     ...baseInit,
     usd_amount: "",
     zwg_amount: "",
+    amount_source: null as "usd" | "zwg" | null,
     amount: "",
     status: "pending" as WithdrawalStatus,
   });
@@ -73,7 +74,7 @@ export function WithdrawalEntryForm({ kind, onSubmitted }: Props) {
     setForm((f) => ({ ...f, [key]: value }));
 
   const reset = () => {
-    setForm({ ...baseInit, usd_amount: "", zwg_amount: "", amount: "", status: "pending" });
+    setForm({ ...baseInit, usd_amount: "", zwg_amount: "", amount_source: null, amount: "", status: "pending" });
     setSignature(null);
     padRef.current?.clear();
   };
@@ -114,8 +115,8 @@ export function WithdrawalEntryForm({ kind, onSubmitted }: Props) {
       status: form.status,
       ...(isSwipe
         ? {
-            usd_amount: form.usd_amount ? Number(form.usd_amount) : null,
-            zwg_amount: form.zwg_amount ? Number(form.zwg_amount) : null,
+            usd_amount: form.amount_source === "usd" && form.usd_amount ? Number(form.usd_amount) : null,
+            zwg_amount: form.amount_source === "zwg" && form.zwg_amount ? Number(form.zwg_amount) : null,
           }
         : { amount: Number(form.amount) }),
     } as WithdrawalEntry;
@@ -213,8 +214,10 @@ export function WithdrawalEntryForm({ kind, onSubmitted }: Props) {
                 defaultRate={withdrawalsRate}
                 usdValue={form.usd_amount}
                 zwgValue={form.zwg_amount}
+                amountSource={form.amount_source}
                 onUsdChange={(v) => update("usd_amount", v)}
                 onZwgChange={(v) => update("zwg_amount", v)}
+                onAmountSourceChange={(source) => setForm((f) => ({ ...f, amount_source: source }))}
                 onCodeChange={(c) => setForm((f) => ({ ...f, code: String(c) }))}
                 reference={`${txType} ${form.name || form.card_number}`.trim()}
               />
