@@ -115,8 +115,18 @@
   }
 }
 
+@page {
+  size: A4 landscape;
+  margin: 10mm;
+}
+
 @media print {
   .print-show-all-tabs [data-state="inactive"] {
     display: block !important;
+  }
+
+  html,
+  body {
+    background: white !important;
   }
 }
