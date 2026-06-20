@@ -3,6 +3,8 @@ import { useEffect } from "react";
 import { TellerSidebar } from "@/components/TellerSidebar";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { Toaster } from "@/components/ui/sonner";
+import { AnnouncementGate } from "@/components/AnnouncementGate";
+
 
 import appCss from "../styles.css?url";
 
@@ -122,8 +124,10 @@ function RootComponent() {
       <AuthGate>
         <Shell />
       </AuthGate>
+      <AnnouncementGate />
       <Toaster />
     </AuthProvider>
+
   );
 }
 
