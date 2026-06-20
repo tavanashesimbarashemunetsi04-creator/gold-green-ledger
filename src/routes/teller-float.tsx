@@ -31,6 +31,26 @@ type Assignment = {
   notes: string | null;
 };
 
+type HistoryItem = {
+  id: string;
+  created_at: string;
+  amount: number;
+  label: string;
+  funderId: string | null;
+  status: "approved" | "pending" | "rejected" | "cancelled";
+  source: "assignment" | "inflow";
+};
+
+const CATEGORY_LABEL: Record<string, string> = {
+  opening_float: "Opening float",
+  float_assignment: "Float assignment",
+  self_float: "Self float",
+  adjustment: "Adjustment",
+  other: "Other funding",
+  teller_transfer_sent: "Teller transfer (sent)",
+  teller_transfer_received: "Teller transfer received",
+};
+
 function TellerFloatPage() {
   const { user } = useAuth();
   const approve = useServerFn(approveFloat);
