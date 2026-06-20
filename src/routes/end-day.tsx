@@ -314,7 +314,7 @@ function EndDayPage() {
               <div className="mt-5">
                 <Label htmlFor="reason" className="flex items-center gap-2 text-sm font-medium">
                   <TriangleAlert className="h-4 w-4 text-warning" />
-                  Variance reason (required)
+                  Variance reason (optional — will be flagged for the manager)
                 </Label>
                 <Textarea
                   id="reason"
