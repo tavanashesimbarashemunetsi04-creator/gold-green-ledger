@@ -306,15 +306,15 @@ function EndDayPage() {
             </section>
 
             {/* THIN DIVIDER — Expected Cash Balance */}
-            <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-primary/40 bg-primary/5 px-4 py-6 shadow-sm lg:min-w-[160px]">
-              <Calculator className="h-5 w-5 text-primary" />
-              <div className="text-center text-[10px] font-semibold uppercase tracking-wider text-primary leading-tight">
+            <div className="flex flex-col items-center justify-center gap-1.5 rounded-xl border border-primary/40 bg-primary/5 px-3 py-3 shadow-sm lg:min-w-[120px]">
+              <Calculator className="h-3.5 w-3.5 text-primary" />
+              <div className="text-center text-[9px] font-semibold uppercase tracking-wider text-primary leading-tight">
                 Expected<br/>Cash<br/>Balance
               </div>
-              <div className="text-[10px] font-normal normal-case tracking-normal text-muted-foreground text-center">
+              <div className="text-[9px] font-normal normal-case tracking-normal text-muted-foreground text-center">
                 (Inflows − Outflows)
               </div>
-              <div className="flex flex-col items-center gap-1 text-sm font-bold tabular-nums">
+              <div className="flex flex-col items-center gap-0.5 text-xs font-bold tabular-nums">
                 <span>USD {fmt(totals.expectedUsd)}</span>
                 <span>ZWG {fmt(totals.expectedZwg)}</span>
               </div>
