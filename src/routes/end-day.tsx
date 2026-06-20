@@ -579,16 +579,24 @@ function Subsection({
   );
 }
 
+function dateTimeOf(iso: string) {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  return `${d.toLocaleDateString()} ${d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
+}
+
 function LineTable({
   rows,
   search,
   showTotal,
   emptyText,
+  variant = "default",
 }: {
   rows: EodLine[];
   search: string;
   showTotal?: boolean;
   emptyText?: string;
+  variant?: "default" | "payment" | "withdrawal";
 }) {
   const q = search.trim().toLowerCase();
   const filtered = q
@@ -596,7 +604,10 @@ function LineTable({
         (r) =>
           r.narration.toLowerCase().includes(q) ||
           r.ref.toLowerCase().includes(q) ||
-          r.type.toLowerCase().includes(q),
+          r.type.toLowerCase().includes(q) ||
+          (r.accountName ?? "").toLowerCase().includes(q) ||
+          (r.category ?? "").toLowerCase().includes(q) ||
+          (r.code ?? "").toLowerCase().includes(q),
       )
     : rows;
   const usd = filtered.reduce((a, r) => a + r.usd, 0);
@@ -604,6 +615,90 @@ function LineTable({
 
   if (!filtered.length) {
     return <p className="px-1 py-2 text-xs italic text-muted-foreground">{emptyText ?? "No matching entries"}</p>;
+  }
+
+  if (variant === "payment") {
+    return (
+      <div className="overflow-x-auto">
+        <table className="w-full text-xs">
+          <thead>
+            <tr className="text-left text-[10px] uppercase tracking-wider text-muted-foreground">
+              <th className="py-1.5 pr-2 font-medium">Date & Time</th>
+              <th className="py-1.5 pr-2 font-medium">Account Name</th>
+              <th className="py-1.5 pr-2 font-medium">Category</th>
+              <th className="py-1.5 pr-2 font-medium">Code</th>
+              <th className="py-1.5 pr-2 text-right font-medium">USD</th>
+              <th className="py-1.5 text-right font-medium">ZIG</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.map((r) => (
+              <tr key={r.id} className="border-t border-border/60">
+                <td className="py-1.5 pr-2 text-muted-foreground tabular-nums">{dateTimeOf(r.ts)}</td>
+                <td className="py-1.5 pr-2 font-medium text-foreground">{r.accountName ?? r.narration ?? "—"}</td>
+                <td className="py-1.5 pr-2 text-muted-foreground">{r.category ?? "—"}</td>
+                <td className="py-1.5 pr-2 text-muted-foreground">{r.code ?? r.ref ?? "—"}</td>
+                <td className="py-1.5 pr-2 text-right tabular-nums">{fmt(r.usd)}</td>
+                <td className="py-1.5 text-right tabular-nums">{fmt(r.zwg)}</td>
+              </tr>
+            ))}
+            {showTotal && (
+              <tr className="border-t-2 border-border bg-muted/30">
+                <td colSpan={4} className="py-1.5 pr-2 text-right text-[11px] font-bold uppercase tracking-wider">
+                  Subtotal
+                </td>
+                <td className="py-1.5 pr-2 text-right font-bold tabular-nums">{fmt(usd)}</td>
+                <td className="py-1.5 text-right font-bold tabular-nums">{fmt(zwg)}</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    );
+  }
+
+  if (variant === "withdrawal") {
+    // Cash advances should show no ZWG column; cash swipes show ZWG.
+    const showZwg = filtered.some((r) => r.kind === "swipe");
+    return (
+      <div className="overflow-x-auto">
+        <table className="w-full text-xs">
+          <thead>
+            <tr className="text-left text-[10px] uppercase tracking-wider text-muted-foreground">
+              <th className="py-1.5 pr-2 font-medium">Date & Time</th>
+              <th className="py-1.5 pr-2 font-medium">Name</th>
+              <th className="py-1.5 pr-2 font-medium">Code</th>
+              <th className="py-1.5 pr-2 text-right font-medium">USD</th>
+              {showZwg && <th className="py-1.5 text-right font-medium">ZWG</th>}
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.map((r) => (
+              <tr key={r.id} className="border-t border-border/60">
+                <td className="py-1.5 pr-2 text-muted-foreground tabular-nums">{dateTimeOf(r.ts)}</td>
+                <td className="py-1.5 pr-2 font-medium text-foreground">{r.accountName ?? r.narration ?? "—"}</td>
+                <td className="py-1.5 pr-2 text-muted-foreground">{r.code ?? r.ref ?? "—"}</td>
+                <td className="py-1.5 pr-2 text-right tabular-nums">{fmt(r.usd)}</td>
+                {showZwg && (
+                  <td className="py-1.5 text-right tabular-nums">
+                    {r.kind === "swipe" ? fmt(r.zwg) : "—"}
+                  </td>
+                )}
+              </tr>
+            ))}
+            {showTotal && (
+              <tr className="border-t-2 border-border bg-muted/30">
+                <td colSpan={3} className="py-1.5 pr-2 text-right text-[11px] font-bold uppercase tracking-wider">
+                  Subtotal
+                </td>
+                <td className="py-1.5 pr-2 text-right font-bold tabular-nums">{fmt(usd)}</td>
+                {showZwg && <td className="py-1.5 text-right font-bold tabular-nums">{fmt(zwg)}</td>}
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    );
   }
 
   return (
@@ -644,6 +739,7 @@ function LineTable({
     </div>
   );
 }
+
 
 function GrandTotal({ label, usd, zwg, tone }: { label: string; usd: number; zwg: number; tone: "success" | "destructive" }) {
   const color = tone === "success" ? "bg-success text-white" : "bg-destructive text-white";
