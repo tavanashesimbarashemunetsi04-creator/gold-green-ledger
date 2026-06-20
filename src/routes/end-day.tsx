@@ -36,6 +36,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 export const Route = createFileRoute("/end-day")({
   component: EndDayPage,
@@ -84,6 +85,11 @@ function EndDayPage() {
   };
   useEffect(() => {
     refresh();
+    // Real-time refresh: poll every 8s so the tabs reflect new transactions.
+    const t = setInterval(() => {
+      fetcher().then((r) => setData(r)).catch(() => {});
+    }, 8000);
+    return () => clearInterval(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -161,16 +167,17 @@ function EndDayPage() {
   };
 
   const session = data?.session ?? null;
+  const isClosed = !!data?.isClosed;
 
-  /* No session → show empty state */
+  /* No session at all (never opened a day) → show empty state */
   if (!loading && !session) {
     return (
       <main className="mx-auto max-w-5xl space-y-6 p-6">
         <div className="rounded-2xl border border-border bg-card p-10 text-center shadow-[var(--shadow-soft)]">
           <Lock className="mx-auto h-10 w-10 text-muted-foreground" />
-          <h1 className="mt-4 text-2xl font-semibold">No operational day open</h1>
+          <h1 className="mt-4 text-2xl font-semibold">No session history yet</h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Open your day from the dashboard before generating an End Day Summary.
+            Open your day from the dashboard. After closing, the summary will remain available here.
           </p>
           <Button className="mt-6" onClick={() => navigate({ to: "/" })}>
             Back to dashboard
