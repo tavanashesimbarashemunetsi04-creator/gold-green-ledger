@@ -461,11 +461,12 @@ function EndDayPage() {
             <h2 className="mb-3 text-sm font-bold uppercase tracking-wider text-muted-foreground">Withdrawals (Cash Swipes & Advances)</h2>
             <div className="mb-4">
               <h3 className="mb-1 text-sm font-semibold">Cash Swipes</h3>
-              <LineTable rows={data?.outflows.swipes ?? []} search={search} showTotal emptyText="No swipes" />
+              <LineTable rows={data?.outflows.swipes ?? []} search={search} showTotal emptyText="No swipes" variant="withdrawal" />
             </div>
             <div>
               <h3 className="mb-1 text-sm font-semibold">Cash Advances</h3>
-              <LineTable rows={data?.outflows.advances ?? []} search={search} showTotal emptyText="No cash advances" />
+              <LineTable rows={data?.outflows.advances ?? []} search={search} showTotal emptyText="No cash advances" variant="withdrawal" />
+
             </div>
           </section>
         </TabsContent>
