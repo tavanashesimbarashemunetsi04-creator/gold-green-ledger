@@ -35,15 +35,18 @@ function TellerFloatPage() {
   const { user } = useAuth();
   const approve = useServerFn(approveFloat);
   const reject = useServerFn(rejectFloat);
+  const openDayFn = useServerFn(openDay);
 
   const [rows, setRows] = useState<Assignment[]>([]);
   const [historyRows, setHistoryRows] = useState<Assignment[]>([]);
   const [funderNames, setFunderNames] = useState<Record<string, string>>({});
   const [balance, setBalance] = useState(0);
   const [dayOpenedAt, setDayOpenedAt] = useState<string | null>(null);
+  const [branchId, setBranchId] = useState<string | null>(null);
   const [rejecting, setRejecting] = useState<Assignment | null>(null);
   const [reason, setReason] = useState("");
   const [busy, setBusy] = useState(false);
+  const [openDayPrompt, setOpenDayPrompt] = useState<{ amount: number } | null>(null);
 
   const load = useCallback(async () => {
     if (!user?.id) return;
