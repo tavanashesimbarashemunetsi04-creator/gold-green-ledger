@@ -9,11 +9,20 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { approveFloat, rejectFloat } from "@/lib/float.functions";
+import { openDay } from "@/lib/teller-day.functions";
 
 export const Route = createFileRoute("/teller-float")({ component: TellerFloatPage });
+
+function deviceString() {
+  if (typeof navigator === "undefined") return "server";
+  const ua = navigator.userAgent || "";
+  const plat = (navigator as unknown as { platform?: string }).platform || "web";
+  return `${plat} · ${ua.slice(0, 160)}`;
+}
 
 type Assignment = {
   id: string; assigned_by_user_id: string; assigned_to_user_id: string; amount: number;
