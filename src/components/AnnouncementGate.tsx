@@ -36,8 +36,6 @@ export function AnnouncementGate() {
   }, [user?.id]);
 
   useEffect(() => {
-    // eslint-disable-next-line no-console
-    console.log("[announcement] effect run, user=", user?.id ?? null);
     if (!user) {
       setAnnouncement(null);
       return;
@@ -56,9 +54,9 @@ export function AnnouncementGate() {
 
     fetchIt();
 
-    // Real-time push: instant delivery via Supabase Realtime (WebSocket).
-    // Ensure the socket carries the user's auth so RLS-bound postgres_changes
-    // events actually reach the client.
+    // Real-time push via Supabase Realtime Broadcast (WebSocket).
+    // The server fn that updates rates also sends an `announcement` event
+    // on this channel, so every connected user gets it instantly.
     let channel: ReturnType<typeof supabase.channel> | null = null;
     (async () => {
       const { data: sess } = await supabase.auth.getSession();
@@ -66,28 +64,18 @@ export function AnnouncementGate() {
       if (token) supabase.realtime.setAuth(token);
       if (cancelled) return;
       channel = supabase
-        .channel("app-settings-announcement")
-        .on(
-          "postgres_changes",
-          { event: "*", schema: "public", table: "app_settings" },
-          (payload) => {
-            // eslint-disable-next-line no-console
-            console.log("[announcement] realtime payload", payload);
-            const next = (payload.new ?? {}) as { value?: unknown };
-            setAnnouncement(extractAnnouncement(next.value));
-          },
-        )
-        .subscribe((status) => {
-          // eslint-disable-next-line no-console
-          console.log("[announcement] channel status", status);
-        });
+        .channel("global-announcements")
+        .on("broadcast", { event: "announcement" }, ({ payload }) => {
+          const a = payload as Announcement;
+          if (a && a.message && a.updated_at) setAnnouncement(a);
+        })
+        .subscribe();
     })();
-
-
 
     // Safety net: refetch on tab focus in case the socket was offline.
     const onFocus = () => fetchIt();
     window.addEventListener("focus", onFocus);
+
 
     return () => {
       cancelled = true;
