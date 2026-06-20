@@ -296,6 +296,10 @@ export type EodLine = {
   ref: string;
   usd: number;
   zwg: number;
+  accountName?: string | null;
+  category?: string | null;
+  code?: string | null;
+  kind?: "swipe" | "advance" | null;
 };
 
 export type EndDaySummary = {
