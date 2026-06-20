@@ -72,6 +72,30 @@ function EndDayPage() {
   const [reason, setReason] = useState("");
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [closing, setClosing] = useState(false);
+  const reportRef = useRef<HTMLElement>(null);
+
+  const handleDownload = () => {
+    const node = reportRef.current;
+    if (!node) return;
+    const styles = Array.from(
+      document.querySelectorAll('link[rel="stylesheet"], style'),
+    )
+      .map((el) => el.outerHTML)
+      .join("\n");
+    const title = `end-day-summary-${session?.session_code ?? "report"}-${new Date()
+      .toISOString()
+      .slice(0, 10)}`;
+    const html = `<!doctype html><html><head><meta charset="utf-8"><title>${title}</title>${styles}<style>@page{size:A4 landscape;margin:10mm}body{background:white;margin:0;padding:12px;font-family:system-ui,-apple-system,sans-serif}.print\\:hidden{display:none !important}[data-state="inactive"]{display:block !important}</style></head><body>${node.outerHTML}<script>window.addEventListener('load',()=>setTimeout(()=>window.print(),300))<\/script></body></html>`;
+    const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${title}.html`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
 
   const refresh = async () => {
     setLoading(true);
