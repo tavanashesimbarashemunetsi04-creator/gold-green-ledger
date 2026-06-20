@@ -182,7 +182,7 @@ function TellerFloatPage() {
                   </p>
                 </div>
                 <div className="flex gap-2">
-                  <Button onClick={() => doApprove(r.id)} disabled={busy}>Approve</Button>
+                  <Button onClick={() => doApprove(r)} disabled={busy}>Approve</Button>
                   <Button variant="destructive" onClick={() => setRejecting(r)} disabled={busy}>Reject</Button>
                 </div>
               </div>
