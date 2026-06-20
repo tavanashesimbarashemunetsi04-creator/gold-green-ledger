@@ -22,15 +22,15 @@ const STATUSES: WithdrawalStatus[] = ["successful", "pending", "failed"];
 export type WithdrawalEntry = {
   date: string;
   name: string;
-  card_number: string;
+  card_last4: string;
   phone_number: string;
   id_number: string;
-  transaction_type: "Cash Swipe" | "Cash Advance";
+  transaction_type: "withdrawal";
   code: string;
   usd_amount?: number | null;
   zwg_amount?: number | null;
   amount?: number;
-  signature_base64: string;
+  signature_url: string;
   created_at: string;
   status: WithdrawalStatus;
 };
@@ -86,8 +86,10 @@ export function WithdrawalEntryForm({ kind, onSubmitted }: Props) {
     if (!form.id_number.trim()) return toast.error("ID Number is required");
 
     if (isSwipe) {
-      if (!form.usd_amount && !form.zwg_amount)
-        return toast.error("Enter at least one of USD or ZWG amount");
+      const hasUsd = !!form.usd_amount && Number(form.usd_amount) > 0;
+      const hasZwg = !!form.zwg_amount && Number(form.zwg_amount) > 0;
+      if (hasUsd === hasZwg)
+        return toast.error("Enter exactly one of USD or ZWG amount");
     } else {
       if (!form.amount || Number(form.amount) <= 0)
         return toast.error("Amount must be greater than 0");
@@ -95,15 +97,19 @@ export function WithdrawalEntryForm({ kind, onSubmitted }: Props) {
 
     if (!signature) return toast.error("Signature is required");
 
+    const card = form.card_number.replace(/\D/g, "");
+    const card_last4 = card.slice(-4).padStart(4, "0");
+
     const entry: WithdrawalEntry = {
       date: form.date,
       name: form.name.trim(),
-      card_number: form.card_number.trim(),
+      card_last4,
+      
       phone_number: form.phone_number.trim(),
       id_number: form.id_number.trim(),
-      transaction_type: txType,
+      transaction_type: "withdrawal",
       code: form.code.trim(),
-      signature_base64: signature,
+      signature_url: signature,
       created_at: new Date().toISOString(),
       status: form.status,
       ...(isSwipe
@@ -112,11 +118,12 @@ export function WithdrawalEntryForm({ kind, onSubmitted }: Props) {
             zwg_amount: form.zwg_amount ? Number(form.zwg_amount) : null,
           }
         : { amount: Number(form.amount) }),
-    };
+    } as WithdrawalEntry;
 
     try {
       setSubmitting(true);
-      const { error } = await supabase.from(table).insert(entry);
+      const { card_number: _omit, ...payload } = entry as WithdrawalEntry & { card_number?: string };
+      const { error } = await (supabase.from(table) as any).insert(payload);
       if (error) throw error;
       toast.success(`${txType} saved`);
       onSubmitted?.(entry);

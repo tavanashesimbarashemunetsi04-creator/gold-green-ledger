@@ -45,7 +45,7 @@ export function TransactionHistoryTable<T extends Record<string, unknown> & { id
       return;
     }
     setLoading(true);
-    let q = supabase.from(table).select("*")
+    let q = (supabase.from(table as never) as any).select("*")
       .gte("created_at", dayOpenedAt)
       .order("created_at", { ascending: false });
     if (match) {
@@ -57,7 +57,7 @@ export function TransactionHistoryTable<T extends Record<string, unknown> & { id
       console.error(`Failed to load ${table} history`, error);
       return;
     }
-    setRows((data ?? []) as T[]);
+    setRows(((data ?? []) as unknown) as T[]);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [table, dayOpenedAt, matchKey, refreshKey]);
 
