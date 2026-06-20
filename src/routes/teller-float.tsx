@@ -257,6 +257,32 @@ function TellerFloatPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <Dialog open={!!openDayPrompt} onOpenChange={(o) => !o && setOpenDayPrompt(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Open Operational Day</DialogTitle>
+            <DialogDescription>
+              Your approved float will be used as today's opening float. Confirm to open the day.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2">
+            <Label>Opening float (from approved float)</Label>
+            <Input type="number" value={openDayPrompt?.amount ?? 0} readOnly disabled />
+            <p className="text-xs text-muted-foreground">
+              This is the float approved by finance and cannot be changed.
+            </p>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setOpenDayPrompt(null)} disabled={busy}>
+              Later
+            </Button>
+            <Button onClick={submitOpenDay} disabled={busy}>
+              {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Open Day"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
