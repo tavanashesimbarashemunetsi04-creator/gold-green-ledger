@@ -213,7 +213,7 @@ function EndDayPage() {
   }
 
   return (
-    <main className="mx-auto max-w-[1500px] space-y-6 p-4 md:p-6 print:p-0">
+    <main ref={reportRef} className="mx-auto max-w-[1500px] space-y-6 p-4 md:p-6 print:p-0">
       {/* Header */}
       <header
         className="rounded-3xl border border-border p-5 shadow-[var(--shadow-elegant)] md:p-7 print:shadow-none print:border-0"
