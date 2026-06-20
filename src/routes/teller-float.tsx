@@ -294,9 +294,9 @@ function TellerFloatPage() {
               {historyRows.map(r => (
                 <TableRow key={r.id}>
                   <TableCell className="text-xs">{new Date(r.created_at).toLocaleString()}</TableCell>
-                  <TableCell className="text-xs">{r.notes || r.reference || "Float assignment"}</TableCell>
-                  <TableCell className="text-right font-medium">${Number(r.amount).toFixed(2)}</TableCell>
-                  <TableCell className="text-xs">{funderNames[r.assigned_by_user_id] || "—"}</TableCell>
+                  <TableCell className="text-xs">{r.label}</TableCell>
+                  <TableCell className="text-right font-medium">${r.amount.toFixed(2)}</TableCell>
+                  <TableCell className="text-xs">{(r.funderId && funderNames[r.funderId]) || "—"}</TableCell>
                   <TableCell><Badge variant={r.status === "approved" ? "default" : r.status === "rejected" ? "destructive" : "secondary"}>{r.status}</Badge></TableCell>
                 </TableRow>
               ))}
