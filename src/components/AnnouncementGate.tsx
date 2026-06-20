@@ -36,6 +36,8 @@ export function AnnouncementGate() {
   }, [user?.id]);
 
   useEffect(() => {
+    // eslint-disable-next-line no-console
+    console.log("[announcement] effect run, user=", user?.id ?? null);
     if (!user) {
       setAnnouncement(null);
       return;
