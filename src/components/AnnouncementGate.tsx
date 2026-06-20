@@ -69,7 +69,7 @@ export function AnnouncementGate() {
         .channel("app-settings-announcement")
         .on(
           "postgres_changes",
-          { event: "*", schema: "public", table: "app_settings", filter: "key=eq.global" },
+          { event: "*", schema: "public", table: "app_settings" },
           (payload) => {
             // eslint-disable-next-line no-console
             console.log("[announcement] realtime payload", payload);
