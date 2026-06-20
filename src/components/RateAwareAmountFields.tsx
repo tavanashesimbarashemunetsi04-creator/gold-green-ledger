@@ -73,7 +73,7 @@ export function RateAwareAmountFields({
   const recalcFromZwg = (zwg: string) => {
     onZwgChange(zwg);
     const c = Number(code);
-    if (zwg && c > 0) onUsdChange((Number(zwg) / c).toFixed(2));
+    if (zwg && c > 0) onUsdChange(String(Math.round(Number(zwg) / c)));
     else if (!zwg) onUsdChange("");
   };
 
