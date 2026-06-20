@@ -329,7 +329,7 @@ function EndDayPage() {
                 totalUsd={totals.outflowUsd}
                 totalZwg={totals.outflowZwg}
               />
-              <div className="grid grid-cols-1 gap-5 p-5 md:p-6 lg:grid-cols-2">
+              <div className="flex flex-col gap-5 p-5 md:p-6">
                 <Subsection title="Cash Swipes" subtitle="Withdrawals">
                   <LineTable rows={data?.outflows.swipes ?? []} search={search} showTotal emptyText="No swipes" variant="withdrawal" />
                 </Subsection>
