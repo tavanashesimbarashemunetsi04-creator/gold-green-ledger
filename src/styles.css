@@ -117,16 +117,37 @@
 
 @page {
   size: A4 landscape;
-  margin: 10mm;
+  margin: 8mm;
 }
 
 @media print {
+  html,
+  body {
+    background: white !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  *,
+  *::before,
+  *::after {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
   .print-show-all-tabs [data-state="inactive"] {
     display: block !important;
   }
 
-  html,
-  body {
-    background: white !important;
+  /* Force desktop layout in print regardless of paper width */
+  .lg\:grid-cols-\[1fr_auto_1fr\] {
+    grid-template-columns: 1fr auto 1fr !important;
+  }
+  .lg\:grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+  .lg\:grid-cols-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
   }
 }
