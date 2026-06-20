@@ -85,7 +85,7 @@ function EndDayPage() {
     const title = `end-day-summary-${session?.session_code ?? "report"}-${new Date()
       .toISOString()
       .slice(0, 10)}`;
-    const html = `<!doctype html><html><head><meta charset="utf-8"><title>${title}</title>${styles}<style>@page{size:A4 landscape;margin:10mm}body{background:white;margin:0;padding:12px;font-family:system-ui,-apple-system,sans-serif}.print\\:hidden{display:none !important}[data-state="inactive"]{display:block !important}</style></head><body>${node.outerHTML}<script>window.addEventListener('load',()=>setTimeout(()=>window.print(),300))<\/script></body></html>`;
+    const html = `<!doctype html><html><head><meta charset="utf-8"><title>${title}</title>${styles}<style>@page{size:A4 landscape;margin:8mm}html,body{background:white;margin:0;padding:0;-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important}*,*::before,*::after{-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important}body{padding:12px;font-family:system-ui,-apple-system,sans-serif}.print\\:hidden{display:none !important}[data-state="inactive"]{display:block !important}.lg\\:grid-cols-\\[1fr_auto_1fr\\]{grid-template-columns:1fr auto 1fr !important}.lg\\:grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr)) !important}</style></head><body>${node.outerHTML}<script>window.addEventListener('load',()=>setTimeout(()=>window.print(),400))<\/script></body></html>`;
     const blob = new Blob([html], { type: "text/html;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
