@@ -249,6 +249,9 @@ function EndDayPage() {
             <Button variant="secondary" size="sm" onClick={() => window.print()}>
               <Printer className="mr-2 h-4 w-4" /> Print / Export PDF
             </Button>
+            <Button variant="secondary" size="sm" onClick={handleDownload}>
+              <Download className="mr-2 h-4 w-4" /> Download
+            </Button>
             <Button size="sm" onClick={refresh} disabled={loading}>
               {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Refresh"}
             </Button>
