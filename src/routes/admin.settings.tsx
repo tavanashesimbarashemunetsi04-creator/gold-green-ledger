@@ -227,8 +227,17 @@ function AdminSettingsPage() {
   const onSave = async () => {
     setSaving(true);
     try {
-      await saveSettingsFn({ data: { value: settings as unknown as Record<string, unknown> } });
-      setOriginal(settings);
+      // bump announcement updated_at if message changed so users get re-notified
+      const toSave: Settings = { ...settings };
+      if (settings.announcement.message.trim() !== original.announcement.message.trim()) {
+        toSave.announcement = {
+          message: settings.announcement.message,
+          updated_at: new Date().toISOString(),
+        };
+      }
+      await saveSettingsFn({ data: { value: toSave as unknown as Record<string, unknown> } });
+      setSettings(toSave);
+      setOriginal(toSave);
       toast.success("Settings saved");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed to save settings");
@@ -236,6 +245,7 @@ function AdminSettingsPage() {
       setSaving(false);
     }
   };
+
 
   return (
     <div className="p-8 pb-32 space-y-6">
@@ -267,11 +277,13 @@ function AdminSettingsPage() {
         setBranchActiveFn={setBranchActiveFn}
       />
 
+      <AnnouncementSection settings={settings} setSettings={setSettings} />
       <TransactionControls settings={settings} setSettings={setSettings} />
       <CashHandling settings={settings} setSettings={setSettings} />
       <SecuritySection settings={settings} setSettings={setSettings} />
       <PersonalisationSection settings={settings} setSettings={setSettings} />
       <CurrenciesSection />
+
 
       <div className="sticky bottom-4 z-30 mx-auto flex max-w-3xl items-center justify-between rounded-xl border bg-background/95 px-4 py-3 shadow-lg backdrop-blur">
         <p className="text-sm text-muted-foreground">
