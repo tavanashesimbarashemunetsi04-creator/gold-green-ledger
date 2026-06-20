@@ -104,7 +104,7 @@ export function WithdrawalEntryForm({ kind, onSubmitted }: Props) {
       date: form.date,
       name: form.name.trim(),
       card_last4,
-      card_number: form.card_number.trim(),
+      
       phone_number: form.phone_number.trim(),
       id_number: form.id_number.trim(),
       transaction_type: "withdrawal",
