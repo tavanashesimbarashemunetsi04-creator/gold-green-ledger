@@ -117,39 +117,49 @@ export const getDashboardState = createServerFn({ method: "GET" })
       .limit(1)
       .maybeSingle();
 
-    // Today's activity (since session start if open, otherwise since midnight)
-    const sinceIso = openSess?.opened_at ?? todayIso;
+    // Activity is scoped strictly to the currently open session.
+    // When the day is closed, totals reset to zero — historical data is
+    // available in the End Day Summary tab.
+    const sinceIso = openSess?.opened_at ?? null;
 
-    const [pays, wds, itxIn, itxOut, uitFloat] = await Promise.all([
-      supabaseAdmin
-        .from("payments")
-        .select("id, date, created_at, account_number, phone_number, payment_type, usd_amount, zwg_amount, status")
-        .eq("teller_id", uid as never)
-        .gte("created_at", sinceIso)
-        .order("created_at", { ascending: false }),
-      supabaseAdmin
-        .from("cash_advance")
-        .select("id, date, created_at, name, amount, status")
-        .eq("teller_id", uid as never)
-        .gte("created_at", sinceIso)
-        .order("created_at", { ascending: false }),
-      supabaseAdmin
-        .from("user_internal_transactions")
-        .select("amount")
-        .eq("user_id", uid)
-        .eq("kind", "inflow")
-        .gte("created_at", sinceIso),
-      supabaseAdmin
-        .from("user_internal_transactions")
-        .select("amount")
-        .eq("user_id", uid)
-        .eq("kind", "outflow")
-        .gte("created_at", sinceIso),
-      supabaseAdmin
-        .from("user_internal_transactions")
-        .select("amount, kind")
-        .eq("user_id", uid),
-    ]);
+    const [pays, wds, itxIn, itxOut, uitFloat] = sinceIso
+      ? await Promise.all([
+          supabaseAdmin
+            .from("payments")
+            .select("id, date, created_at, account_number, phone_number, payment_type, usd_amount, zwg_amount, status")
+            .eq("teller_id", uid as never)
+            .gte("created_at", sinceIso)
+            .order("created_at", { ascending: false }),
+          supabaseAdmin
+            .from("cash_advance")
+            .select("id, date, created_at, name, amount, status")
+            .eq("teller_id", uid as never)
+            .gte("created_at", sinceIso)
+            .order("created_at", { ascending: false }),
+          supabaseAdmin
+            .from("user_internal_transactions")
+            .select("amount")
+            .eq("user_id", uid)
+            .eq("kind", "inflow")
+            .gte("created_at", sinceIso),
+          supabaseAdmin
+            .from("user_internal_transactions")
+            .select("amount")
+            .eq("user_id", uid)
+            .eq("kind", "outflow")
+            .gte("created_at", sinceIso),
+          supabaseAdmin
+            .from("user_internal_transactions")
+            .select("amount, kind")
+            .eq("user_id", uid),
+        ])
+      : [
+          { data: [] as any[] },
+          { data: [] as any[] },
+          { data: [] as any[] },
+          { data: [] as any[] },
+          { data: [] as any[] },
+        ];
 
     const totalPayments = (pays.data ?? []).reduce(
       (a, r: any) => a + Number(r.usd_amount ?? 0) + Number(r.zwg_amount ?? 0),
@@ -159,11 +169,11 @@ export const getDashboardState = createServerFn({ method: "GET" })
     const internalIn = (itxIn.data ?? []).reduce((a, r: any) => a + Number(r.amount ?? 0), 0);
     const internalOut = (itxOut.data ?? []).reduce((a, r: any) => a + Number(r.amount ?? 0), 0);
 
-    // Cash at hand = lifetime inflows - lifetime outflows from user_internal_transactions
-    // (opening_float is recorded as an inflow), minus today's net cash transactions.
+    // Cash at hand is zero when no day is open; otherwise lifetime in/out
+    // minus current session's net cash transactions.
     const allIn = (uitFloat.data ?? []).filter((r: any) => r.kind === "inflow").reduce((a, r: any) => a + Number(r.amount), 0);
     const allOut = (uitFloat.data ?? []).filter((r: any) => r.kind === "outflow").reduce((a, r: any) => a + Number(r.amount), 0);
-    const cashAtHand = allIn - allOut + totalPayments - totalWithdrawals;
+    const cashAtHand = sinceIso ? allIn - allOut + totalPayments - totalWithdrawals : 0;
 
     const recent: RecentTx[] = [];
     (pays.data ?? []).forEach((r: any) =>
