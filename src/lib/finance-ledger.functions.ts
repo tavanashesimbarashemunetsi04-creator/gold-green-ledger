@@ -16,8 +16,8 @@ export const addFinanceCash = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { error, data: row } = await context.supabase.rpc("add_finance_cash", {
       _amount: data.amount,
-      _reference: data.reference ?? null,
-      _notes: data.notes ?? null,
+      _reference: (data.reference ?? null) as unknown as string,
+      _notes: (data.notes ?? null) as unknown as string,
     });
     if (error) throw new Error(error.message);
     return row;
