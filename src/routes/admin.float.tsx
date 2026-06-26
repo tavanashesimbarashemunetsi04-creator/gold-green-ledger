@@ -65,7 +65,7 @@ function FloatPage() {
     setProfiles((p.data ?? []) as Profile[]);
     setBranches((b.data ?? []) as Branch[]);
     setRows((a.data ?? []) as Assignment[]);
-    setBalance(Number(bal.data?.balance ?? 0));
+    setBalance(Number((bal.data as { balance?: number } | null)?.balance ?? 0));
     setEligibleIds(new Set(((roles.data ?? []) as { user_id: string }[]).map((r) => r.user_id)));
   }, [user?.id]);
 
