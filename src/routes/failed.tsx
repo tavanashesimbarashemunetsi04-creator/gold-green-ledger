@@ -120,9 +120,15 @@ function FailedPage() {
     setTellers(tellersMap);
 
     const sources: Source[] = ["payments", "cash_swipes", "cash_advance", "internal_transactions"];
+    const statusBySource: Record<Source, string[]> = {
+      payments: ["failed", "declined", "rejected"],
+      cash_swipes: ["failed", "declined", "rejected"],
+      cash_advance: ["failed", "declined", "rejected"],
+      internal_transactions: ["declined"], // tx_status enum only allows pending/approved/declined
+    };
     const results = await Promise.all(
       sources.map((s) =>
-        supabase.from(s).select("*").in("status", FAILED_STATUSES as any).order("created_at", { ascending: false }),
+        supabase.from(s).select("*").in("status", statusBySource[s] as any).order("created_at", { ascending: false }),
       ),
     );
     const merged: Row[] = [];
