@@ -1,80 +1,69 @@
-## Admin Settings — Fully Editable Configuration Center
+## Goal
 
-Build a comprehensive Admin Settings page where every business rule, limit, threshold, bank, currency, and policy is editable through the UI and persisted to the database. No hardcoded values.
+Make a Finance Manager's Finance wallet completely independent from any Teller wallet on the same account. The two only meet when float is officially transferred from Finance → Teller.
 
-### 1. Database (one migration)
+## 1. Database
 
-**`app_settings`** — JSON-based key/value store so new settings can be added without migrations.
-- `key` (text, unique) — e.g. `organization.company_name`, `limits.high_value_threshold`
-- `category` (text) — tab grouping (organization, currencies, banks, limits, float, sessions, security, users, approvals, notifications, reports, audit, system)
-- `value` (jsonb) — the setting payload (string, number, object, array)
-- `value_type` (text) — string | number | boolean | json | array
-- `description` (text)
-- `validation` (jsonb) — min/max/regex/options for client+server validation
-- `last_modified_by` (uuid → auth.users)
-- `last_modified_at` (timestamptz)
+New table `public.finance_transactions`:
+- `id`, `user_id` (finance manager), `kind` (inflow/outflow), `category`, `amount` (USD), `currency` ('USD'), `reference`, `notes`, `related_float_assignment_id`, `related_uit_id`, `created_by_user_id`, `created_at`
+- Categories: `cash_update`, `opening_finance_float`, `float_issued_to_teller`, `float_received_from_teller`, `adjustment`, `self_float_legacy`
+- RLS: finance_manager/admin read all, only admin/finance_manager can insert (server-side)
+- GRANTs to authenticated + service_role
 
-**`app_setting_history`** — full change log per setting.
-- `setting_key`, `old_value` (jsonb), `new_value` (jsonb), `changed_by`, `changed_at`, `change_reason`
+New helper view `public.finance_balances(user_id, balance)` — sum of inflows − outflows per finance manager.
 
-**`feature_flags`** — boolean toggles.
-- `key` (unique), `enabled` (bool), `description`, `last_modified_by`, `last_modified_at`
+Server-side RPC `add_finance_cash(_amount, _reference, _notes)` — finance_manager/admin only, inserts `cash_update` inflow + audit log.
 
-**RLS:** admins read+write; everyone authenticated reads `app_settings` and `feature_flags` (so app code can consume them); only admins read `app_setting_history`. Trigger on `app_settings` UPDATE writes a history row and an `audit_logs` entry automatically.
+**Migrate `approve_float_assignment`** so when a finance manager approves an assignment they made (or it's auto-deducted on assignment), the outflow lands in `finance_transactions` (`float_issued_to_teller`) instead of `user_internal_transactions`. Teller inflow stays in `user_internal_transactions` (`opening_float`).
 
-Seed every setting listed in the request with sensible defaults so the UI has content on first load.
+**Migrate `self_assign_float`** to insert into `finance_transactions` (`self_float_legacy`) — it's now only used as a finance-side adjustment, not a teller credit.
 
-### 2. Server functions (`src/lib/admin-settings.functions.ts`)
+**Reclassify history** (one-time data migration in same migration):
+- Move every existing `user_internal_transactions` row with category `self_float` → `finance_transactions` (kind=inflow, category=`self_float_legacy`).
+- Move every existing `user_internal_transactions` row with category `float_assignment` (outflows by finance) → `finance_transactions` (kind=outflow, category=`float_issued_to_teller`).
+- Delete the moved rows from `user_internal_transactions`.
+- Teller-side `opening_float` inflows stay untouched.
 
-All gated with `requireSupabaseAuth` + admin role check via `has_role`.
+Result: teller cash-at-hand calculations (which read `user_internal_transactions`) no longer mix in finance activity.
 
-- `listSettings({ category? })` — fetch grouped settings
-- `updateSetting({ key, value, reason? })` — validate against `validation` jsonb, write, trigger history+audit
-- `bulkUpdateSettings({ updates[] })` — transactional save-all
-- `getSettingHistory({ key, limit })`
-- `forceLogoutAllUsers()` — admin-only danger action (revokes sessions via admin client)
-- `toggleMaintenanceMode({ enabled, message? })`
-- `exportConfiguration()` — returns JSON dump of all settings + flags
-- `importConfiguration({ json })` — validates and applies
+## 2. Teller-portal Self Float
 
-### 3. UI (`src/routes/_authenticated/admin/settings.tsx` + components)
+`teller-float.tsx` currently calls `selfAssignFloat`. Change it to a new server fn `tellerSelfFloat` that always writes into `user_internal_transactions` (`opening_float`, kind=inflow) for the calling user — regardless of role. This is what makes a finance manager acting as a teller behave like any other teller.
 
-A single page with:
-- **Top bar:** global search across all settings, "Unsaved changes" badge, **Save All** button, **Cancel All**
-- **Left tabs** (vertical on desktop, accordion on mobile): Organization · Currencies · Banks · Limits · Float · Sessions · Security · Users · Approvals · Notifications · Reports · Audit · System · **Danger Zone**
-- **Per-setting card** (`SettingRow` component):
-  - Label + description
-  - **Current Value** display
-  - **Edit** → switches to inline input matching `value_type` (text/number/switch/select/JSON editor/currency-rate table/bank table)
-  - **Save** (per-row) and **Cancel** (per-row) buttons
-  - "No Limit" toggle on numeric limit fields
-  - **Last Modified By** + **Last Modified Date** shown beneath
-  - **History** popover → last 20 changes from `app_setting_history`
-  - Inline validation errors from the `validation` jsonb
-- **Section-level Save** button beside each tab header (saves all dirty rows in that section)
-- **Bulk Save All** in the top bar (commits every dirty row across tabs)
-- Unsaved-changes warning on navigation (router `blocker`)
+## 3. Finance Portal — Cash Update tab
 
-Specialized editors:
-- **Currencies tab:** CRUD table + two sub-tables for *Payment Exchange Rates* and *Withdrawal Exchange Rates* managed independently; "Default Currency" radio.
-- **Banks tab:** CRUD table with Enable/Disable, Delete, Bank Codes column.
-- **Limits tab:** global limits + branch-override table (per branch × per limit type); each cell supports "No Limit"; "Effective Date" picker; admin-override switch; history modal.
-- **Float tab:** opening defaults, teller/branch limits, variance tolerance, all with "No Limit" default option.
-- **Sessions tab:** session timeout, auto-close switch + time picker (default 22:00), day-reopening rule explainer, multi-login policy.
-- **Security tab:** password length/complexity, login attempts, lockout duration, idle timeout select (5/7/10/15/30/60, default 7), session expiry.
-- **Users / Approvals / Notifications / Reports / Audit:** straightforward field editors.
-- **System:** Maintenance Mode switch + announcement banner editor + backup config.
-- **Danger Zone:** Force Logout All, Lock System, Export Config (download JSON), Import Config (upload JSON), Restore Defaults — each with a confirm dialog typing the action name.
+- New sidebar item between "Float Management" and "Received Cash".
+- New route `src/routes/finance.cash-update.tsx` mirroring the Add Float form layout:
+  - Date / Time (auto, read-only)
+  - Amount (USD)
+  - Currency (USD, locked)
+  - Reason / Description
+  - Added By (auto from session)
+  - Notes (optional)
+  - Buttons: **Add to Finance Cash** / **Clear Form**
+- Shows current Finance Cash balance card + history table of `finance_transactions` for the logged-in finance manager.
 
-Design: matches existing portal styling (semantic tokens, dark-mode aware, professional banking dashboard); responsive 1-column on mobile, 2-column setting grid on desktop.
+## 4. Finance Portal balance display
 
-### 4. Consumption
+`finance.float.tsx` "Your float balance" card now reads from `finance_transactions` (sum) instead of `user_float_balances`. Same for the dashboard.
 
-Add `src/hooks/useAppSetting.ts` that reads a setting by key via TanStack Query so the rest of the app can replace hardcoded constants over time (out of scope to refactor every caller in this pass — the request is to build the settings center).
+## 5. Audit
 
-### Out of scope
+Every write to `finance_transactions` inserts an `audit_logs` row with module=`finance_ledger`, including source/destination ledger, amount, reference.
 
-- Refactoring existing modules to consume every new setting (separate pass).
-- Real cron-based auto-close execution (we store the config + expose it; wiring the scheduler is a follow-up).
+## Files touched
 
-Confirm and I'll build it.
+- `supabase/migrations/<new>.sql` — new table, RLS, GRANTs, RPC, function updates, data move
+- `src/lib/finance-ledger.functions.ts` (new) — `addFinanceCash`, `getFinanceBalance`, `listFinanceTransactions`
+- `src/lib/float.functions.ts` — split `selfAssignFloat` (finance) from new `tellerSelfFloat`
+- `src/components/FinanceSidebar.tsx` — add Cash Update nav item
+- `src/routes/finance.cash-update.tsx` (new)
+- `src/routes/finance.float.tsx` — read balance from finance ledger
+- `src/routes/finance.index.tsx` — same
+- `src/routes/teller-float.tsx` — use `tellerSelfFloat`
+
+## Out of scope (calling out so you can confirm)
+
+- ZWG support in the finance ledger (USD-only per your answer).
+- Rewriting reports/manager portal — they continue to read `user_internal_transactions`, which now only contains teller activity, so they get more accurate numbers automatically.
+- UI for finance manager to manually move cash back from a teller (returns happen through existing teller close-of-day flow).
