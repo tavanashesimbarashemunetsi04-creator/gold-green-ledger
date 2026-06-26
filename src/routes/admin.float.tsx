@@ -59,13 +59,13 @@ function FloatPage() {
       supabase.from("profiles").select("user_id, full_name, email, username").order("full_name"),
       supabase.from("branches").select("id, name").order("name"),
       supabase.from("float_assignments").select("*").order("created_at", { ascending: false }).limit(100),
-      supabase.from("user_float_balances").select("balance").eq("user_id", user?.id ?? "").maybeSingle(),
+      supabase.from("finance_balances" as never).select("balance").eq("user_id", user?.id ?? "").maybeSingle(),
       supabase.from("user_roles").select("user_id, role").in("role", ["teller", "finance_manager"]),
     ]);
     setProfiles((p.data ?? []) as Profile[]);
     setBranches((b.data ?? []) as Branch[]);
     setRows((a.data ?? []) as Assignment[]);
-    setBalance(Number(bal.data?.balance ?? 0));
+    setBalance(Number((bal.data as { balance?: number } | null)?.balance ?? 0));
     setEligibleIds(new Set(((roles.data ?? []) as { user_id: string }[]).map((r) => r.user_id)));
   }, [user?.id]);
 

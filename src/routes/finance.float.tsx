@@ -59,13 +59,13 @@ function FinanceFloatPage() {
       supabase.from("profiles").select("user_id, full_name, email, username").order("full_name"),
       supabase.from("branches").select("id, name").order("name"),
       supabase.from("float_assignments").select("*").order("created_at", { ascending: false }).limit(100),
-      supabase.from("user_float_balances").select("balance").eq("user_id", user?.id ?? "").maybeSingle(),
+      supabase.from("finance_balances" as never).select("balance").eq("user_id", user?.id ?? "").maybeSingle(),
       supabase.from("user_roles").select("user_id, role").in("role", ["teller", "finance_manager"]),
     ]);
     setProfiles((p.data ?? []) as Profile[]);
     setBranches((b.data ?? []) as Branch[]);
     setRows((a.data ?? []) as Assignment[]);
-    setBalance(Number(bal.data?.balance ?? 0));
+    setBalance(Number((bal.data as { balance?: number } | null)?.balance ?? 0));
     setEligibleIds(new Set(((roles.data ?? []) as { user_id: string }[]).map((r) => r.user_id)));
   }, [user?.id]);
 
@@ -75,7 +75,7 @@ function FinanceFloatPage() {
     const ch = supabase
       .channel("float_assignments_finance")
       .on("postgres_changes", { event: "*", schema: "public", table: "float_assignments" }, () => load())
-      .on("postgres_changes", { event: "*", schema: "public", table: "user_internal_transactions" }, () => load())
+      .on("postgres_changes", { event: "*", schema: "public", table: "finance_transactions" }, () => load())
       .subscribe();
     return () => { supabase.removeChannel(ch); };
   }, [load]);
@@ -142,7 +142,7 @@ function FinanceFloatPage() {
 
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
-          <CardHeader><CardTitle className="text-sm text-muted-foreground">Your float balance</CardTitle></CardHeader>
+          <CardHeader><CardTitle className="text-sm text-muted-foreground">Finance cash balance</CardTitle></CardHeader>
           <CardContent><p className="text-3xl font-semibold">${balance.toFixed(2)}</p></CardContent>
         </Card>
         <Card>
@@ -221,19 +221,22 @@ function FinanceFloatPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Self-float</CardTitle>
-            <CardDescription>Record float allocated to yourself (finance manager / admin).</CardDescription>
+            <CardTitle>Quick finance adjustment</CardTitle>
+            <CardDescription>
+              Add cash directly to your Finance Ledger. For routine top-ups, use the dedicated{" "}
+              <span className="font-medium">Cash Update</span> tab.
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label>Amount</Label>
+              <Label>Amount (USD)</Label>
               <Input type="number" step="0.01" min="0" value={selfAmount} onChange={(e) => setSelfAmount(e.target.value)} />
             </div>
             <div className="space-y-2">
               <Label>Reference</Label>
               <Input value={selfRef} onChange={(e) => setSelfRef(e.target.value)} />
             </div>
-            <Button onClick={submitSelf} variant="outline">Record self-float</Button>
+            <Button onClick={submitSelf} variant="outline">Add to finance cash</Button>
           </CardContent>
         </Card>
       </div>

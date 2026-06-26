@@ -35,6 +35,7 @@ import { Route as FinanceSettingsRouteImport } from './routes/finance.settings'
 import { Route as FinanceReportsRouteImport } from './routes/finance.reports'
 import { Route as FinanceReceivedCashRouteImport } from './routes/finance.received-cash'
 import { Route as FinanceFloatRouteImport } from './routes/finance.float'
+import { Route as FinanceCashUpdateRouteImport } from './routes/finance.cash-update'
 import { Route as FinanceAuditRouteImport } from './routes/finance.audit'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminTransactionsRouteImport } from './routes/admin.transactions'
@@ -178,6 +179,11 @@ const FinanceFloatRoute = FinanceFloatRouteImport.update({
   path: '/float',
   getParentRoute: () => FinanceRoute,
 } as any)
+const FinanceCashUpdateRoute = FinanceCashUpdateRouteImport.update({
+  id: '/cash-update',
+  path: '/cash-update',
+  getParentRoute: () => FinanceRoute,
+} as any)
 const FinanceAuditRoute = FinanceAuditRouteImport.update({
   id: '/audit',
   path: '/audit',
@@ -267,6 +273,7 @@ export interface FileRoutesByFullPath {
   '/admin/transactions': typeof AdminTransactionsRoute
   '/admin/users': typeof AdminUsersRoute
   '/finance/audit': typeof FinanceAuditRoute
+  '/finance/cash-update': typeof FinanceCashUpdateRoute
   '/finance/float': typeof FinanceFloatRoute
   '/finance/received-cash': typeof FinanceReceivedCashRoute
   '/finance/reports': typeof FinanceReportsRoute
@@ -304,6 +311,7 @@ export interface FileRoutesByTo {
   '/admin/transactions': typeof AdminTransactionsRoute
   '/admin/users': typeof AdminUsersRoute
   '/finance/audit': typeof FinanceAuditRoute
+  '/finance/cash-update': typeof FinanceCashUpdateRoute
   '/finance/float': typeof FinanceFloatRoute
   '/finance/received-cash': typeof FinanceReceivedCashRoute
   '/finance/reports': typeof FinanceReportsRoute
@@ -345,6 +353,7 @@ export interface FileRoutesById {
   '/admin/transactions': typeof AdminTransactionsRoute
   '/admin/users': typeof AdminUsersRoute
   '/finance/audit': typeof FinanceAuditRoute
+  '/finance/cash-update': typeof FinanceCashUpdateRoute
   '/finance/float': typeof FinanceFloatRoute
   '/finance/received-cash': typeof FinanceReceivedCashRoute
   '/finance/reports': typeof FinanceReportsRoute
@@ -387,6 +396,7 @@ export interface FileRouteTypes {
     | '/admin/transactions'
     | '/admin/users'
     | '/finance/audit'
+    | '/finance/cash-update'
     | '/finance/float'
     | '/finance/received-cash'
     | '/finance/reports'
@@ -424,6 +434,7 @@ export interface FileRouteTypes {
     | '/admin/transactions'
     | '/admin/users'
     | '/finance/audit'
+    | '/finance/cash-update'
     | '/finance/float'
     | '/finance/received-cash'
     | '/finance/reports'
@@ -464,6 +475,7 @@ export interface FileRouteTypes {
     | '/admin/transactions'
     | '/admin/users'
     | '/finance/audit'
+    | '/finance/cash-update'
     | '/finance/float'
     | '/finance/received-cash'
     | '/finance/reports'
@@ -680,6 +692,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FinanceFloatRouteImport
       parentRoute: typeof FinanceRoute
     }
+    '/finance/cash-update': {
+      id: '/finance/cash-update'
+      path: '/cash-update'
+      fullPath: '/finance/cash-update'
+      preLoaderRoute: typeof FinanceCashUpdateRouteImport
+      parentRoute: typeof FinanceRoute
+    }
     '/finance/audit': {
       id: '/finance/audit'
       path: '/audit'
@@ -799,6 +818,7 @@ const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 interface FinanceRouteChildren {
   FinanceAuditRoute: typeof FinanceAuditRoute
+  FinanceCashUpdateRoute: typeof FinanceCashUpdateRoute
   FinanceFloatRoute: typeof FinanceFloatRoute
   FinanceReceivedCashRoute: typeof FinanceReceivedCashRoute
   FinanceReportsRoute: typeof FinanceReportsRoute
@@ -809,6 +829,7 @@ interface FinanceRouteChildren {
 
 const FinanceRouteChildren: FinanceRouteChildren = {
   FinanceAuditRoute: FinanceAuditRoute,
+  FinanceCashUpdateRoute: FinanceCashUpdateRoute,
   FinanceFloatRoute: FinanceFloatRoute,
   FinanceReceivedCashRoute: FinanceReceivedCashRoute,
   FinanceReportsRoute: FinanceReportsRoute,
@@ -858,13 +879,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
