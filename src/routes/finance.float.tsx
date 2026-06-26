@@ -221,19 +221,22 @@ function FinanceFloatPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Self-float</CardTitle>
-            <CardDescription>Record float allocated to yourself (finance manager / admin).</CardDescription>
+            <CardTitle>Quick finance adjustment</CardTitle>
+            <CardDescription>
+              Add cash directly to your Finance Ledger. For routine top-ups, use the dedicated{" "}
+              <span className="font-medium">Cash Update</span> tab.
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label>Amount</Label>
+              <Label>Amount (USD)</Label>
               <Input type="number" step="0.01" min="0" value={selfAmount} onChange={(e) => setSelfAmount(e.target.value)} />
             </div>
             <div className="space-y-2">
               <Label>Reference</Label>
               <Input value={selfRef} onChange={(e) => setSelfRef(e.target.value)} />
             </div>
-            <Button onClick={submitSelf} variant="outline">Record self-float</Button>
+            <Button onClick={submitSelf} variant="outline">Add to finance cash</Button>
           </CardContent>
         </Card>
       </div>
