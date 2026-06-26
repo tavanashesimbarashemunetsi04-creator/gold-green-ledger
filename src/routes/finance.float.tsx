@@ -142,7 +142,7 @@ function FinanceFloatPage() {
 
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
-          <CardHeader><CardTitle className="text-sm text-muted-foreground">Your float balance</CardTitle></CardHeader>
+          <CardHeader><CardTitle className="text-sm text-muted-foreground">Finance cash balance</CardTitle></CardHeader>
           <CardContent><p className="text-3xl font-semibold">${balance.toFixed(2)}</p></CardContent>
         </Card>
         <Card>
