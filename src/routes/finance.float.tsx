@@ -75,7 +75,7 @@ function FinanceFloatPage() {
     const ch = supabase
       .channel("float_assignments_finance")
       .on("postgres_changes", { event: "*", schema: "public", table: "float_assignments" }, () => load())
-      .on("postgres_changes", { event: "*", schema: "public", table: "user_internal_transactions" }, () => load())
+      .on("postgres_changes", { event: "*", schema: "public", table: "finance_transactions" }, () => load())
       .subscribe();
     return () => { supabase.removeChannel(ch); };
   }, [load]);
