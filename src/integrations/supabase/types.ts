@@ -583,6 +583,59 @@ export type Database = {
           },
         ]
       }
+      finance_transactions: {
+        Row: {
+          amount: number
+          category: Database["public"]["Enums"]["finance_tx_category"]
+          created_at: string
+          created_by_user_id: string | null
+          currency: string
+          id: string
+          kind: Database["public"]["Enums"]["internal_tx_kind"]
+          notes: string | null
+          reference: string | null
+          related_float_assignment_id: string | null
+          related_uit_id: string | null
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          category: Database["public"]["Enums"]["finance_tx_category"]
+          created_at?: string
+          created_by_user_id?: string | null
+          currency?: string
+          id?: string
+          kind: Database["public"]["Enums"]["internal_tx_kind"]
+          notes?: string | null
+          reference?: string | null
+          related_float_assignment_id?: string | null
+          related_uit_id?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          category?: Database["public"]["Enums"]["finance_tx_category"]
+          created_at?: string
+          created_by_user_id?: string | null
+          currency?: string
+          id?: string
+          kind?: Database["public"]["Enums"]["internal_tx_kind"]
+          notes?: string | null
+          reference?: string | null
+          related_float_assignment_id?: string | null
+          related_uit_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "finance_transactions_related_float_assignment_id_fkey"
+            columns: ["related_float_assignment_id"]
+            isOneToOne: false
+            referencedRelation: "float_assignments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       float_assignments: {
         Row: {
           amount: number
@@ -1272,6 +1325,13 @@ export type Database = {
         }
         Relationships: []
       }
+      finance_balances: {
+        Row: {
+          balance: number | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
       inflows: {
         Row: {
           branch_id: string | null
@@ -1339,6 +1399,29 @@ export type Database = {
       }
     }
     Functions: {
+      add_finance_cash: {
+        Args: { _amount: number; _notes: string; _reference: string }
+        Returns: {
+          amount: number
+          category: Database["public"]["Enums"]["finance_tx_category"]
+          created_at: string
+          created_by_user_id: string | null
+          currency: string
+          id: string
+          kind: Database["public"]["Enums"]["internal_tx_kind"]
+          notes: string | null
+          reference: string | null
+          related_float_assignment_id: string | null
+          related_uit_id: string | null
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "finance_transactions"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       approve_float_assignment: {
         Args: { _assignment_id: string }
         Returns: {
@@ -1717,18 +1800,21 @@ export type Database = {
         Args: { _amount: number; _branch_id: string; _reference: string }
         Returns: {
           amount: number
-          category: Database["public"]["Enums"]["internal_tx_category"]
+          category: Database["public"]["Enums"]["finance_tx_category"]
           created_at: string
           created_by_user_id: string | null
+          currency: string
           id: string
           kind: Database["public"]["Enums"]["internal_tx_kind"]
           notes: string | null
+          reference: string | null
           related_float_assignment_id: string | null
+          related_uit_id: string | null
           user_id: string
         }
         SetofOptions: {
           from: "*"
-          to: "user_internal_transactions"
+          to: "finance_transactions"
           isOneToOne: true
           isSetofReturn: false
         }
@@ -1743,6 +1829,13 @@ export type Database = {
       ecocash_session_status: "open" | "closed"
       ecocash_source: "manual_entry" | "internal_transaction"
       ecocash_tx_type: "inflow" | "outflow"
+      finance_tx_category:
+        | "cash_update"
+        | "opening_finance_float"
+        | "float_issued_to_teller"
+        | "float_received_from_teller"
+        | "adjustment"
+        | "self_float_legacy"
       float_assignment_status: "pending" | "approved" | "rejected" | "cancelled"
       internal_tx_category:
         | "opening_float"
@@ -1896,6 +1989,14 @@ export const Constants = {
       ecocash_session_status: ["open", "closed"],
       ecocash_source: ["manual_entry", "internal_transaction"],
       ecocash_tx_type: ["inflow", "outflow"],
+      finance_tx_category: [
+        "cash_update",
+        "opening_finance_float",
+        "float_issued_to_teller",
+        "float_received_from_teller",
+        "adjustment",
+        "self_float_legacy",
+      ],
       float_assignment_status: ["pending", "approved", "rejected", "cancelled"],
       internal_tx_category: [
         "opening_float",
