@@ -8,11 +8,13 @@ import {
   Settings as SettingsIcon,
   LogOut,
   ShieldCheck,
+  Banknote,
 } from "lucide-react";
 
 const items = [
   { title: "Dashboard", url: "/finance", icon: LayoutDashboard, exact: true },
   { title: "Float Management", url: "/finance/float", icon: ArrowLeftRight },
+  { title: "Cash Update", url: "/finance/cash-update", icon: Banknote },
   { title: "Received Cash", url: "/finance/received-cash", icon: Wallet },
   { title: "Settings", url: "/finance/settings", icon: SettingsIcon },
 ];
