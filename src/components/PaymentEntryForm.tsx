@@ -116,6 +116,7 @@ export function PaymentEntryForm({ bank, onSubmit }: Props) {
       account_name: form.account_name.trim(),
       account_number: form.account_number.trim(),
       phone_number: form.phone_number.trim(),
+      card_number: isSwipe ? form.card_number.trim() : undefined,
       code: form.code.trim(),
       payment_type: form.payment_type,
       usd_amount: form.usd_amount ? Number(form.usd_amount) : null,
