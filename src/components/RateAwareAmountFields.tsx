@@ -187,21 +187,25 @@ export function RateAwareAmountFields({
           step="0.01"
           min="0"
           value={usdValue}
+          disabled={singleCurrencyOnly && !!zwgValue && Number(zwgValue) > 0}
           onChange={(e) => recalcFromUsd(e.target.value)}
         />
       </div>
-      <div className="space-y-2">
-        <Label htmlFor="zwg_amount">ZWG Amount</Label>
-        <Input
-          id="zwg_amount"
-          type="number"
-          inputMode="decimal"
-          step="0.01"
-          min="0"
-          value={zwgValue}
-          onChange={(e) => recalcFromZwg(e.target.value)}
-        />
-      </div>
+      {!hideZwg && (
+        <div className="space-y-2">
+          <Label htmlFor="zwg_amount">ZWG Amount</Label>
+          <Input
+            id="zwg_amount"
+            type="number"
+            inputMode="decimal"
+            step="0.01"
+            min="0"
+            value={zwgValue}
+            disabled={singleCurrencyOnly && !!usdValue && Number(usdValue) > 0}
+            onChange={(e) => recalcFromZwg(e.target.value)}
+          />
+        </div>
+      )}
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
