@@ -47,6 +47,8 @@ export function RateAwareAmountFields({
   onAmountSourceChange,
   onCodeChange,
   reference,
+  hideZwg = false,
+  singleCurrencyOnly = false,
 }: Props) {
   const [code, setCode] = useState<string>(String(defaultRate || ""));
   const [unlocked, setUnlocked] = useState(false);
