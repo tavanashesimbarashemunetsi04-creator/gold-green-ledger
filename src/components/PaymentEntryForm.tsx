@@ -82,6 +82,23 @@ export function PaymentEntryForm({ bank, onSubmit }: Props) {
   const update = <K extends keyof typeof initialState>(key: K, value: string) =>
     setForm((f) => ({ ...f, [key]: value }));
 
+  const isSwipe = form.payment_type === "Swipe";
+  const isUsdOnly = form.payment_type === "USD Payment";
+
+  const handlePaymentTypeChange = (v: string) => {
+    setForm((f) => {
+      const next = { ...f, payment_type: v };
+      if (v === "USD Payment") next.zwg_amount = "";
+      if (v === "Swipe") {
+        // Reset both so the teller deliberately picks one currency.
+        next.usd_amount = "";
+        next.zwg_amount = "";
+      }
+      if (v !== "Swipe") next.card_number = "";
+      return next;
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
