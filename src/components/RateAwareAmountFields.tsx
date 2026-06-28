@@ -202,7 +202,7 @@ export function RateAwareAmountFields({
         <Label htmlFor="usd_amount">
           USD Amount
           {unroundedUsd && (
-            <span className="ml-2 text-xs font-normal text-amber-600">
+            <span className="ml-2 text-sm font-semibold text-amber-600">
               (actual: {unroundedUsd})
             </span>
           )}
