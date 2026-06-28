@@ -75,6 +75,10 @@ export function RateAwareAmountFields({
   const recalcFromUsd = (usd: string) => {
     onAmountSourceChange?.(usd && Number(usd) > 0 ? "usd" : null);
     onUsdChange(usd);
+    if (hideZwg || singleCurrencyOnly) {
+      if (!usd) onZwgChange("");
+      return;
+    }
     const c = Number(code);
     if (usd && c > 0) onZwgChange((Number(usd) * c).toFixed(2));
     else if (!usd) onZwgChange("");
@@ -82,6 +86,10 @@ export function RateAwareAmountFields({
   const recalcFromZwg = (zwg: string) => {
     onAmountSourceChange?.(zwg && Number(zwg) > 0 ? "zwg" : null);
     onZwgChange(zwg);
+    if (singleCurrencyOnly) {
+      if (!zwg) onUsdChange("");
+      return;
+    }
     const c = Number(code);
     if (zwg && c > 0) onUsdChange(String(Math.round(Number(zwg) / c)));
     else if (!zwg) onUsdChange("");
@@ -89,6 +97,7 @@ export function RateAwareAmountFields({
 
   // Re-derive the calculated amount when code itself changes.
   useEffect(() => {
+    if (hideZwg || singleCurrencyOnly) return;
     const c = Number(code);
     if (amountSource === "zwg" && zwgValue && c > 0) onUsdChange(String(Math.round(Number(zwgValue) / c)));
     else if (usdValue && c > 0) onZwgChange((Number(usdValue) * c).toFixed(2));
