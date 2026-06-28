@@ -171,11 +171,39 @@ export const adminDeleteUser = createServerFn({ method: "POST" })
       throw new Error("You cannot delete your own account");
     }
 
-    // Best-effort cleanup of related rows; rely on FK cascades where present
-    await supabaseAdmin.from("user_roles").delete().eq("user_id", data.user_id);
-    await supabaseAdmin.from("profiles").delete().eq("user_id", data.user_id);
+    // Clean up referencing rows so auth.users can be deleted (no cascades set)
+    const uid = data.user_id;
+    const byUser: Array<[string, string]> = [
+      ["user_internal_transactions", "user_id"],
+      ["user_internal_transactions", "created_by_user_id"],
+      ["finance_transactions", "user_id"],
+      ["finance_transactions", "created_by_user_id"],
+      ["teller_transfers", "sending_user_id"],
+      ["teller_transfers", "requesting_user_id"],
+      ["teller_balancing", "teller_user_id"],
+      ["teller_balancing", "balanced_by_user_id"],
+      ["received_cash", "teller_user_id"],
+      ["received_cash", "received_by_user_id"],
+      ["end_day_summary", "closed_by_user_id"],
+      ["float_assignments", "assigned_to_user_id"],
+      ["float_assignments", "assigned_by_user_id"],
+      ["teller_sessions", "user_id"],
+      ["ecocash_sessions", "user_id"],
+      ["login_sessions", "user_id"],
+      ["security_alerts", "user_id"],
+      ["code_overrides", "user_id"],
+      ["approvals", "approver_user_id"],
+      ["audit_logs", "actor_user_id"],
+      ["audit_logs", "target_user_id"],
+      ["user_roles", "user_id"],
+      ["profiles", "user_id"],
+    ];
+    for (const [tbl, col] of byUser) {
+      // ignore individual failures; continue cleanup
+      await supabaseAdmin.from(tbl as never).delete().eq(col, uid);
+    }
 
-    const { error } = await supabaseAdmin.auth.admin.deleteUser(data.user_id);
+    const { error } = await supabaseAdmin.auth.admin.deleteUser(uid);
     if (error) throw new Error(error.message);
 
     await logAudit(context.userId, "user_deleted", "profiles", data.user_id, {});
