@@ -26,6 +26,8 @@ interface Props {
   onAmountSourceChange?: (source: "usd" | "zwg" | null) => void;
   onCodeChange?: (code: number, isOverride: boolean) => void;
   reference?: string;
+  hideZwg?: boolean;
+  singleCurrencyOnly?: boolean;
 }
 
 /**
