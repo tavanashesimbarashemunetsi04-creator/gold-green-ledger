@@ -196,7 +196,7 @@ export function PaymentEntryForm({ bank, onSubmit }: Props) {
               <Label>Payment Type *</Label>
               <Select
                 value={form.payment_type}
-                onValueChange={(v) => update("payment_type", v)}
+                onValueChange={handlePaymentTypeChange}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select payment type" />
