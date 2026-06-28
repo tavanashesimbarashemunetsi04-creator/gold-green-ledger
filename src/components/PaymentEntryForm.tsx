@@ -35,7 +35,7 @@ export type PaymentEntry = {
 export type PaymentStatus = "successful" | "pending" | "failed";
 const STATUSES: PaymentStatus[] = ["successful", "pending", "failed"];
 
-const PAYMENT_TYPES = ["USD - ZWG", "Cash USD", "Swipe", "Cash ZWG"] as const;
+const PAYMENT_TYPES = ["USD - ZWG", "USD Payment", "Swipe", "Cash ZWG"] as const;
 const CATEGORIES = [
   "Zesa",
   "COH",
