@@ -22,6 +22,7 @@ export type PaymentEntry = {
   account_name: string;
   account_number: string;
   phone_number: string;
+  card_number?: string;
   code: string;
   payment_type: string;
   usd_amount: number | null;
