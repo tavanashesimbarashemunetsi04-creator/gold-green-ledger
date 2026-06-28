@@ -57,6 +57,7 @@ const initialState = {
   account_name: "",
   account_number: "",
   phone_number: "",
+  card_number: "",
   code: "",
   payment_type: "",
   usd_amount: "",
