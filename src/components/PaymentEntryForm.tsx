@@ -242,6 +242,22 @@ export function PaymentEntryForm({ bank, onSubmit }: Props) {
             </div>
           </div>
 
+          {isSwipe && (
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="card_number">Card Number *</Label>
+                <Input
+                  id="card_number"
+                  inputMode="numeric"
+                  value={form.card_number}
+                  onChange={(e) => update("card_number", e.target.value.replace(/[^0-9 ]/g, ""))}
+                  placeholder="Card number used for the swipe"
+                  maxLength={25}
+                />
+              </div>
+            </div>
+          )}
+
           {/* Code + Amounts (auto-calc using Admin-set Payments Rate) */}
           <div className="grid gap-4 sm:grid-cols-3">
             <RateAwareAmountFields
@@ -253,6 +269,8 @@ export function PaymentEntryForm({ bank, onSubmit }: Props) {
               onZwgChange={(v) => update("zwg_amount", v)}
               onCodeChange={(c) => setForm((f) => ({ ...f, code: String(c) }))}
               reference={`${bank} ${form.account_name || form.account_number || ""}`.trim()}
+              hideZwg={isUsdOnly}
+              singleCurrencyOnly={isSwipe}
             />
           </div>
 
