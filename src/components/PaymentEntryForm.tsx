@@ -104,6 +104,9 @@ export function PaymentEntryForm({ bank, onSubmit }: Props) {
 
     if (!form.date) return toast.error("Date is required");
     if (!form.payment_type) return toast.error("Payment Type is required");
+    if (isSwipe && !form.card_number.trim()) return toast.error("Card Number is required for Swipe");
+    if (isSwipe && !!form.usd_amount && !!form.zwg_amount)
+      return toast.error("For Swipe, enter either USD or ZWG — not both");
     if (!form.usd_amount && !form.zwg_amount)
       return toast.error("Enter at least one of USD or ZWG amount");
 
