@@ -72,9 +72,12 @@ export function RateAwareAmountFields({
     onCodeChangeRef.current?.(Number(code) || 0, overridden);
   }, [code, overridden]);
 
+  const [unroundedUsd, setUnroundedUsd] = useState<string | null>(null);
+
   const recalcFromUsd = (usd: string) => {
     onAmountSourceChange?.(usd && Number(usd) > 0 ? "usd" : null);
     onUsdChange(usd);
+    setUnroundedUsd(null);
     if (hideZwg || singleCurrencyOnly) {
       if (!usd) onZwgChange("");
       return;
@@ -87,20 +90,37 @@ export function RateAwareAmountFields({
     onAmountSourceChange?.(zwg && Number(zwg) > 0 ? "zwg" : null);
     onZwgChange(zwg);
     if (singleCurrencyOnly) {
-      if (!zwg) onUsdChange("");
+      if (!zwg) {
+        onUsdChange("");
+        setUnroundedUsd(null);
+      }
       return;
     }
     const c = Number(code);
-    if (zwg && c > 0) onUsdChange(String(Math.round(Number(zwg) / c)));
-    else if (!zwg) onUsdChange("");
+    if (zwg && c > 0) {
+      const exact = Number(zwg) / c;
+      const rounded = Math.round(exact);
+      onUsdChange(String(rounded));
+      setUnroundedUsd(Math.abs(exact - rounded) > 0.0001 ? exact.toFixed(2) : null);
+    } else if (!zwg) {
+      onUsdChange("");
+      setUnroundedUsd(null);
+    }
   };
 
   // Re-derive the calculated amount when code itself changes.
   useEffect(() => {
     if (hideZwg || singleCurrencyOnly) return;
     const c = Number(code);
-    if (amountSource === "zwg" && zwgValue && c > 0) onUsdChange(String(Math.round(Number(zwgValue) / c)));
-    else if (usdValue && c > 0) onZwgChange((Number(usdValue) * c).toFixed(2));
+    if (amountSource === "zwg" && zwgValue && c > 0) {
+      const exact = Number(zwgValue) / c;
+      const rounded = Math.round(exact);
+      onUsdChange(String(rounded));
+      setUnroundedUsd(Math.abs(exact - rounded) > 0.0001 ? exact.toFixed(2) : null);
+    } else if (usdValue && c > 0) {
+      onZwgChange((Number(usdValue) * c).toFixed(2));
+      setUnroundedUsd(null);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [code]);
 
