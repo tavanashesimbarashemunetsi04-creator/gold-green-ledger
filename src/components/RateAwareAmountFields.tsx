@@ -199,7 +199,14 @@ export function RateAwareAmountFields({
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="usd_amount">USD Amount</Label>
+        <Label htmlFor="usd_amount">
+          USD Amount
+          {unroundedUsd && (
+            <span className="ml-2 text-xs font-normal text-amber-600">
+              (actual: {unroundedUsd})
+            </span>
+          )}
+        </Label>
         <Input
           id="usd_amount"
           type="number"
