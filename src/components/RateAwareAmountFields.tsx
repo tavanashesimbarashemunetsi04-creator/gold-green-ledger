@@ -26,6 +26,8 @@ interface Props {
   onAmountSourceChange?: (source: "usd" | "zwg" | null) => void;
   onCodeChange?: (code: number, isOverride: boolean) => void;
   reference?: string;
+  hideZwg?: boolean;
+  singleCurrencyOnly?: boolean;
 }
 
 /**
@@ -45,6 +47,8 @@ export function RateAwareAmountFields({
   onAmountSourceChange,
   onCodeChange,
   reference,
+  hideZwg = false,
+  singleCurrencyOnly = false,
 }: Props) {
   const [code, setCode] = useState<string>(String(defaultRate || ""));
   const [unlocked, setUnlocked] = useState(false);
@@ -71,6 +75,10 @@ export function RateAwareAmountFields({
   const recalcFromUsd = (usd: string) => {
     onAmountSourceChange?.(usd && Number(usd) > 0 ? "usd" : null);
     onUsdChange(usd);
+    if (hideZwg || singleCurrencyOnly) {
+      if (!usd) onZwgChange("");
+      return;
+    }
     const c = Number(code);
     if (usd && c > 0) onZwgChange((Number(usd) * c).toFixed(2));
     else if (!usd) onZwgChange("");
@@ -78,6 +86,10 @@ export function RateAwareAmountFields({
   const recalcFromZwg = (zwg: string) => {
     onAmountSourceChange?.(zwg && Number(zwg) > 0 ? "zwg" : null);
     onZwgChange(zwg);
+    if (singleCurrencyOnly) {
+      if (!zwg) onUsdChange("");
+      return;
+    }
     const c = Number(code);
     if (zwg && c > 0) onUsdChange(String(Math.round(Number(zwg) / c)));
     else if (!zwg) onUsdChange("");
@@ -85,6 +97,7 @@ export function RateAwareAmountFields({
 
   // Re-derive the calculated amount when code itself changes.
   useEffect(() => {
+    if (hideZwg || singleCurrencyOnly) return;
     const c = Number(code);
     if (amountSource === "zwg" && zwgValue && c > 0) onUsdChange(String(Math.round(Number(zwgValue) / c)));
     else if (usdValue && c > 0) onZwgChange((Number(usdValue) * c).toFixed(2));
@@ -174,21 +187,25 @@ export function RateAwareAmountFields({
           step="0.01"
           min="0"
           value={usdValue}
+          disabled={singleCurrencyOnly && !!zwgValue && Number(zwgValue) > 0}
           onChange={(e) => recalcFromUsd(e.target.value)}
         />
       </div>
-      <div className="space-y-2">
-        <Label htmlFor="zwg_amount">ZWG Amount</Label>
-        <Input
-          id="zwg_amount"
-          type="number"
-          inputMode="decimal"
-          step="0.01"
-          min="0"
-          value={zwgValue}
-          onChange={(e) => recalcFromZwg(e.target.value)}
-        />
-      </div>
+      {!hideZwg && (
+        <div className="space-y-2">
+          <Label htmlFor="zwg_amount">ZWG Amount</Label>
+          <Input
+            id="zwg_amount"
+            type="number"
+            inputMode="decimal"
+            step="0.01"
+            min="0"
+            value={zwgValue}
+            disabled={singleCurrencyOnly && !!usdValue && Number(usdValue) > 0}
+            onChange={(e) => recalcFromZwg(e.target.value)}
+          />
+        </div>
+      )}
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>

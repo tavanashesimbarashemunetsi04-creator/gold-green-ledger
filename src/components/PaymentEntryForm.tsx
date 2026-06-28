@@ -22,6 +22,7 @@ export type PaymentEntry = {
   account_name: string;
   account_number: string;
   phone_number: string;
+  card_number?: string;
   code: string;
   payment_type: string;
   usd_amount: number | null;
@@ -56,6 +57,7 @@ const initialState = {
   account_name: "",
   account_number: "",
   phone_number: "",
+  card_number: "",
   code: "",
   payment_type: "",
   usd_amount: "",
@@ -80,11 +82,31 @@ export function PaymentEntryForm({ bank, onSubmit }: Props) {
   const update = <K extends keyof typeof initialState>(key: K, value: string) =>
     setForm((f) => ({ ...f, [key]: value }));
 
+  const isSwipe = form.payment_type === "Swipe";
+  const isUsdOnly = form.payment_type === "USD Payment";
+
+  const handlePaymentTypeChange = (v: string) => {
+    setForm((f) => {
+      const next = { ...f, payment_type: v };
+      if (v === "USD Payment") next.zwg_amount = "";
+      if (v === "Swipe") {
+        // Reset both so the teller deliberately picks one currency.
+        next.usd_amount = "";
+        next.zwg_amount = "";
+      }
+      if (v !== "Swipe") next.card_number = "";
+      return next;
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!form.date) return toast.error("Date is required");
     if (!form.payment_type) return toast.error("Payment Type is required");
+    if (isSwipe && !form.card_number.trim()) return toast.error("Card Number is required for Swipe");
+    if (isSwipe && !!form.usd_amount && !!form.zwg_amount)
+      return toast.error("For Swipe, enter either USD or ZWG — not both");
     if (!form.usd_amount && !form.zwg_amount)
       return toast.error("Enter at least one of USD or ZWG amount");
 
@@ -94,6 +116,7 @@ export function PaymentEntryForm({ bank, onSubmit }: Props) {
       account_name: form.account_name.trim(),
       account_number: form.account_number.trim(),
       phone_number: form.phone_number.trim(),
+      card_number: isSwipe ? form.card_number.trim() : undefined,
       code: form.code.trim(),
       payment_type: form.payment_type,
       usd_amount: form.usd_amount ? Number(form.usd_amount) : null,
@@ -173,7 +196,7 @@ export function PaymentEntryForm({ bank, onSubmit }: Props) {
               <Label>Payment Type *</Label>
               <Select
                 value={form.payment_type}
-                onValueChange={(v) => update("payment_type", v)}
+                onValueChange={handlePaymentTypeChange}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select payment type" />
@@ -219,6 +242,22 @@ export function PaymentEntryForm({ bank, onSubmit }: Props) {
             </div>
           </div>
 
+          {isSwipe && (
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="card_number">Card Number *</Label>
+                <Input
+                  id="card_number"
+                  inputMode="numeric"
+                  value={form.card_number}
+                  onChange={(e) => update("card_number", e.target.value.replace(/[^0-9 ]/g, ""))}
+                  placeholder="Card number used for the swipe"
+                  maxLength={25}
+                />
+              </div>
+            </div>
+          )}
+
           {/* Code + Amounts (auto-calc using Admin-set Payments Rate) */}
           <div className="grid gap-4 sm:grid-cols-3">
             <RateAwareAmountFields
@@ -230,6 +269,8 @@ export function PaymentEntryForm({ bank, onSubmit }: Props) {
               onZwgChange={(v) => update("zwg_amount", v)}
               onCodeChange={(c) => setForm((f) => ({ ...f, code: String(c) }))}
               reference={`${bank} ${form.account_name || form.account_number || ""}`.trim()}
+              hideZwg={isUsdOnly}
+              singleCurrencyOnly={isSwipe}
             />
           </div>
 
