@@ -316,17 +316,19 @@ function EndDayPage() {
                   <LineTable rows={data?.inflows.internal ?? []} search={search} showTotal emptyText="No internal inflows" />
                 </Subsection>
 
-                {(["ZB", "CBZ", "BANCABC", "AFC"] as const).map((bank) => (
-                  <Subsection key={bank} title={`${bank} Payments`} subtitle="Successful">
-                    <LineTable
-                      rows={data?.inflows.paymentsByBank[bank] ?? []}
-                      search={search}
-                      showTotal
-                      emptyText={`No ${bank} payments`}
-                      variant="payment"
-                    />
-                  </Subsection>
-                ))}
+                {(["ZB", "CBZ", "BANCABC", "AFC"] as const)
+                  .filter((bank) => (data?.inflows.paymentsByBank[bank] ?? []).length > 0)
+                  .map((bank) => (
+                    <Subsection key={bank} title={`${bank} Payments`} subtitle="Successful">
+                      <LineTable
+                        rows={data?.inflows.paymentsByBank[bank] ?? []}
+                        search={search}
+                        showTotal
+                        emptyText={`No ${bank} payments`}
+                        variant="payment"
+                      />
+                    </Subsection>
+                  ))}
               </div>
             </section>
 
