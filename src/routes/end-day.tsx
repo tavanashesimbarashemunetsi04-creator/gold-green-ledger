@@ -757,8 +757,13 @@ function LineTable({
 }
 
 
-function GrandTotal({ label, usd, zwg, tone }: { label: string; usd: number; zwg: number; tone: "success" | "destructive" }) {
-  const color = tone === "success" ? "bg-success text-white" : "bg-destructive text-white";
+function GrandTotal({ label, usd, zwg, tone }: { label: string; usd: number; zwg: number; tone: "success" | "destructive" | "primary" }) {
+  const color =
+    tone === "success"
+      ? "bg-success text-white"
+      : tone === "destructive"
+        ? "bg-destructive text-white"
+        : "bg-primary text-white";
   return (
     <div className={`flex flex-wrap items-center justify-between gap-3 rounded-xl ${color} px-4 py-3 font-bold`}>
       <span className="text-sm uppercase tracking-wider">{label}</span>
