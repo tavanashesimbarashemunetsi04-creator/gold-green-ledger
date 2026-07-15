@@ -280,9 +280,9 @@ function EndDayPage() {
         </TabsList>
 
         <TabsContent value="summary" className="mt-4">
-          {/* Side-by-side layout: Inflows (left) | thin Expected Cash (middle) | Outflows (right) */}
-          <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[1fr_auto_1fr]">
-            {/* INFLOWS — LEFT (big) */}
+          {/* Side-by-side layout: Inflows (left) | Outflows (right) — equal height */}
+          <div className="grid grid-cols-1 items-stretch gap-4 lg:grid-cols-2">
+            {/* INFLOWS — LEFT */}
             <section className="rounded-2xl border-2 border-success/40 bg-card shadow-[var(--shadow-soft)]">
               <SectionHeader
                 title="INFLOWS"
@@ -328,27 +328,9 @@ function EndDayPage() {
                   </Subsection>
                 ))}
               </div>
-              <div className="px-5 pb-5 md:px-6 md:pb-6">
-                <GrandTotal label="Total Inflows" usd={totals.inflowUsd} zwg={totals.inflowZwg} tone="success" />
-              </div>
             </section>
 
-            {/* THIN DIVIDER — Expected Cash Balance */}
-            <div className="flex flex-col items-center justify-center gap-1.5 rounded-xl border border-primary/40 bg-primary/5 px-3 py-3 shadow-sm lg:min-w-[120px]">
-              <Calculator className="h-3.5 w-3.5 text-primary" />
-              <div className="text-center text-[9px] font-semibold uppercase tracking-wider text-primary leading-tight">
-                Expected<br/>Cash<br/>Balance
-              </div>
-              <div className="text-[9px] font-normal normal-case tracking-normal text-muted-foreground text-center">
-                (Inflows − Outflows)
-              </div>
-              <div className="flex flex-col items-center gap-0.5 text-xs font-bold tabular-nums">
-                <span>USD {fmt(totals.expectedUsd)}</span>
-                <span>ZWG {fmt(totals.expectedZwg)}</span>
-              </div>
-            </div>
-
-            {/* OUTFLOWS — RIGHT (big) */}
+            {/* OUTFLOWS — RIGHT */}
             <section className="rounded-2xl border-2 border-destructive/40 bg-card shadow-[var(--shadow-soft)]">
               <SectionHeader
                 title="OUTFLOWS"
@@ -370,10 +352,14 @@ function EndDayPage() {
                   <LineTable rows={data?.outflows.internal ?? []} search={search} showTotal emptyText="No internal outflows" />
                 </Subsection>
               </div>
-              <div className="px-5 pb-5 md:px-6 md:pb-6">
-                <GrandTotal label="Total Outflows" usd={totals.outflowUsd} zwg={totals.outflowZwg} tone="destructive" />
-              </div>
             </section>
+          </div>
+
+          {/* Summary totals: Inflows | Expected Cash Balance | Outflows */}
+          <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-3">
+            <GrandTotal label="Total Inflows" usd={totals.inflowUsd} zwg={totals.inflowZwg} tone="success" />
+            <GrandTotal label="Expected Cash Balance" usd={totals.expectedUsd} zwg={totals.expectedZwg} tone="primary" />
+            <GrandTotal label="Total Outflows" usd={totals.outflowUsd} zwg={totals.outflowZwg} tone="destructive" />
           </div>
 
           {/* BALANCING CONTROLS — BELOW */}
@@ -771,8 +757,13 @@ function LineTable({
 }
 
 
-function GrandTotal({ label, usd, zwg, tone }: { label: string; usd: number; zwg: number; tone: "success" | "destructive" }) {
-  const color = tone === "success" ? "bg-success text-white" : "bg-destructive text-white";
+function GrandTotal({ label, usd, zwg, tone }: { label: string; usd: number; zwg: number; tone: "success" | "destructive" | "primary" }) {
+  const color =
+    tone === "success"
+      ? "bg-success text-white"
+      : tone === "destructive"
+        ? "bg-destructive text-white"
+        : "bg-primary text-white";
   return (
     <div className={`flex flex-wrap items-center justify-between gap-3 rounded-xl ${color} px-4 py-3 font-bold`}>
       <span className="text-sm uppercase tracking-wider">{label}</span>
