@@ -14,6 +14,7 @@ import { Route as TellerFloatRouteImport } from './routes/teller-float'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as PendingRouteImport } from './routes/pending'
 import { Route as PaymentsRouteImport } from './routes/payments'
+import { Route as McpRouteImport } from './routes/mcp'
 import { Route as ManagerRouteImport } from './routes/manager'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as InternalTransactionsRouteImport } from './routes/internal-transactions'
@@ -47,7 +48,10 @@ import { Route as AdminFloatRouteImport } from './routes/admin.float'
 import { Route as AdminBranchesRouteImport } from './routes/admin.branches'
 import { Route as AdminAuditRouteImport } from './routes/admin.audit'
 import { Route as AdminApprovalsRouteImport } from './routes/admin.approvals'
+import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
+import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as ManagerTellerUserIdRouteImport } from './routes/manager.teller.$userId'
+import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
 
 const WithdrawalsRoute = WithdrawalsRouteImport.update({
   id: '/withdrawals',
@@ -72,6 +76,11 @@ const PendingRoute = PendingRouteImport.update({
 const PaymentsRoute = PaymentsRouteImport.update({
   id: '/payments',
   path: '/payments',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const McpRoute = McpRouteImport.update({
+  id: '/mcp',
+  path: '/mcp',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ManagerRoute = ManagerRouteImport.update({
@@ -239,11 +248,29 @@ const AdminApprovalsRoute = AdminApprovalsRouteImport.update({
   path: '/approvals',
   getParentRoute: () => AdminRoute,
 } as any)
+const Char91DotwellKnownChar93OauthProtectedResourceRoute =
+  Char91DotwellKnownChar93OauthProtectedResourceRouteImport.update({
+    id: '/.well-known/oauth-protected-resource',
+    path: '/.well-known/oauth-protected-resource',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const Char91DotmcpChar93ListToolsRoute =
+  Char91DotmcpChar93ListToolsRouteImport.update({
+    id: '/.mcp/list-tools',
+    path: '/.mcp/list-tools',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ManagerTellerUserIdRoute = ManagerTellerUserIdRouteImport.update({
   id: '/teller/$userId',
   path: '/teller/$userId',
   getParentRoute: () => ManagerRoute,
 } as any)
+const Char91DotmcpChar93InvokeToolToolRoute =
+  Char91DotmcpChar93InvokeToolToolRouteImport.update({
+    id: '/.mcp/invoke-tool/$tool',
+    path: '/.mcp/invoke-tool/$tool',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -257,11 +284,14 @@ export interface FileRoutesByFullPath {
   '/internal-transactions': typeof InternalTransactionsRoute
   '/login': typeof LoginRoute
   '/manager': typeof ManagerRouteWithChildren
+  '/mcp': typeof McpRoute
   '/payments': typeof PaymentsRoute
   '/pending': typeof PendingRoute
   '/settings': typeof SettingsRoute
   '/teller-float': typeof TellerFloatRoute
   '/withdrawals': typeof WithdrawalsRoute
+  '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin/approvals': typeof AdminApprovalsRoute
   '/admin/audit': typeof AdminAuditRoute
   '/admin/branches': typeof AdminBranchesRoute
@@ -284,6 +314,7 @@ export interface FileRoutesByFullPath {
   '/admin/': typeof AdminIndexRoute
   '/finance/': typeof FinanceIndexRoute
   '/manager/': typeof ManagerIndexRoute
+  '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/manager/teller/$userId': typeof ManagerTellerUserIdRoute
 }
 export interface FileRoutesByTo {
@@ -295,11 +326,14 @@ export interface FileRoutesByTo {
   '/failed': typeof FailedRoute
   '/internal-transactions': typeof InternalTransactionsRoute
   '/login': typeof LoginRoute
+  '/mcp': typeof McpRoute
   '/payments': typeof PaymentsRoute
   '/pending': typeof PendingRoute
   '/settings': typeof SettingsRoute
   '/teller-float': typeof TellerFloatRoute
   '/withdrawals': typeof WithdrawalsRoute
+  '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin/approvals': typeof AdminApprovalsRoute
   '/admin/audit': typeof AdminAuditRoute
   '/admin/branches': typeof AdminBranchesRoute
@@ -322,6 +356,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminIndexRoute
   '/finance': typeof FinanceIndexRoute
   '/manager': typeof ManagerIndexRoute
+  '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/manager/teller/$userId': typeof ManagerTellerUserIdRoute
 }
 export interface FileRoutesById {
@@ -337,11 +372,14 @@ export interface FileRoutesById {
   '/internal-transactions': typeof InternalTransactionsRoute
   '/login': typeof LoginRoute
   '/manager': typeof ManagerRouteWithChildren
+  '/mcp': typeof McpRoute
   '/payments': typeof PaymentsRoute
   '/pending': typeof PendingRoute
   '/settings': typeof SettingsRoute
   '/teller-float': typeof TellerFloatRoute
   '/withdrawals': typeof WithdrawalsRoute
+  '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin/approvals': typeof AdminApprovalsRoute
   '/admin/audit': typeof AdminAuditRoute
   '/admin/branches': typeof AdminBranchesRoute
@@ -364,6 +402,7 @@ export interface FileRoutesById {
   '/admin/': typeof AdminIndexRoute
   '/finance/': typeof FinanceIndexRoute
   '/manager/': typeof ManagerIndexRoute
+  '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/manager/teller/$userId': typeof ManagerTellerUserIdRoute
 }
 export interface FileRouteTypes {
@@ -380,11 +419,14 @@ export interface FileRouteTypes {
     | '/internal-transactions'
     | '/login'
     | '/manager'
+    | '/mcp'
     | '/payments'
     | '/pending'
     | '/settings'
     | '/teller-float'
     | '/withdrawals'
+    | '/.mcp/list-tools'
+    | '/.well-known/oauth-protected-resource'
     | '/admin/approvals'
     | '/admin/audit'
     | '/admin/branches'
@@ -407,6 +449,7 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/finance/'
     | '/manager/'
+    | '/.mcp/invoke-tool/$tool'
     | '/manager/teller/$userId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -418,11 +461,14 @@ export interface FileRouteTypes {
     | '/failed'
     | '/internal-transactions'
     | '/login'
+    | '/mcp'
     | '/payments'
     | '/pending'
     | '/settings'
     | '/teller-float'
     | '/withdrawals'
+    | '/.mcp/list-tools'
+    | '/.well-known/oauth-protected-resource'
     | '/admin/approvals'
     | '/admin/audit'
     | '/admin/branches'
@@ -445,6 +491,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/finance'
     | '/manager'
+    | '/.mcp/invoke-tool/$tool'
     | '/manager/teller/$userId'
   id:
     | '__root__'
@@ -459,11 +506,14 @@ export interface FileRouteTypes {
     | '/internal-transactions'
     | '/login'
     | '/manager'
+    | '/mcp'
     | '/payments'
     | '/pending'
     | '/settings'
     | '/teller-float'
     | '/withdrawals'
+    | '/.mcp/list-tools'
+    | '/.well-known/oauth-protected-resource'
     | '/admin/approvals'
     | '/admin/audit'
     | '/admin/branches'
@@ -486,6 +536,7 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/finance/'
     | '/manager/'
+    | '/.mcp/invoke-tool/$tool'
     | '/manager/teller/$userId'
   fileRoutesById: FileRoutesById
 }
@@ -501,11 +552,15 @@ export interface RootRouteChildren {
   InternalTransactionsRoute: typeof InternalTransactionsRoute
   LoginRoute: typeof LoginRoute
   ManagerRoute: typeof ManagerRouteWithChildren
+  McpRoute: typeof McpRoute
   PaymentsRoute: typeof PaymentsRoute
   PendingRoute: typeof PendingRoute
   SettingsRoute: typeof SettingsRoute
   TellerFloatRoute: typeof TellerFloatRoute
   WithdrawalsRoute: typeof WithdrawalsRoute
+  Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
+  Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -543,6 +598,13 @@ declare module '@tanstack/react-router' {
       path: '/payments'
       fullPath: '/payments'
       preLoaderRoute: typeof PaymentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mcp': {
+      id: '/mcp'
+      path: '/mcp'
+      fullPath: '/mcp'
+      preLoaderRoute: typeof McpRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/manager': {
@@ -776,12 +838,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminApprovalsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/.well-known/oauth-protected-resource': {
+      id: '/.well-known/oauth-protected-resource'
+      path: '/.well-known/oauth-protected-resource'
+      fullPath: '/.well-known/oauth-protected-resource'
+      preLoaderRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.mcp/list-tools': {
+      id: '/.mcp/list-tools'
+      path: '/.mcp/list-tools'
+      fullPath: '/.mcp/list-tools'
+      preLoaderRoute: typeof Char91DotmcpChar93ListToolsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/manager/teller/$userId': {
       id: '/manager/teller/$userId'
       path: '/teller/$userId'
       fullPath: '/manager/teller/$userId'
       preLoaderRoute: typeof ManagerTellerUserIdRouteImport
       parentRoute: typeof ManagerRoute
+    }
+    '/.mcp/invoke-tool/$tool': {
+      id: '/.mcp/invoke-tool/$tool'
+      path: '/.mcp/invoke-tool/$tool'
+      fullPath: '/.mcp/invoke-tool/$tool'
+      preLoaderRoute: typeof Char91DotmcpChar93InvokeToolToolRouteImport
+      parentRoute: typeof rootRouteImport
     }
   }
 }
@@ -870,11 +953,16 @@ const rootRouteChildren: RootRouteChildren = {
   InternalTransactionsRoute: InternalTransactionsRoute,
   LoginRoute: LoginRoute,
   ManagerRoute: ManagerRouteWithChildren,
+  McpRoute: McpRoute,
   PaymentsRoute: PaymentsRoute,
   PendingRoute: PendingRoute,
   SettingsRoute: SettingsRoute,
   TellerFloatRoute: TellerFloatRoute,
   WithdrawalsRoute: WithdrawalsRoute,
+  Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,
+  Char91DotwellKnownChar93OauthProtectedResourceRoute:
+    Char91DotwellKnownChar93OauthProtectedResourceRoute,
+  Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
