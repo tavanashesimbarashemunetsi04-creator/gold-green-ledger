@@ -11,11 +11,22 @@ import { Loader2 } from "lucide-react";
 import logoMark from "@/assets/logo-mark.png";
 
 export const Route = createFileRoute("/login")({
+  validateSearch: (s: Record<string, unknown>) => ({
+    next: typeof s.next === "string" ? s.next : "",
+  }),
   component: LoginPage,
 });
 
+function safeNext(next: string): string {
+  if (!next.startsWith("/") || next.startsWith("//")) return "/";
+  return next;
+}
+
 function LoginPage() {
-  const navigate = useNavigate();
+  const _navigate = useNavigate();
+  void _navigate;
+  const { next } = Route.useSearch();
+  const target = safeNext(next || "/");
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -24,9 +35,9 @@ function LoginPage() {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate({ to: "/" });
+      if (data.session) window.location.replace(target);
     });
-  }, [navigate]);
+  }, [target]);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,7 +48,7 @@ function LoginPage() {
           email,
           password,
           options: {
-            emailRedirectTo: window.location.origin,
+            emailRedirectTo: window.location.origin + target,
             data: { display_name: displayName || email },
           },
         });
@@ -48,7 +59,7 @@ function LoginPage() {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         toast.success("Signed in");
-        navigate({ to: "/" });
+        window.location.replace(target);
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Authentication failed";
@@ -61,7 +72,7 @@ function LoginPage() {
   const google = async () => {
     setBusy(true);
     const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
+      redirect_uri: window.location.origin + target,
     });
     if (result.error) {
       toast.error("Google sign-in failed");
@@ -69,7 +80,7 @@ function LoginPage() {
       return;
     }
     if (result.redirected) return;
-    navigate({ to: "/" });
+    window.location.replace(target);
   };
 
   return (
