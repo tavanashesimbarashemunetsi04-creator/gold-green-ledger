@@ -9,124 +9,54 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as WithdrawalsRouteImport } from './routes/withdrawals'
-import { Route as TellerFloatRouteImport } from './routes/teller-float'
-import { Route as SettingsRouteImport } from './routes/settings'
-import { Route as PendingRouteImport } from './routes/pending'
-import { Route as PaymentsRouteImport } from './routes/payments'
-import { Route as McpRouteImport } from './routes/mcp'
-import { Route as ManagerRouteImport } from './routes/manager'
-import { Route as LoginRouteImport } from './routes/login'
-import { Route as InternalTransactionsRouteImport } from './routes/internal-transactions'
-import { Route as FinanceRouteImport } from './routes/finance'
-import { Route as FailedRouteImport } from './routes/failed'
-import { Route as EndDayRouteImport } from './routes/end-day'
-import { Route as EcocashRouteImport } from './routes/ecocash'
-import { Route as ChangesRefundsRouteImport } from './routes/changes-refunds'
-import { Route as AdminRouteImport } from './routes/admin'
-import { Route as AccountRouteImport } from './routes/account'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as ManagerIndexRouteImport } from './routes/manager.index'
-import { Route as FinanceIndexRouteImport } from './routes/finance.index'
-import { Route as AdminIndexRouteImport } from './routes/admin.index'
-import { Route as ManagerBalancingRouteImport } from './routes/manager.balancing'
-import { Route as ManagerAuditRouteImport } from './routes/manager.audit'
-import { Route as FinanceTellersRouteImport } from './routes/finance.tellers'
-import { Route as FinanceSettingsRouteImport } from './routes/finance.settings'
-import { Route as FinanceReportsRouteImport } from './routes/finance.reports'
-import { Route as FinanceReceivedCashRouteImport } from './routes/finance.received-cash'
-import { Route as FinanceFloatRouteImport } from './routes/finance.float'
-import { Route as FinanceCashUpdateRouteImport } from './routes/finance.cash-update'
-import { Route as FinanceAuditRouteImport } from './routes/finance.audit'
-import { Route as AdminUsersRouteImport } from './routes/admin.users'
-import { Route as AdminTransactionsRouteImport } from './routes/admin.transactions'
-import { Route as AdminTellersRouteImport } from './routes/admin.tellers'
-import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
-import { Route as AdminSecurityRouteImport } from './routes/admin.security'
-import { Route as AdminReportsRouteImport } from './routes/admin.reports'
-import { Route as AdminFloatRouteImport } from './routes/admin.float'
-import { Route as AdminBranchesRouteImport } from './routes/admin.branches'
-import { Route as AdminAuditRouteImport } from './routes/admin.audit'
-import { Route as AdminApprovalsRouteImport } from './routes/admin.approvals'
-import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
+import { Route as AccountRouteImport } from './routes/account'
+import { Route as AdminRouteImport } from './routes/admin'
+import { Route as ChangesRefundsRouteImport } from './routes/changes-refunds'
+import { Route as EcocashRouteImport } from './routes/ecocash'
+import { Route as EndDayRouteImport } from './routes/end-day'
+import { Route as FailedRouteImport } from './routes/failed'
+import { Route as FinanceRouteImport } from './routes/finance'
+import { Route as InternalTransactionsRouteImport } from './routes/internal-transactions'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as ManagerRouteImport } from './routes/manager'
+import { Route as McpRouteImport } from './routes/mcp'
+import { Route as PaymentsRouteImport } from './routes/payments'
+import { Route as PendingRouteImport } from './routes/pending'
+import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as TellerFloatRouteImport } from './routes/teller-float'
+import { Route as WithdrawalsRouteImport } from './routes/withdrawals'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
-import { Route as ManagerTellerUserIdRouteImport } from './routes/manager.teller.$userId'
-import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
+import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
+import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as AdminApprovalsRouteImport } from './routes/admin.approvals'
+import { Route as AdminAuditRouteImport } from './routes/admin.audit'
+import { Route as AdminBranchesRouteImport } from './routes/admin.branches'
+import { Route as AdminFloatRouteImport } from './routes/admin.float'
+import { Route as AdminReportsRouteImport } from './routes/admin.reports'
+import { Route as AdminSecurityRouteImport } from './routes/admin.security'
+import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
+import { Route as AdminTellersRouteImport } from './routes/admin.tellers'
+import { Route as AdminTransactionsRouteImport } from './routes/admin.transactions'
+import { Route as AdminUsersRouteImport } from './routes/admin.users'
+import { Route as FinanceIndexRouteImport } from './routes/finance.index'
+import { Route as FinanceAuditRouteImport } from './routes/finance.audit'
+import { Route as FinanceCashUpdateRouteImport } from './routes/finance.cash-update'
+import { Route as FinanceFloatRouteImport } from './routes/finance.float'
+import { Route as FinanceReceivedCashRouteImport } from './routes/finance.received-cash'
+import { Route as FinanceReportsRouteImport } from './routes/finance.reports'
+import { Route as FinanceSettingsRouteImport } from './routes/finance.settings'
+import { Route as FinanceTellersRouteImport } from './routes/finance.tellers'
+import { Route as ManagerIndexRouteImport } from './routes/manager.index'
+import { Route as ManagerAuditRouteImport } from './routes/manager.audit'
+import { Route as ManagerBalancingRouteImport } from './routes/manager.balancing'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
+import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
+import { Route as ManagerTellerUserIdRouteImport } from './routes/manager.teller.$userId'
 
-const WithdrawalsRoute = WithdrawalsRouteImport.update({
-  id: '/withdrawals',
-  path: '/withdrawals',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const TellerFloatRoute = TellerFloatRouteImport.update({
-  id: '/teller-float',
-  path: '/teller-float',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SettingsRoute = SettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PendingRoute = PendingRouteImport.update({
-  id: '/pending',
-  path: '/pending',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PaymentsRoute = PaymentsRouteImport.update({
-  id: '/payments',
-  path: '/payments',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const McpRoute = McpRouteImport.update({
-  id: '/mcp',
-  path: '/mcp',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ManagerRoute = ManagerRouteImport.update({
-  id: '/manager',
-  path: '/manager',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const InternalTransactionsRoute = InternalTransactionsRouteImport.update({
-  id: '/internal-transactions',
-  path: '/internal-transactions',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FinanceRoute = FinanceRouteImport.update({
-  id: '/finance',
-  path: '/finance',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FailedRoute = FailedRouteImport.update({
-  id: '/failed',
-  path: '/failed',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const EndDayRoute = EndDayRouteImport.update({
-  id: '/end-day',
-  path: '/end-day',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const EcocashRoute = EcocashRouteImport.update({
-  id: '/ecocash',
-  path: '/ecocash',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ChangesRefundsRoute = ChangesRefundsRouteImport.update({
-  id: '/changes-refunds',
-  path: '/changes-refunds',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminRoute = AdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AccountRoute = AccountRouteImport.update({
@@ -134,114 +64,96 @@ const AccountRoute = AccountRouteImport.update({
   path: '/account',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ManagerIndexRoute = ManagerIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => ManagerRoute,
+const ChangesRefundsRoute = ChangesRefundsRouteImport.update({
+  id: '/changes-refunds',
+  path: '/changes-refunds',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const FinanceIndexRoute = FinanceIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => FinanceRoute,
+const EcocashRoute = EcocashRouteImport.update({
+  id: '/ecocash',
+  path: '/ecocash',
+  getParentRoute: () => rootRouteImport,
 } as any)
+const EndDayRoute = EndDayRouteImport.update({
+  id: '/end-day',
+  path: '/end-day',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FailedRoute = FailedRouteImport.update({
+  id: '/failed',
+  path: '/failed',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FinanceRoute = FinanceRouteImport.update({
+  id: '/finance',
+  path: '/finance',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InternalTransactionsRoute = InternalTransactionsRouteImport.update({
+  id: '/internal-transactions',
+  path: '/internal-transactions',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ManagerRoute = ManagerRouteImport.update({
+  id: '/manager',
+  path: '/manager',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const McpRoute = McpRouteImport.update({
+  id: '/mcp',
+  path: '/mcp',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PaymentsRoute = PaymentsRouteImport.update({
+  id: '/payments',
+  path: '/payments',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PendingRoute = PendingRouteImport.update({
+  id: '/pending',
+  path: '/pending',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TellerFloatRoute = TellerFloatRouteImport.update({
+  id: '/teller-float',
+  path: '/teller-float',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WithdrawalsRoute = WithdrawalsRouteImport.update({
+  id: '/withdrawals',
+  path: '/withdrawals',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const Char91DotmcpChar93ListToolsRoute =
+  Char91DotmcpChar93ListToolsRouteImport.update({
+    id: '/.mcp/list-tools',
+    path: '/.mcp/list-tools',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const Char91DotwellKnownChar93OauthProtectedResourceRoute =
+  Char91DotwellKnownChar93OauthProtectedResourceRouteImport.update({
+    id: '/.well-known/oauth-protected-resource',
+    path: '/.well-known/oauth-protected-resource',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => AdminRoute,
-} as any)
-const ManagerBalancingRoute = ManagerBalancingRouteImport.update({
-  id: '/balancing',
-  path: '/balancing',
-  getParentRoute: () => ManagerRoute,
-} as any)
-const ManagerAuditRoute = ManagerAuditRouteImport.update({
-  id: '/audit',
-  path: '/audit',
-  getParentRoute: () => ManagerRoute,
-} as any)
-const FinanceTellersRoute = FinanceTellersRouteImport.update({
-  id: '/tellers',
-  path: '/tellers',
-  getParentRoute: () => FinanceRoute,
-} as any)
-const FinanceSettingsRoute = FinanceSettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
-  getParentRoute: () => FinanceRoute,
-} as any)
-const FinanceReportsRoute = FinanceReportsRouteImport.update({
-  id: '/reports',
-  path: '/reports',
-  getParentRoute: () => FinanceRoute,
-} as any)
-const FinanceReceivedCashRoute = FinanceReceivedCashRouteImport.update({
-  id: '/received-cash',
-  path: '/received-cash',
-  getParentRoute: () => FinanceRoute,
-} as any)
-const FinanceFloatRoute = FinanceFloatRouteImport.update({
-  id: '/float',
-  path: '/float',
-  getParentRoute: () => FinanceRoute,
-} as any)
-const FinanceCashUpdateRoute = FinanceCashUpdateRouteImport.update({
-  id: '/cash-update',
-  path: '/cash-update',
-  getParentRoute: () => FinanceRoute,
-} as any)
-const FinanceAuditRoute = FinanceAuditRouteImport.update({
-  id: '/audit',
-  path: '/audit',
-  getParentRoute: () => FinanceRoute,
-} as any)
-const AdminUsersRoute = AdminUsersRouteImport.update({
-  id: '/users',
-  path: '/users',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminTransactionsRoute = AdminTransactionsRouteImport.update({
-  id: '/transactions',
-  path: '/transactions',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminTellersRoute = AdminTellersRouteImport.update({
-  id: '/tellers',
-  path: '/tellers',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminSettingsRoute = AdminSettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminSecurityRoute = AdminSecurityRouteImport.update({
-  id: '/security',
-  path: '/security',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminReportsRoute = AdminReportsRouteImport.update({
-  id: '/reports',
-  path: '/reports',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminFloatRoute = AdminFloatRouteImport.update({
-  id: '/float',
-  path: '/float',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminBranchesRoute = AdminBranchesRouteImport.update({
-  id: '/branches',
-  path: '/branches',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminAuditRoute = AdminAuditRouteImport.update({
-  id: '/audit',
-  path: '/audit',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminApprovalsRoute = AdminApprovalsRouteImport.update({
@@ -249,22 +161,110 @@ const AdminApprovalsRoute = AdminApprovalsRouteImport.update({
   path: '/approvals',
   getParentRoute: () => AdminRoute,
 } as any)
-const Char91DotwellKnownChar93OauthProtectedResourceRoute =
-  Char91DotwellKnownChar93OauthProtectedResourceRouteImport.update({
-    id: '/.well-known/oauth-protected-resource',
-    path: '/.well-known/oauth-protected-resource',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const Char91DotmcpChar93ListToolsRoute =
-  Char91DotmcpChar93ListToolsRouteImport.update({
-    id: '/.mcp/list-tools',
-    path: '/.mcp/list-tools',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ManagerTellerUserIdRoute = ManagerTellerUserIdRouteImport.update({
-  id: '/teller/$userId',
-  path: '/teller/$userId',
+const AdminAuditRoute = AdminAuditRouteImport.update({
+  id: '/audit',
+  path: '/audit',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminBranchesRoute = AdminBranchesRouteImport.update({
+  id: '/branches',
+  path: '/branches',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminFloatRoute = AdminFloatRouteImport.update({
+  id: '/float',
+  path: '/float',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminReportsRoute = AdminReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminSecurityRoute = AdminSecurityRouteImport.update({
+  id: '/security',
+  path: '/security',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminSettingsRoute = AdminSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminTellersRoute = AdminTellersRouteImport.update({
+  id: '/tellers',
+  path: '/tellers',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminTransactionsRoute = AdminTransactionsRouteImport.update({
+  id: '/transactions',
+  path: '/transactions',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminUsersRoute = AdminUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => AdminRoute,
+} as any)
+const FinanceIndexRoute = FinanceIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => FinanceRoute,
+} as any)
+const FinanceAuditRoute = FinanceAuditRouteImport.update({
+  id: '/audit',
+  path: '/audit',
+  getParentRoute: () => FinanceRoute,
+} as any)
+const FinanceCashUpdateRoute = FinanceCashUpdateRouteImport.update({
+  id: '/cash-update',
+  path: '/cash-update',
+  getParentRoute: () => FinanceRoute,
+} as any)
+const FinanceFloatRoute = FinanceFloatRouteImport.update({
+  id: '/float',
+  path: '/float',
+  getParentRoute: () => FinanceRoute,
+} as any)
+const FinanceReceivedCashRoute = FinanceReceivedCashRouteImport.update({
+  id: '/received-cash',
+  path: '/received-cash',
+  getParentRoute: () => FinanceRoute,
+} as any)
+const FinanceReportsRoute = FinanceReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => FinanceRoute,
+} as any)
+const FinanceSettingsRoute = FinanceSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => FinanceRoute,
+} as any)
+const FinanceTellersRoute = FinanceTellersRouteImport.update({
+  id: '/tellers',
+  path: '/tellers',
+  getParentRoute: () => FinanceRoute,
+} as any)
+const ManagerIndexRoute = ManagerIndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => ManagerRoute,
+} as any)
+const ManagerAuditRoute = ManagerAuditRouteImport.update({
+  id: '/audit',
+  path: '/audit',
+  getParentRoute: () => ManagerRoute,
+} as any)
+const ManagerBalancingRoute = ManagerBalancingRouteImport.update({
+  id: '/balancing',
+  path: '/balancing',
+  getParentRoute: () => ManagerRoute,
+} as any)
+const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
+  id: '/.lovable/oauth/consent',
+  path: '/.lovable/oauth/consent',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const Char91DotmcpChar93InvokeToolToolRoute =
   Char91DotmcpChar93InvokeToolToolRouteImport.update({
@@ -272,10 +272,10 @@ const Char91DotmcpChar93InvokeToolToolRoute =
     path: '/.mcp/invoke-tool/$tool',
     getParentRoute: () => rootRouteImport,
   } as any)
-const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
-  id: '/.lovable/oauth/consent',
-  path: '/.lovable/oauth/consent',
-  getParentRoute: () => rootRouteImport,
+const ManagerTellerUserIdRoute = ManagerTellerUserIdRouteImport.update({
+  id: '/teller/$userId',
+  path: '/teller/$userId',
+  getParentRoute: () => ManagerRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -578,109 +578,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/withdrawals': {
-      id: '/withdrawals'
-      path: '/withdrawals'
-      fullPath: '/withdrawals'
-      preLoaderRoute: typeof WithdrawalsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/teller-float': {
-      id: '/teller-float'
-      path: '/teller-float'
-      fullPath: '/teller-float'
-      preLoaderRoute: typeof TellerFloatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/settings': {
-      id: '/settings'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof SettingsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/pending': {
-      id: '/pending'
-      path: '/pending'
-      fullPath: '/pending'
-      preLoaderRoute: typeof PendingRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/payments': {
-      id: '/payments'
-      path: '/payments'
-      fullPath: '/payments'
-      preLoaderRoute: typeof PaymentsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/mcp': {
-      id: '/mcp'
-      path: '/mcp'
-      fullPath: '/mcp'
-      preLoaderRoute: typeof McpRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/manager': {
-      id: '/manager'
-      path: '/manager'
-      fullPath: '/manager'
-      preLoaderRoute: typeof ManagerRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/internal-transactions': {
-      id: '/internal-transactions'
-      path: '/internal-transactions'
-      fullPath: '/internal-transactions'
-      preLoaderRoute: typeof InternalTransactionsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/finance': {
-      id: '/finance'
-      path: '/finance'
-      fullPath: '/finance'
-      preLoaderRoute: typeof FinanceRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/failed': {
-      id: '/failed'
-      path: '/failed'
-      fullPath: '/failed'
-      preLoaderRoute: typeof FailedRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/end-day': {
-      id: '/end-day'
-      path: '/end-day'
-      fullPath: '/end-day'
-      preLoaderRoute: typeof EndDayRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/ecocash': {
-      id: '/ecocash'
-      path: '/ecocash'
-      fullPath: '/ecocash'
-      preLoaderRoute: typeof EcocashRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/changes-refunds': {
-      id: '/changes-refunds'
-      path: '/changes-refunds'
-      fullPath: '/changes-refunds'
-      preLoaderRoute: typeof ChangesRefundsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin': {
-      id: '/admin'
-      path: '/admin'
-      fullPath: '/admin'
-      preLoaderRoute: typeof AdminRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/account': {
@@ -690,172 +592,109 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AccountRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/manager/': {
-      id: '/manager/'
-      path: '/'
-      fullPath: '/manager/'
-      preLoaderRoute: typeof ManagerIndexRouteImport
-      parentRoute: typeof ManagerRoute
+    '/changes-refunds': {
+      id: '/changes-refunds'
+      path: '/changes-refunds'
+      fullPath: '/changes-refunds'
+      preLoaderRoute: typeof ChangesRefundsRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/finance/': {
-      id: '/finance/'
-      path: '/'
-      fullPath: '/finance/'
-      preLoaderRoute: typeof FinanceIndexRouteImport
-      parentRoute: typeof FinanceRoute
+    '/ecocash': {
+      id: '/ecocash'
+      path: '/ecocash'
+      fullPath: '/ecocash'
+      preLoaderRoute: typeof EcocashRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/admin/': {
-      id: '/admin/'
-      path: '/'
-      fullPath: '/admin/'
-      preLoaderRoute: typeof AdminIndexRouteImport
-      parentRoute: typeof AdminRoute
+    '/end-day': {
+      id: '/end-day'
+      path: '/end-day'
+      fullPath: '/end-day'
+      preLoaderRoute: typeof EndDayRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/manager/balancing': {
-      id: '/manager/balancing'
-      path: '/balancing'
-      fullPath: '/manager/balancing'
-      preLoaderRoute: typeof ManagerBalancingRouteImport
-      parentRoute: typeof ManagerRoute
+    '/failed': {
+      id: '/failed'
+      path: '/failed'
+      fullPath: '/failed'
+      preLoaderRoute: typeof FailedRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/manager/audit': {
-      id: '/manager/audit'
-      path: '/audit'
-      fullPath: '/manager/audit'
-      preLoaderRoute: typeof ManagerAuditRouteImport
-      parentRoute: typeof ManagerRoute
+    '/finance': {
+      id: '/finance'
+      path: '/finance'
+      fullPath: '/finance'
+      preLoaderRoute: typeof FinanceRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/finance/tellers': {
-      id: '/finance/tellers'
-      path: '/tellers'
-      fullPath: '/finance/tellers'
-      preLoaderRoute: typeof FinanceTellersRouteImport
-      parentRoute: typeof FinanceRoute
+    '/internal-transactions': {
+      id: '/internal-transactions'
+      path: '/internal-transactions'
+      fullPath: '/internal-transactions'
+      preLoaderRoute: typeof InternalTransactionsRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/finance/settings': {
-      id: '/finance/settings'
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/manager': {
+      id: '/manager'
+      path: '/manager'
+      fullPath: '/manager'
+      preLoaderRoute: typeof ManagerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mcp': {
+      id: '/mcp'
+      path: '/mcp'
+      fullPath: '/mcp'
+      preLoaderRoute: typeof McpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/payments': {
+      id: '/payments'
+      path: '/payments'
+      fullPath: '/payments'
+      preLoaderRoute: typeof PaymentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pending': {
+      id: '/pending'
+      path: '/pending'
+      fullPath: '/pending'
+      preLoaderRoute: typeof PendingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
       path: '/settings'
-      fullPath: '/finance/settings'
-      preLoaderRoute: typeof FinanceSettingsRouteImport
-      parentRoute: typeof FinanceRoute
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/finance/reports': {
-      id: '/finance/reports'
-      path: '/reports'
-      fullPath: '/finance/reports'
-      preLoaderRoute: typeof FinanceReportsRouteImport
-      parentRoute: typeof FinanceRoute
+    '/teller-float': {
+      id: '/teller-float'
+      path: '/teller-float'
+      fullPath: '/teller-float'
+      preLoaderRoute: typeof TellerFloatRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/finance/received-cash': {
-      id: '/finance/received-cash'
-      path: '/received-cash'
-      fullPath: '/finance/received-cash'
-      preLoaderRoute: typeof FinanceReceivedCashRouteImport
-      parentRoute: typeof FinanceRoute
-    }
-    '/finance/float': {
-      id: '/finance/float'
-      path: '/float'
-      fullPath: '/finance/float'
-      preLoaderRoute: typeof FinanceFloatRouteImport
-      parentRoute: typeof FinanceRoute
-    }
-    '/finance/cash-update': {
-      id: '/finance/cash-update'
-      path: '/cash-update'
-      fullPath: '/finance/cash-update'
-      preLoaderRoute: typeof FinanceCashUpdateRouteImport
-      parentRoute: typeof FinanceRoute
-    }
-    '/finance/audit': {
-      id: '/finance/audit'
-      path: '/audit'
-      fullPath: '/finance/audit'
-      preLoaderRoute: typeof FinanceAuditRouteImport
-      parentRoute: typeof FinanceRoute
-    }
-    '/admin/users': {
-      id: '/admin/users'
-      path: '/users'
-      fullPath: '/admin/users'
-      preLoaderRoute: typeof AdminUsersRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/transactions': {
-      id: '/admin/transactions'
-      path: '/transactions'
-      fullPath: '/admin/transactions'
-      preLoaderRoute: typeof AdminTransactionsRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/tellers': {
-      id: '/admin/tellers'
-      path: '/tellers'
-      fullPath: '/admin/tellers'
-      preLoaderRoute: typeof AdminTellersRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/settings': {
-      id: '/admin/settings'
-      path: '/settings'
-      fullPath: '/admin/settings'
-      preLoaderRoute: typeof AdminSettingsRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/security': {
-      id: '/admin/security'
-      path: '/security'
-      fullPath: '/admin/security'
-      preLoaderRoute: typeof AdminSecurityRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/reports': {
-      id: '/admin/reports'
-      path: '/reports'
-      fullPath: '/admin/reports'
-      preLoaderRoute: typeof AdminReportsRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/float': {
-      id: '/admin/float'
-      path: '/float'
-      fullPath: '/admin/float'
-      preLoaderRoute: typeof AdminFloatRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/branches': {
-      id: '/admin/branches'
-      path: '/branches'
-      fullPath: '/admin/branches'
-      preLoaderRoute: typeof AdminBranchesRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/audit': {
-      id: '/admin/audit'
-      path: '/audit'
-      fullPath: '/admin/audit'
-      preLoaderRoute: typeof AdminAuditRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/approvals': {
-      id: '/admin/approvals'
-      path: '/approvals'
-      fullPath: '/admin/approvals'
-      preLoaderRoute: typeof AdminApprovalsRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/.well-known/oauth-protected-resource': {
-      id: '/.well-known/oauth-protected-resource'
-      path: '/.well-known/oauth-protected-resource'
-      fullPath: '/.well-known/oauth-protected-resource'
-      preLoaderRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRouteImport
+    '/withdrawals': {
+      id: '/withdrawals'
+      path: '/withdrawals'
+      fullPath: '/withdrawals'
+      preLoaderRoute: typeof WithdrawalsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/.mcp/list-tools': {
@@ -865,12 +704,173 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof Char91DotmcpChar93ListToolsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/manager/teller/$userId': {
-      id: '/manager/teller/$userId'
-      path: '/teller/$userId'
-      fullPath: '/manager/teller/$userId'
-      preLoaderRoute: typeof ManagerTellerUserIdRouteImport
+    '/.well-known/oauth-protected-resource': {
+      id: '/.well-known/oauth-protected-resource'
+      path: '/.well-known/oauth-protected-resource'
+      fullPath: '/.well-known/oauth-protected-resource'
+      preLoaderRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/approvals': {
+      id: '/admin/approvals'
+      path: '/approvals'
+      fullPath: '/admin/approvals'
+      preLoaderRoute: typeof AdminApprovalsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/audit': {
+      id: '/admin/audit'
+      path: '/audit'
+      fullPath: '/admin/audit'
+      preLoaderRoute: typeof AdminAuditRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/branches': {
+      id: '/admin/branches'
+      path: '/branches'
+      fullPath: '/admin/branches'
+      preLoaderRoute: typeof AdminBranchesRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/float': {
+      id: '/admin/float'
+      path: '/float'
+      fullPath: '/admin/float'
+      preLoaderRoute: typeof AdminFloatRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/reports': {
+      id: '/admin/reports'
+      path: '/reports'
+      fullPath: '/admin/reports'
+      preLoaderRoute: typeof AdminReportsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/security': {
+      id: '/admin/security'
+      path: '/security'
+      fullPath: '/admin/security'
+      preLoaderRoute: typeof AdminSecurityRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/settings': {
+      id: '/admin/settings'
+      path: '/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AdminSettingsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/tellers': {
+      id: '/admin/tellers'
+      path: '/tellers'
+      fullPath: '/admin/tellers'
+      preLoaderRoute: typeof AdminTellersRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/transactions': {
+      id: '/admin/transactions'
+      path: '/transactions'
+      fullPath: '/admin/transactions'
+      preLoaderRoute: typeof AdminTransactionsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/users': {
+      id: '/admin/users'
+      path: '/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AdminUsersRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/finance/': {
+      id: '/finance/'
+      path: '/'
+      fullPath: '/finance/'
+      preLoaderRoute: typeof FinanceIndexRouteImport
+      parentRoute: typeof FinanceRoute
+    }
+    '/finance/audit': {
+      id: '/finance/audit'
+      path: '/audit'
+      fullPath: '/finance/audit'
+      preLoaderRoute: typeof FinanceAuditRouteImport
+      parentRoute: typeof FinanceRoute
+    }
+    '/finance/cash-update': {
+      id: '/finance/cash-update'
+      path: '/cash-update'
+      fullPath: '/finance/cash-update'
+      preLoaderRoute: typeof FinanceCashUpdateRouteImport
+      parentRoute: typeof FinanceRoute
+    }
+    '/finance/float': {
+      id: '/finance/float'
+      path: '/float'
+      fullPath: '/finance/float'
+      preLoaderRoute: typeof FinanceFloatRouteImport
+      parentRoute: typeof FinanceRoute
+    }
+    '/finance/received-cash': {
+      id: '/finance/received-cash'
+      path: '/received-cash'
+      fullPath: '/finance/received-cash'
+      preLoaderRoute: typeof FinanceReceivedCashRouteImport
+      parentRoute: typeof FinanceRoute
+    }
+    '/finance/reports': {
+      id: '/finance/reports'
+      path: '/reports'
+      fullPath: '/finance/reports'
+      preLoaderRoute: typeof FinanceReportsRouteImport
+      parentRoute: typeof FinanceRoute
+    }
+    '/finance/settings': {
+      id: '/finance/settings'
+      path: '/settings'
+      fullPath: '/finance/settings'
+      preLoaderRoute: typeof FinanceSettingsRouteImport
+      parentRoute: typeof FinanceRoute
+    }
+    '/finance/tellers': {
+      id: '/finance/tellers'
+      path: '/tellers'
+      fullPath: '/finance/tellers'
+      preLoaderRoute: typeof FinanceTellersRouteImport
+      parentRoute: typeof FinanceRoute
+    }
+    '/manager/': {
+      id: '/manager/'
+      path: '/'
+      fullPath: '/manager/'
+      preLoaderRoute: typeof ManagerIndexRouteImport
       parentRoute: typeof ManagerRoute
+    }
+    '/manager/audit': {
+      id: '/manager/audit'
+      path: '/audit'
+      fullPath: '/manager/audit'
+      preLoaderRoute: typeof ManagerAuditRouteImport
+      parentRoute: typeof ManagerRoute
+    }
+    '/manager/balancing': {
+      id: '/manager/balancing'
+      path: '/balancing'
+      fullPath: '/manager/balancing'
+      preLoaderRoute: typeof ManagerBalancingRouteImport
+      parentRoute: typeof ManagerRoute
+    }
+    '/.lovable/oauth/consent': {
+      id: '/.lovable/oauth/consent'
+      path: '/.lovable/oauth/consent'
+      fullPath: '/.lovable/oauth/consent'
+      preLoaderRoute: typeof DotlovableOauthConsentRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/.mcp/invoke-tool/$tool': {
       id: '/.mcp/invoke-tool/$tool'
@@ -879,12 +879,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof Char91DotmcpChar93InvokeToolToolRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/.lovable/oauth/consent': {
-      id: '/.lovable/oauth/consent'
-      path: '/.lovable/oauth/consent'
-      fullPath: '/.lovable/oauth/consent'
-      preLoaderRoute: typeof DotlovableOauthConsentRouteImport
-      parentRoute: typeof rootRouteImport
+    '/manager/teller/$userId': {
+      id: '/manager/teller/$userId'
+      path: '/teller/$userId'
+      fullPath: '/manager/teller/$userId'
+      preLoaderRoute: typeof ManagerTellerUserIdRouteImport
+      parentRoute: typeof ManagerRoute
     }
   }
 }
